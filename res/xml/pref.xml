@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	Copyright (C) 2010 Herbert von Broeuschmeul
+	Copyright (C) 2010 BluetoothGPS4Droid Project
+	  
+	This file is part of BluetoothGPS4Droid.
+	
+	BluetoothGPS4Droid is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	
+	BluetoothGPS4Droid is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
+-->
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:title="@string/app_name">
+	<ListPreference 
+		android:dialogTitle="@string/pref_bluetooth_device_title"
+		android:title="@string/pref_bluetooth_device_title" 
+		android:key="@string/pref_bluetooth_device_key" 	
+		android:summary="@string/pref_bluetooth_device_summary" />
+	<CheckBoxPreference 
+		android:enabled="true"
+		android:key="@string/pref_start_gps_key"
+		android:persistent="true"
+		android:title="@string/pref_start_gps_title"
+		android:summaryOn="@string/pref_start_gps_summary_on"
+		android:summaryOff="@string/pref_start_gps_summary_off" />
+	<PreferenceScreen android:title="@string/pref_recording_params_title"
+		android:enabled="false">
+	<EditTextPreference
+		android:key="@string/pref_mintime_key"
+		android:title="@string/pref_mintime_title"
+		android:defaultValue="@string/defaultTrackMinTime"
+		android:summary="@string/pref_mintime_summary" 
+		android:inputType="number"/>
+	<EditTextPreference
+		android:key="@string/pref_mindistance_key"
+		android:title="@string/pref_mindistance_title"
+		android:defaultValue="@string/defaultTrackMinDistance"
+		android:inputType="numberDecimal"
+		android:summary="@string/pref_mindistance_summary" />
+	</PreferenceScreen>
+	<CheckBoxPreference
+		android:dependency="@string/pref_start_gps_key"
+		android:enabled="true"
+		android:key="@string/pref_recording_key"
+		android:persistent="true"
+		android:title="@string/pref_recording_title"
+		android:summaryOn="@string/pref_recording_summary_on"
+		android:summaryOff="@string/pref_recording_summary_off" />
+	<PreferenceScreen android:title="@string/pref_recording_params_title">
+	<EditTextPreference
+		android:key="@string/pref_trackfile_directory_key"
+		android:title="@string/pref_trackfile_directory_title"
+		android:defaultValue="@string/defaultTrackFileDirectory"
+		android:summary="@string/pref_trackfile_directory_summary" />
+	<EditTextPreference
+		android:key="@string/pref_trackfile_prefix_key"
+		android:title="@string/pref_trackfile_prefix_title"
+		android:defaultValue="@string/defaultTrackFilePrefix"
+		android:summary="@string/pref_trackfile_prefix_summary" />
+	</PreferenceScreen>
+</PreferenceScreen>

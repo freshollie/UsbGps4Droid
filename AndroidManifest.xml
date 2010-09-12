@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	Copyright (C) 2010 Herbert von Broeuschmeul
+	Copyright (C) 2010 BluetoothGPS4Droid Project
+	  
+	This file is part of BluetoothGPS4Droid.
+	
+	BluetoothGPS4Droid is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	
+	BluetoothGPS4Droid is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="org.broeuschmeul.android.gps.bluetooth.provider"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:allowClearUserData="true">
+        <activity android:name=".BluetoothGpsActivity"
+                  android:label="@string/app_name"
+                  android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+<!--  
+		<service android:name=".BluetoothGpsProviderService" android:enabled="true" android:exported="true" android:process=":BluetoothGpsProviderService" >
+-->
+		<service android:name=".BluetoothGpsProviderService" android:enabled="true" android:exported="true" >
+			<intent-filter>
+				<action android:name="org.broeuschmeul.android.gps.bluetooth.tracker.nmea.intent.action.START_TRACK_RECORDING">
+					<category android:name="android.intent.category.DEFAULT" />
+				</action>
+				<action android:name="org.broeuschmeul.android.gps.bluetooth.tracker.nmea.intent.action.STOP_TRACK_RECORDING">
+					<category android:name="android.intent.category.DEFAULT" />
+				</action>
+				<action android:name="org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.START_GPS_PROVIDER">
+					<category android:name="android.intent.category.DEFAULT" />
+				</action>
+				<action android:name="org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.STOP_GPS_PROVIDER">
+					<category android:name="android.intent.category.DEFAULT" />
+				</action>
+			</intent-filter>			
+		</service>
+
+    </application>
+
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.BLUETOOTH" />
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+	<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+	
+	<uses-sdk android:targetSdkVersion="5" android:minSdkVersion="5" />
+</manifest> 

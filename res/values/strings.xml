@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	Copyright (C) 2010 Herbert von Broeuschmeul
+	Copyright (C) 2010 BluetoothGPS4Droid Project
+	  
+	This file is part of BluetoothGPS4Droid.
+	
+	BluetoothGPS4Droid is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	
+	BluetoothGPS4Droid is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
+-->
+<resources>
+    <string name="app_name">BlueGps</string>
+    
+    <string name="sirf_gga_on">PSRF103,00,00,01,01</string>
+    <string name="sirf_gll_on">PSRF103,01,00,01,01</string>
+    <string name="sirf_gll_off">PSRF103,01,00,00,01</string>
+    <string name="sirf_gsa_on">PSRF103,02,00,05,01</string>
+    <string name="sirf_gsv_on">PSRF103,03,00,05,01</string>
+    <string name="sirf_rmc_on">PSRF103,04,00,01,01</string>
+    <string name="sirf_vtg_on">PSRF103,05,00,01,01</string>
+    <string name="sirf_vtg_off">PSRF103,05,00,00,01</string>
+<!--
+    <string name="sirf_waas_on">$PSRF151,01*0F</string>
+    <string name="sirf_waas_off">$PSRF151,00*0E</string>  
+-->
+    <string name="sirf_waas_on">PSRF151,01</string>
+    <string name="sirf_waas_off">PSRF151,00</string>
+    
+    <string name="sirf_nmea4800_on1">A0A20018 8102010100010501050100010001000100010001000112C0 016AB0B3</string>
+    <string name="sirf_nmea_on2">A0A20002 8702 0089B0B3</string>
+    <string name="sirf_dgps_ext_on">A0A20007 85020000000000 0087B0B3</string>
+    <string name="sirf_dgps_sbas_on">A0A20007 85010000000000 0086B0B3</string>
+    
+    <string name="pref_start_gps_key">startGps</string>
+    <string name="pref_recording_key">trackRecording</string>
+    <string name="pref_mindistance_key">trackMinDistance</string>
+    <string name="pref_mintime_key">trackMinTime</string>
+    <string name="pref_trackfile_directory_key">trackFileDirectory</string>
+    <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
+    <string name="pref_bluetooth_device_key">bluetoothDevice</string>
+
+    <string name="defaultTrackMinDistance">0.0</string>
+    <string name="defaultTrackMinTime">0</string>
+    <string name="defaultTrackFileDirectory">/sdcard/nmea</string>
+    <string name="defaultTrackFilePrefix">btnmeatrack</string>
+    
+    <string name="pref_start_gps_title">Start/Stop GPS</string>
+    <string name="pref_start_gps_summary_off">Bluetooth GPS is off</string>
+    <string name="pref_start_gps_summary_on">Bluetooth GPS is on</string>
+    <string name="pref_start_gps_params_title">GPS Options</string>
+    <string name="pref_recording_title">Enable/Disable NMEA log</string>
+    <string name="pref_recording_summary_off">Track recording is off</string>
+    <string name="pref_recording_summary_on">Track recording is on</string>
+    <string name="pref_recording_params_title">Recording parameters</string>
+    <string name="pref_mintime_title">Time between records</string>
+    <string name="pref_mintime_summary">Time between records in milliseconds</string>
+    <string name="pref_mindistance_title">Distance between records</string>
+    <string name="pref_mindistance_summary">Distance between records in meters</string>
+    <string name="pref_trackfile_prefix_title">Trackfiles prefix</string>
+    <string name="pref_trackfile_prefix_summary">Select the prefix for the track files</string>
+    <string name="pref_trackfile_directory_title">Trackfiles directory</string>
+    <string name="pref_trackfile_directory_summary">Select the directory for the track files</string>
+    <string name="pref_bluetooth_device_title">Choose Bluetooth GPS</string>
+    <string name="pref_bluetooth_device_summary">"Current device: %s"</string>    
+
+    <string name="msg_gps_provider_started">Bluetooth GPS... started</string>
+    <string name="msg_gps_provider_stopped">Bluetooth GPS... stopped</string>
+    <string name="msg_gps_provider_already_started">Bluetooth GPS... is already on</string>
+    <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
+    <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
+    <string name="msg_nmea_recording_already_started">GPS track recording... is already on</string>
+    <string name="foreground_service_started_notification_title">BlueGps</string>
+    <string name="foreground_gps_provider_started_notification">BlueGps service started</string>
+    <string name="foreground_nmea_recording_started_notification">BlueGps NMEA recording service started</string>
+</resources>
