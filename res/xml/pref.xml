@@ -30,11 +30,13 @@
 		android:enabled="true"
 		android:key="@string/pref_start_gps_key"
 		android:persistent="true"
+		android:disableDependentsState = "false" 
 		android:title="@string/pref_start_gps_title"
 		android:summaryOn="@string/pref_start_gps_summary_on"
 		android:summaryOff="@string/pref_start_gps_summary_off" />
 	<PreferenceScreen android:title="@string/pref_recording_params_title"
-		android:enabled="false">
+		android:shouldDisableView = "true"
+		android:enabled="false" >
 	<EditTextPreference
 		android:key="@string/pref_mintime_key"
 		android:title="@string/pref_mintime_title"
@@ -56,7 +58,7 @@
 		android:title="@string/pref_recording_title"
 		android:summaryOn="@string/pref_recording_summary_on"
 		android:summaryOff="@string/pref_recording_summary_off" />
-	<PreferenceScreen android:title="@string/pref_recording_params_title">
+	<PreferenceScreen android:title="@string/pref_recording_params_title" >
 	<EditTextPreference
 		android:key="@string/pref_trackfile_directory_key"
 		android:title="@string/pref_trackfile_directory_title"
