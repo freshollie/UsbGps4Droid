@@ -34,7 +34,7 @@
 		android:title="@string/pref_start_gps_title"
 		android:summaryOn="@string/pref_start_gps_summary_on"
 		android:summaryOff="@string/pref_start_gps_summary_off" />
-	<PreferenceScreen android:title="@string/pref_recording_params_title"
+	<PreferenceScreen android:title="@string/pref_start_gps_params_title"
 		android:shouldDisableView = "true"
 		android:enabled="false" >
 	<EditTextPreference
