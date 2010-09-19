@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,12 +40,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.location.Criteria;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.location.GpsStatus.NmeaListener;
 import android.util.Log;
-import android.util.PrintStreamPrinter;
 
 public class BlueetoothGpsManager {
 
@@ -172,15 +168,6 @@ public class BlueetoothGpsManager {
 	    			if (gpsSocket == null){
 	    				Log.e("BT test", "Error while establishing connection: no socket");
 	    			} else {
-////	    				mockGpsEnabled = locationManager.isProviderEnabled(mockLocationProvider);
-//	    				LocationProvider prov = locationManager.getProvider(mockLocationProvider);
-//	    				Log.e("BT test", "Mock power: "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+locationManager.isProviderEnabled(mockLocationProvider));
-//	    				locationManager.addTestProvider(mockLocationProvider, false, true,false, false, 
-//	    						true, true, true, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
-////	    				locationManager.setTestProviderEnabled(mockLocationProvider, true);
-//	    				prov = locationManager.getProvider(mockLocationProvider);
-//	    				Log.e("BT test", "Mock power: "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+locationManager.isProviderEnabled(mockLocationProvider));
-
 	    				Runnable connectThread = new Runnable() {							
 							@Override
 							public void run() {
