@@ -62,6 +62,9 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.START_GPS_PROVIDER";
 	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.STOP_GPS_PROVIDER";
 	public static final String PREF_START_GPS_PROVIDER = "startGps";
+	public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
+	public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
+	public static final String PREF_MOCK_GPS_NAME = "mockGpsName";
 	public static final String PREF_TRACK_RECORDING = "trackRecording";
 	public static final String PREF_TRACK_MIN_DISTANCE = "trackMinDistance";
 	public static final String PREF_TRACK_MIN_TIME = "trackMinTime";
@@ -104,8 +107,13 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 				notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_gps_provider_started_notification), myPendingIntent);
 				startForeground(R.string.foreground_gps_provider_started_notification, notification);
 				if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
+					String mockProvider = LocationManager.GPS_PROVIDER;
+					if (! sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)){
+						mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+					}
 					gpsManager = new BlueetoothGpsManager(this, deviceAddress);
-					gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
+					gpsManager.enableMockLocationProvider(mockProvider);
+//					gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
 					gpsManager.enable();
 					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false)){
 						edit.putBoolean(PREF_START_GPS_PROVIDER,true);

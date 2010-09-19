@@ -20,9 +20,16 @@
 -->
 <resources>
     <string name="pref_start_gps_title">Start/Stop GPS</string>
-    <string name="pref_start_gps_summary_off">le GPS Bluetooth est arrêté</string>
-    <string name="pref_start_gps_summary_on">le GPS Bluetooth est démarré</string>
+    <string name="pref_start_gps_summary_off">Le GPS Bluetooth est arrêté</string>
+    <string name="pref_start_gps_summary_on">Le GPS Bluetooth est démarré</string>
     <string name="pref_start_gps_params_title">Options du GPS</string>
+    <string name="pref_gps_location_provider_title">Location provider options</string>
+    <string name="pref_gps_location_provider_summary">Le GPS Bluetooth remplacera le GPS interne</string>
+    <string name="pref_replace_std_gps_title">Remplacer le GPS interne</string>
+    <string name="pref_replace_std_gps_summary_on">Le GPS Bluetooth remplacera le GPS interne</string>
+    <string name="pref_replace_std_gps_summary_off">Un nouveau location provider sera utilisé</string>
+    <string name="pref_mock_gps_name_title">Nom du location provider</string>
+    <string name="pref_mock_gps_name_summary">Nom du GPS Bluetooth : %s</string>
     <string name="pref_recording_title">Activer/Désactiver NMEA log</string>
     <string name="pref_recording_summary_off">Enregistrement du GPS inactif</string>
     <string name="pref_recording_summary_on">Enregistrement du GPS actif</string>
