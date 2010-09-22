@@ -42,6 +42,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
+import android.os.Bundle;
 import android.util.Log;
 
 public class BlueetoothGpsManager {
@@ -83,6 +84,7 @@ public class BlueetoothGpsManager {
 					}
 				} catch (IOException e) {
 		        	Log.e("BT test", "error while getting data", e);
+		        	setMockLocationProviderOutOfService();
 				} finally {
 					disable();
 				}
@@ -277,6 +279,11 @@ public class BlueetoothGpsManager {
 		return mockLocationProvider;
 	}
 	
+	private void setMockLocationProviderOutOfService(){
+		if (parser != null){
+			parser.setMockLocationProviderOutOfService();
+		}
+	}
 
 	public boolean addNmeaListener(NmeaListener listener){
 		if (!nmeaListeners.contains(listener)){
@@ -304,5 +311,20 @@ public class BlueetoothGpsManager {
 				}
 			}
 		}
-	}		
+	}	
+	
+	public void sendPackagedNmeaCommand(String s){
+	}
+	public void sendPackagedSirfCommand(String s){
+	}
+	public void sendNmeaCommand(String s){
+		if (isEnabled()){
+			
+		}
+	}
+	public void sendSirfCommand(String payload){
+		if (isEnabled()){
+			
+		}
+	}
 }

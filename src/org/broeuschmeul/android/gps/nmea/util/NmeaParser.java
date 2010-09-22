@@ -46,6 +46,8 @@ public class NmeaParser {
 	private boolean mockGpsEnabled = false;
 	private String mockLocationProvider = null;
 	
+	private int mockStatus = LocationProvider.OUT_OF_SERVICE;
+	
 	private Location fix = new Location(mockLocationProvider);
 	
 	public NmeaParser(){
@@ -121,6 +123,7 @@ public class NmeaParser {
 		}
 		mockLocationProvider = null;
 		mockGpsEnabled = false;
+		mockStatus = LocationProvider.OUT_OF_SERVICE;
 	}
 
 	/**
@@ -130,6 +133,10 @@ public class NmeaParser {
 		return mockGpsEnabled;
 	}
 	
+	public void setMockLocationProviderOutOfService(){
+		notifyStatusChanged(LocationProvider.OUT_OF_SERVICE, null, System.currentTimeMillis());
+	}
+
 	/**
 	 * @return the mockLocationProvider
 	 */
@@ -149,6 +156,24 @@ public class NmeaParser {
 				Log.e(this.getClass().getSimpleName(), "New Fix notified to Location Manager: "+mockLocationProvider);
 			}
 			this.fix = null;
+		}
+	}
+	
+	private void notifyStatusChanged(int status, Bundle extras, long updateTime){
+		//R.drawable.stat
+		fixTime = null;
+		hasGGA = false;
+		hasRMC=false;
+		if (this.mockStatus != status){
+			Log.e(this.getClass().getSimpleName(), "New mockStatus: "+System.currentTimeMillis()+" "+status);
+			if (lm != null && mockGpsEnabled){
+				lm.setTestProviderStatus(mockLocationProvider, status, extras, updateTime);
+//				lm.setTestProviderStatus(mockLocationProvider, status, extras, SystemClock.elapsedRealtime());
+//				lm.setTestProviderStatus(mockLocationProvider, status, extras, 50);
+				Log.e(this.getClass().getSimpleName(), "New mockStatus notified to Location Manager: " + status + " "+mockLocationProvider);
+			}
+			this.fix = null;
+			this.mockStatus = status;
 		}
 	}
 	
@@ -223,6 +248,10 @@ public class NmeaParser {
 				// time in seconds since last DGPS update
 				// DGPS station ID number
 				if (quality != null && !quality.equals("") && !quality.equals("0") ){
+					if (this.mockStatus != LocationProvider.AVAILABLE){
+						long updateTime = parseNmeaTime(time);
+						notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
+					}				
 					if (! time.equals(fixTime)){
 						notifyFix(fix);
 						fix = new Location(mockLocationProvider);
@@ -253,7 +282,12 @@ public class NmeaParser {
 					if (hasGGA && hasRMC){
 						notifyFix(fix);
 					}
-				}		
+				} else if(quality.equals("0")){
+					if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE){
+						long updateTime = parseNmeaTime(time);
+						notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+					}				
+				}
 			} else if (command.equals("GPRMC")){
 				/* $GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
 	
@@ -294,6 +328,10 @@ public class NmeaParser {
 				// for NMEA 0183 version 3.00 active the Mode indicator field is added
 				// Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
 				if (status != null && !status.equals("") && status.equals("A") ){
+					if (this.mockStatus != LocationProvider.AVAILABLE){
+						long updateTime = parseNmeaTime(time);
+						notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
+					}				
 					if (! time.equals(fixTime)){
 						notifyFix(fix);
 						fix = new Location(mockLocationProvider);
@@ -319,6 +357,11 @@ public class NmeaParser {
 					if (hasGGA && hasRMC){
 						notifyFix(fix);
 					}
+				} else if(status.equals("V")){
+					if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE){
+						long updateTime = parseNmeaTime(time);
+						notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+					}				
 				}		
 			} else if (command.equals("GPGSA")){
 				/*  $GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39
