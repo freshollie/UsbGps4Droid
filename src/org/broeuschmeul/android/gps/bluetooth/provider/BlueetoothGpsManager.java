@@ -299,16 +299,19 @@ public class BlueetoothGpsManager {
 	
 	private void notifyNmeaSentence(final String nmeaSentence){
 		if (enabled){
-			parser.parseNmeaSentence(nmeaSentence);
+			final String recognizedSentence = parser.parseNmeaSentence(nmeaSentence);
 			final long timestamp = System.currentTimeMillis();
-			synchronized(nmeaListeners) {
-				for(final NmeaListener listener : nmeaListeners){
-					notificationPool.execute(new Runnable(){
-						@Override
-						public void run() {
-							listener.onNmeaReceived(timestamp, nmeaSentence);
-						}					 
-					});
+			if (recognizedSentence != null){
+				Log.e("BT test", "NMEA : "+timestamp+" "+recognizedSentence);
+				synchronized(nmeaListeners) {
+					for(final NmeaListener listener : nmeaListeners){
+						notificationPool.execute(new Runnable(){
+							@Override
+							public void run() {
+								listener.onNmeaReceived(timestamp, recognizedSentence);
+							}					 
+						});
+					}
 				}
 			}
 		}

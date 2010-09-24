@@ -73,6 +73,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
 	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
 
+	public static final String PREF_SIRF_GPS = "sirfGps";
 	public static final String PREF_SIRF_ENABLE_GLL = "enableGLL";
 	public static final String PREF_SIRF_ENABLE_VTG = "enableVTG";
 	public static final String PREF_SIRF_ENABLE_GSA = "enableGSA";
@@ -80,6 +81,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_SIRF_ENABLE_ZDA = "enableZDA";
 	public static final String PREF_SIRF_ENABLE_SBAS = "enableSBAS";
 	public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
+	public static final String PREF_SIRF_ENABLE_STATIC_NAVIGATION = "enableStaticNavigation";
 
 	
 	private LocationManager lm;
@@ -125,19 +127,23 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 					gpsManager.enableMockLocationProvider(mockProvider);
 //					gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
 					gpsManager.enable();
-    				String command1 = this.getString(R.string.sirf_nmea_gga_on);
-    				String command2 = this.getString(R.string.sirf_nmea_gsa_off);
-    				String command3 = this.getString(R.string.sirf_nmea_gsv_off);
-    				String command4 = this.getString(R.string.sirf_nmea_vtg_off);
-    				String command5 = this.getString(R.string.sirf_nmea_gll_off);
-    				String command6 = this.getString(R.string.sirf_nmea_rmc_on);
-    				gpsManager.sendNmeaCommand(command1);
-    				gpsManager.sendNmeaCommand(command2);
-    				gpsManager.sendNmeaCommand(command3);
-       				gpsManager.sendNmeaCommand(command4);
-       				gpsManager.sendNmeaCommand(command5);
-       				gpsManager.sendNmeaCommand(command6);
+//    				String command1 = this.getString(R.string.sirf_nmea_gga_on);
+//    				String command2 = this.getString(R.string.sirf_nmea_gsa_off);
+//    				String command3 = this.getString(R.string.sirf_nmea_gsv_off);
+//    				String command4 = this.getString(R.string.sirf_nmea_vtg_off);
+//    				String command5 = this.getString(R.string.sirf_nmea_gll_off);
+//    				String command6 = this.getString(R.string.sirf_nmea_rmc_on);
+//    				gpsManager.sendNmeaCommand(command1);
+//    				gpsManager.sendNmeaCommand(command2);
+//    				gpsManager.sendNmeaCommand(command3);
+//       				gpsManager.sendNmeaCommand(command4);
+//       				gpsManager.sendNmeaCommand(command5);
+//       				gpsManager.sendNmeaCommand(command6);
 					
+//					Bundle extras = intent.getExtras();
+					if (sharedPreferences.getBoolean(PREF_SIRF_GPS, false)){
+						enableSirfConfig(sharedPreferences);
+					}					
 					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false)){
 						edit.putBoolean(PREF_START_GPS_PROVIDER,true);
 						edit.commit();
@@ -201,23 +207,64 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		} else if (ACTION_CONFIGURE_SIRF_GPS.equals(intent.getAction())){
 			if (gpsManager != null){
 				Bundle extras = intent.getExtras();
-				if (extras.containsKey(PREF_SIRF_ENABLE_GLL)){
-					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GLL, false));
-				} else if (extras.containsKey(PREF_SIRF_ENABLE_VTG)){
-					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_VTG, false));
-				} else if (extras.containsKey(PREF_SIRF_ENABLE_GSA)){
-					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GSA, false));
-				} else if (extras.containsKey(PREF_SIRF_ENABLE_GSV)){
-					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GSV, false));
-				} else if (extras.containsKey(PREF_SIRF_ENABLE_ZDA)){
-					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_ZDA, false));
-				} else if (extras.containsKey(PREF_SIRF_ENABLE_SBAS)){
-					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, false));
-				} else if (extras.containsKey(PREF_SIRF_ENABLE_NMEA)){
-					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_NMEA, true));
-				}
+				enableSirfConfig(extras);
 			}
 		}
+	}
+	
+	private void enableSirfConfig(Bundle extras){
+		if (extras.containsKey(PREF_SIRF_ENABLE_GLL)){
+			enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GLL, false));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_VTG)){
+			enableNmeaVTG(extras.getBoolean(PREF_SIRF_ENABLE_VTG, false));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_GSA)){
+			enableNmeaGSA(extras.getBoolean(PREF_SIRF_ENABLE_GSA, false));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_GSV)){
+			enableNmeaGSV(extras.getBoolean(PREF_SIRF_ENABLE_GSV, false));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_ZDA)){
+			enableNmeaZDA(extras.getBoolean(PREF_SIRF_ENABLE_ZDA, false));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_SBAS)){
+			enableSBAS(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, true));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_STATIC_NAVIGATION)){
+			enableStaticNavigation(extras.getBoolean(PREF_SIRF_ENABLE_STATIC_NAVIGATION, false));
+		} 
+		if (extras.containsKey(PREF_SIRF_ENABLE_NMEA)){
+			enableNMEA(extras.getBoolean(PREF_SIRF_ENABLE_NMEA, true));
+		}
+	}
+	private void enableSirfConfig(SharedPreferences extras){
+		if (extras.contains(PREF_SIRF_ENABLE_GLL)){
+			enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GLL, false));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_VTG)){
+			enableNmeaVTG(extras.getBoolean(PREF_SIRF_ENABLE_VTG, false));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_GSA)){
+			enableNmeaGSA(extras.getBoolean(PREF_SIRF_ENABLE_GSA, false));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_GSV)){
+			enableNmeaGSV(extras.getBoolean(PREF_SIRF_ENABLE_GSV, false));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_ZDA)){
+			enableNmeaZDA(extras.getBoolean(PREF_SIRF_ENABLE_ZDA, false));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_SBAS)){
+			enableSBAS(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, true));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_STATIC_NAVIGATION)){
+			enableStaticNavigation(extras.getBoolean(PREF_SIRF_ENABLE_STATIC_NAVIGATION, false));
+		} 
+		if (extras.contains(PREF_SIRF_ENABLE_NMEA)){
+			enableNMEA(extras.getBoolean(PREF_SIRF_ENABLE_NMEA, true));
+		}
+		gpsManager.sendNmeaCommand(this.getString(R.string.sirf_nmea_gga_on));
+		gpsManager.sendNmeaCommand(this.getString(R.string.sirf_nmea_rmc_on));
 	}
 	
 	private void enableNmeaGLL(boolean enable){
@@ -273,9 +320,9 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	private void enableSBAS(boolean enable){
 		if (gpsManager != null){
 			if (enable){
-				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_waas_on));
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_sbas_on));
 			} else {
-				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_waas_off));
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_sbas_off));
 			}
 		}
 	}
@@ -283,9 +330,41 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	private void enableNMEA(boolean enable){
 		if (gpsManager != null){
 			if (enable){
-				gpsManager.sendNmeaCommand(getString(R.string.sirf_bin_to_nmea));
+				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+//				SharedPreferences.Editor edit = sharedPreferences.edit();
+				int gll = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GLL, false)) ? 1 : 0 ;
+				int vtg = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_VTG, false)) ? 1 : 0 ;
+				int gsa = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GSA, false)) ? 5 : 0 ;
+				int gsv = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GSV, false)) ? 5 : 0 ;
+				int zda = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_ZDA, false)) ? 1 : 0 ;
+				int mss = 0;
+				int epe = 0;
+				int gga = 1;
+				int rmc = 1;
+				String command = getString(R.string.sirf_bin_to_nmea_38400_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda);
+				gpsManager.sendSirfCommand(command);
+//				gpsManager.sendSirfCommand(getString(R.string.sirf_bin_to_nmea));
 			} else {
-				gpsManager.sendSirfCommand(getString(R.string.sirf_nmea_to_binary));
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_to_binary));
+			}
+		}
+	}
+
+	private void enableStaticNavigation(boolean enable){
+		if (gpsManager != null){
+			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+//			SharedPreferences.Editor edit = sharedPreferences.edit();
+			boolean isInNmeaMode = sharedPreferences.getBoolean(PREF_SIRF_ENABLE_NMEA, false);
+			if (isInNmeaMode){
+				enableNMEA(false);
+			}
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_bin_static_nav_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_bin_static_nav_off));
+			}
+			if (isInNmeaMode){
+				enableNMEA(true);
 			}
 		}
 	}

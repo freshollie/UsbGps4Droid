@@ -49,6 +49,9 @@
 				<action android:name="org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.STOP_GPS_PROVIDER">
 					<category android:name="android.intent.category.DEFAULT" />
 				</action>
+				<action android:name="org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.CONFIGURE_SIRF_GPS">
+					<category android:name="android.intent.category.DEFAULT" />
+				</action>
 			</intent-filter>			
 		</service>
 

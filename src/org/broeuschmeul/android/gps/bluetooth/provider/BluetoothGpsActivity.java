@@ -157,16 +157,27 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 			}
 		} else if (BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE.equals(key)){
 			updateDevicePreferenceSummary();
-		} else if (BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)){
-			CheckBoxPreference pref = (CheckBoxPreference)(findPreference(key));
-			if (pref.isChecked() != sharedPref.getBoolean(key, false)){
-				pref.setChecked(sharedPref.getBoolean(key, false));
-			} else {
-				Intent configIntent = new Intent(BluetoothGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
-				configIntent.putExtra(key, pref.isChecked());
-				startService(configIntent);
-			}
+		} else if (BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_VTG.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSA.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSV.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_ZDA.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_SBAS.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_NMEA.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION.equals(key)
+				){
+			enableSirfFeature(key);
 		}	
 		this.updateDevicePreferenceList();
 	}	
+	private void enableSirfFeature(String key){
+		CheckBoxPreference pref = (CheckBoxPreference)(findPreference(key));
+		if (pref.isChecked() != sharedPref.getBoolean(key, false)){
+			pref.setChecked(sharedPref.getBoolean(key, false));
+		} else {
+			Intent configIntent = new Intent(BluetoothGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
+			configIntent.putExtra(key, pref.isChecked());
+			startService(configIntent);
+		}
+	}
 }

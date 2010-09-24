@@ -22,7 +22,7 @@
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Le GPS Bluetooth est arrêté</string>
     <string name="pref_start_gps_summary_on">Le GPS Bluetooth est démarré</string>
-    <string name="pref_start_gps_params_title">Options du GPS</string>
+    <string name="pref_start_gps_params_title">Options du GPS (SiRF)</string>
     <string name="pref_gps_location_provider_title">Location provider options</string>
     <string name="pref_gps_location_provider_summary">Le GPS Bluetooth remplacera le GPS interne</string>
     <string name="pref_replace_std_gps_title">Remplacer le GPS interne</string>
@@ -44,6 +44,34 @@
     <string name="pref_trackfile_directory_summary">Indiquer un répertoire pour les fichiers de traces</string>
     <string name="pref_bluetooth_device_title">Sélection du GPS</string>
     <string name="pref_bluetooth_device_summary">"Périphérique actuel : %s"</string>    
+
+    <string name="pref_sirf_gps_title">GPS SiRF</string>
+    <string name="pref_sirf_gps_summary_off">"Ne pas utiliser les paramètres SiRF"</string>
+    <string name="pref_sirf_gps_summary_on">"Utiliser les paramètres SiRF"</string>
+    <string name="pref_enable_gll_title">Activation NMEA GLL</string>
+    <string name="pref_enable_gll_summary_off">NMEA GLL désactivé</string>
+    <string name="pref_enable_gll_summary_on">NMEA GLL activé</string>
+    <string name="pref_enable_vtg_title">Activation NMEA VTG</string>
+    <string name="pref_enable_vtg_summary_off">NMEA VTG désactivé</string>
+    <string name="pref_enable_vtg_summary_on">NMEA VTG activé</string>
+    <string name="pref_enable_gsa_title">Activation NMEA GSA</string>
+    <string name="pref_enable_gsa_summary_off">NMEA GSA désactivé</string>
+    <string name="pref_enable_gsa_summary_on">NMEA GSA activé</string>
+    <string name="pref_enable_gsv_title">Activation NMEA GSV</string>
+    <string name="pref_enable_gsv_summary_off">NMEA GSV désactivé</string>
+    <string name="pref_enable_gsv_summary_on">NMEA GSV activé</string>
+    <string name="pref_enable_zda_title">Activation NMEA ZDA</string>
+    <string name="pref_enable_zda_summary_off">NMEA ZDA désactivé</string>
+    <string name="pref_enable_zda_summary_on">NMEA ZDA activé</string>
+    <string name="pref_enable_sbas_title">SBAS (WAAS/EGNOS)</string>
+    <string name="pref_enable_sbas_summary_off">SBAS désactivé</string>
+    <string name="pref_enable_sbas_summary_on">SBAS activé</string>
+    <string name="pref_enable_nmea_title">Mode NMEA/SiRF</string>
+    <string name="pref_enable_nmea_summary_off">Mode SiRF binaire activé</string>
+    <string name="pref_enable_nmea_summary_on">Mode NMEA activé</string>
+    <string name="pref_enable_static_navigation_title">Navigation Statique</string>
+    <string name="pref_enable_static_navigation_summary_off">Navigation Statique désactivée</string>
+    <string name="pref_enable_static_navigation_summary_on">Navigation Statique activée</string>
 
     <string name="msg_gps_provider_started">GPS Bluetooth... démarré</string>
     <string name="msg_gps_provider_stopped">GPS Bluetooth... arrêté</string>

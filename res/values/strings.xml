@@ -36,8 +36,8 @@
 
     <string name="sirf_nmea_to_binary">PSRF100,0,38400,8,1,0</string>
     
-    <string name="sirf_nmea_waas_on">PSRF151,01</string>
-    <string name="sirf_nmea_waas_off">PSRF151,00</string>
+    <string name="sirf_nmea_sbas_on">PSRF151,01</string>
+    <string name="sirf_nmea_sbas_off">PSRF151,00</string>
     
 <!--
     <string name="sirf_sbas_on">$PSRF151,01*0F</string>
@@ -47,8 +47,11 @@
     <string name="sirf_bin_static_nav_off">8F00</string> 
     <string name="sirf_bin_to_nmea">8702</string>
     <string name="sirf_bin_to_nmea_38400">810201010001050105010001000100010001000100019600</string>
+    <string name="sirf_bin_to_nmea_38400_alt">8102%02X01%02X01%02X01%02X01%02X01%02X01%02X01%02X01%02X0100019600</string>
     <string name="sirf_bin_dgps_ext_on">85020000000000</string>
     <string name="sirf_bin_dgps_sbas_on">85010000000000</string>
+    <string name="sirf_software_version">8400</string>
+    
     
     <!--
     <string name="sirf_bin_to_nmea4800_1">A0A20018 8102010100010501050100010001000100010001000112C0 016AB0B3</string>
@@ -68,6 +71,7 @@
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
     
+    <string name="pref_sirf_gps_key">sirfGps</string>
     <string name="pref_sirf_enable_gll_key">enableGLL</string>
     <string name="pref_sirf_enable_vtg_key">enableVTG</string>
     <string name="pref_sirf_enable_gsa_key">enableGSA</string>
@@ -75,6 +79,7 @@
     <string name="pref_sirf_enable_zda_key">enableZDA</string>
     <string name="pref_sirf_enable_sbas_key">enableSBAS</string>
     <string name="pref_sirf_enable_nmea_key">enableNMEA</string>
+    <string name="pref_sirf_enable_static_navigation_key">enableStaticNavigation</string>
 
     <string name="defaultTrackMinDistance">0.0</string>
     <string name="defaultTrackMinTime">0</string>
@@ -85,7 +90,7 @@
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Bluetooth GPS is off</string>
     <string name="pref_start_gps_summary_on">Bluetooth GPS is on</string>
-    <string name="pref_start_gps_params_title">SiRF GPS Options</string>
+    <string name="pref_start_gps_params_title">GPS Options (SiRF)</string>
     <string name="pref_gps_location_provider_title">Location provider options</string>
     <string name="pref_gps_location_provider_summary">Bluetooth GPS will replace internal GPS</string>
     <string name="pref_replace_std_gps_title">Replace internal GPS</string>
@@ -111,6 +116,9 @@
     <string name="pref_bluetooth_device_title">Choose Bluetooth GPS</string>
     <string name="pref_bluetooth_device_summary">"Current device: %s"</string>    
 
+    <string name="pref_sirf_gps_title">SiRF GPS</string>
+    <string name="pref_sirf_gps_summary_off">"Use SiRF Options"</string>
+    <string name="pref_sirf_gps_summary_on">"Don't SiRF Options"</string>
     <string name="pref_enable_gll_title">Enable NMEA GLL</string>
     <string name="pref_enable_gll_summary_off">NMEA GLL sentences are off</string>
     <string name="pref_enable_gll_summary_on">NMEA GLL sentences are on</string>
@@ -126,10 +134,15 @@
     <string name="pref_enable_zda_title">Enable NMEA ZDA</string>
     <string name="pref_enable_zda_summary_off">NMEA ZDA sentences are off</string>
     <string name="pref_enable_zda_summary_on">NMEA ZDA sentences are on</string>
-    <string name="pref_enable_sbas_title">Enable SBAS (WAAS/EGNOS)</string>
+    <string name="pref_enable_sbas_title">SBAS (WAAS/EGNOS)</string>
     <string name="pref_enable_sbas_summary_off">SBAS is off</string>
     <string name="pref_enable_sbas_summary_on">SBAS is on</string>
-
+    <string name="pref_enable_nmea_title">NMEA/Binary mode</string>
+    <string name="pref_enable_nmea_summary_off">Binary mode is on</string>
+    <string name="pref_enable_nmea_summary_on">NMEA mode is on</string>
+    <string name="pref_enable_static_navigation_title">Static Navigation</string>
+    <string name="pref_enable_static_navigation_summary_off">Static Navigation disabled</string>
+    <string name="pref_enable_static_navigation_summary_on">Static Navigation enabled</string>
 
     <string name="msg_gps_provider_started">Bluetooth GPS... started</string>
     <string name="msg_gps_provider_stopped">Bluetooth GPS... stopped</string>

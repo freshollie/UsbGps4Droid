@@ -178,11 +178,13 @@ public class NmeaParser {
 	}
 	
 	// parse NMEA Sentence 
-	public void parseNmeaSentence(String gpsSentence){
+	public String parseNmeaSentence(String gpsSentence){
+		String nmeaSentence = null;
 		Log.e("BT test", "data: "+System.currentTimeMillis()+" "+gpsSentence);
 		Pattern xx = Pattern.compile("\\$([^*$]*)\\*([0-9A-F][0-9A-F])?\r\n");
 		Matcher m = xx.matcher(gpsSentence);
 		if (m.matches()){
+			nmeaSentence = m.group(0);
 			String sentence = m.group(1);
 			String checkSum = m.group(2);
 			Log.e("BT test", "data: "+System.currentTimeMillis()+" "+sentence+" cheksum; "+checkSum +" control: "+String.format("%X",computeChecksum(sentence)));
@@ -448,6 +450,7 @@ public class NmeaParser {
 				// Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
 			}
 		}
+		return nmeaSentence;
 	}
 
 	public double parseNmeaLatitude(String lat,String orientation){
