@@ -44,7 +44,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
-import android.os.Bundle;
 import android.util.Log;
 
 public class BlueetoothGpsManager {

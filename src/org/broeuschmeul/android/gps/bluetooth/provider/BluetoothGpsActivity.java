@@ -21,8 +21,6 @@
 package org.broeuschmeul.android.gps.bluetooth.provider;
 
 import java.util.Set;
-import java.util.prefs.Preferences;
-import java.util.zip.CheckedInputStream;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -35,9 +33,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
-import android.test.mock.MockPackageManager;
 import android.util.Log;
 
 /**
