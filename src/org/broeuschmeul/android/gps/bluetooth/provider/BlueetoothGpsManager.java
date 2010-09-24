@@ -29,11 +29,13 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
+import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -313,18 +315,40 @@ public class BlueetoothGpsManager {
 		}
 	}	
 	
-	public void sendPackagedNmeaCommand(String s){
+	public void sendPackagedNmeaCommand(final String command){
+		Log.e("BT test", "sending NMEA sentence: "+command);
+		notificationPool.execute( new Runnable() {			
+			@Override
+			public void run() {
+				if (isEnabled() && (connectedThread != null)){
+					connectedThread.write(command);
+					Log.e("BT test", "sent NMEA sentence: "+command);
+				}
+			}
+		});
 	}
-	public void sendPackagedSirfCommand(String s){
+	
+	public void sendPackagedSirfCommand(final String commandHexa){
+		Log.e("BT test", "sending SIRF sentence: "+commandHexa);
+		final byte[] command = SirfUtils.genSirfCommand(commandHexa);
+		notificationPool.execute( new Runnable() {			
+			@Override
+			public void run() {
+				if (isEnabled() && (connectedThread != null)){
+					connectedThread.write(command);
+					Log.e("BT test", "sent SIRF sentence: "+commandHexa);
+				}
+			}
+		});
 	}
-	public void sendNmeaCommand(String s){
-		if (isEnabled()){
-			
-		}
+	
+	public void sendNmeaCommand(String sentence){
+		String command = String.format((Locale)null,"$%s*%X\r\n", sentence, parser.computeChecksum(sentence));
+		sendPackagedNmeaCommand(command);
 	}
+	
 	public void sendSirfCommand(String payload){
-		if (isEnabled()){
-			
-		}
+		String command = SirfUtils.createSirfCommandFromPayload(payload);
+		sendPackagedSirfCommand(command);
 	}
 }

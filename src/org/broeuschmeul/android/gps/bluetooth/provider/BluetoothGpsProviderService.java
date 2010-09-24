@@ -61,6 +61,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.bluetooth.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
 	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.START_GPS_PROVIDER";
 	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.STOP_GPS_PROVIDER";
+	public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
 	public static final String PREF_START_GPS_PROVIDER = "startGps";
 	public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
 	public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
@@ -72,6 +73,15 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
 	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
 
+	public static final String PREF_SIRF_ENABLE_GLL = "enableGLL";
+	public static final String PREF_SIRF_ENABLE_VTG = "enableVTG";
+	public static final String PREF_SIRF_ENABLE_GSA = "enableGSA";
+	public static final String PREF_SIRF_ENABLE_GSV = "enableGSV";
+	public static final String PREF_SIRF_ENABLE_ZDA = "enableZDA";
+	public static final String PREF_SIRF_ENABLE_SBAS = "enableSBAS";
+	public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
+
+	
 	private LocationManager lm;
     private BlueetoothGpsManager gpsManager = null;
 	private PrintWriter writer;
@@ -115,6 +125,19 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 					gpsManager.enableMockLocationProvider(mockProvider);
 //					gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
 					gpsManager.enable();
+    				String command1 = this.getString(R.string.sirf_nmea_gga_on);
+    				String command2 = this.getString(R.string.sirf_nmea_gsa_off);
+    				String command3 = this.getString(R.string.sirf_nmea_gsv_off);
+    				String command4 = this.getString(R.string.sirf_nmea_vtg_off);
+    				String command5 = this.getString(R.string.sirf_nmea_gll_off);
+    				String command6 = this.getString(R.string.sirf_nmea_rmc_on);
+    				gpsManager.sendNmeaCommand(command1);
+    				gpsManager.sendNmeaCommand(command2);
+    				gpsManager.sendNmeaCommand(command3);
+       				gpsManager.sendNmeaCommand(command4);
+       				gpsManager.sendNmeaCommand(command5);
+       				gpsManager.sendNmeaCommand(command6);
+					
 					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false)){
 						edit.putBoolean(PREF_START_GPS_PROVIDER,true);
 						edit.commit();
@@ -175,6 +198,95 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 				edit.commit();
 			}
 			stopSelf();
+		} else if (ACTION_CONFIGURE_SIRF_GPS.equals(intent.getAction())){
+			if (gpsManager != null){
+				Bundle extras = intent.getExtras();
+				if (extras.containsKey(PREF_SIRF_ENABLE_GLL)){
+					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GLL, false));
+				} else if (extras.containsKey(PREF_SIRF_ENABLE_VTG)){
+					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_VTG, false));
+				} else if (extras.containsKey(PREF_SIRF_ENABLE_GSA)){
+					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GSA, false));
+				} else if (extras.containsKey(PREF_SIRF_ENABLE_GSV)){
+					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GSV, false));
+				} else if (extras.containsKey(PREF_SIRF_ENABLE_ZDA)){
+					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_ZDA, false));
+				} else if (extras.containsKey(PREF_SIRF_ENABLE_SBAS)){
+					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, false));
+				} else if (extras.containsKey(PREF_SIRF_ENABLE_NMEA)){
+					enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_NMEA, true));
+				}
+			}
+		}
+	}
+	
+	private void enableNmeaGLL(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gll_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gll_off));
+			}
+		}
+	}
+	
+	private void enableNmeaVTG(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_vtg_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_vtg_off));
+			}
+		}
+	}
+
+	private void enableNmeaGSA(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gsa_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gsa_off));
+			}
+		}
+	}
+
+	private void enableNmeaGSV(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gsv_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gsv_off));
+			}
+		}
+	}
+
+	private void enableNmeaZDA(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_zda_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_zda_off));
+			}
+		}
+	}
+
+	private void enableSBAS(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_waas_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_waas_off));
+			}
+		}
+	}
+
+	private void enableNMEA(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_bin_to_nmea));
+			} else {
+				gpsManager.sendSirfCommand(getString(R.string.sirf_nmea_to_binary));
+			}
 		}
 	}
 

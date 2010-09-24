@@ -21,25 +21,41 @@
 <resources>
     <string name="app_name">BlueGps</string>
     
-    <string name="sirf_gga_on">PSRF103,00,00,01,01</string>
-    <string name="sirf_gll_on">PSRF103,01,00,01,01</string>
-    <string name="sirf_gll_off">PSRF103,01,00,00,01</string>
-    <string name="sirf_gsa_on">PSRF103,02,00,05,01</string>
-    <string name="sirf_gsv_on">PSRF103,03,00,05,01</string>
-    <string name="sirf_rmc_on">PSRF103,04,00,01,01</string>
-    <string name="sirf_vtg_on">PSRF103,05,00,01,01</string>
-    <string name="sirf_vtg_off">PSRF103,05,00,00,01</string>
-<!--
-    <string name="sirf_waas_on">$PSRF151,01*0F</string>
-    <string name="sirf_waas_off">$PSRF151,00*0E</string>  
--->
-    <string name="sirf_waas_on">PSRF151,01</string>
-    <string name="sirf_waas_off">PSRF151,00</string>
+    <string name="sirf_nmea_gga_on">PSRF103,00,00,01,01</string>
+    <string name="sirf_nmea_rmc_on">PSRF103,04,00,01,01</string>
+    <string name="sirf_nmea_gll_on">PSRF103,01,00,01,01</string>
+    <string name="sirf_nmea_gll_off">PSRF103,01,00,00,01</string>
+    <string name="sirf_nmea_gsa_on">PSRF103,02,00,05,01</string>
+    <string name="sirf_nmea_gsa_off">PSRF103,02,00,00,01</string>
+    <string name="sirf_nmea_gsv_on">PSRF103,03,00,05,01</string>
+    <string name="sirf_nmea_gsv_off">PSRF103,03,00,00,01</string>
+    <string name="sirf_nmea_vtg_on">PSRF103,05,00,01,01</string>
+    <string name="sirf_nmea_vtg_off">PSRF103,05,00,00,01</string>
+    <string name="sirf_nmea_zda_on">PSRF103,08,00,01,01</string>
+    <string name="sirf_nmea_zda_off">PSRF103,08,00,00,01</string>
+
+    <string name="sirf_nmea_to_binary">PSRF100,0,38400,8,1,0</string>
     
-    <string name="sirf_nmea4800_on1">A0A20018 8102010100010501050100010001000100010001000112C0 016AB0B3</string>
-    <string name="sirf_nmea_on2">A0A20002 8702 0089B0B3</string>
-    <string name="sirf_dgps_ext_on">A0A20007 85020000000000 0087B0B3</string>
-    <string name="sirf_dgps_sbas_on">A0A20007 85010000000000 0086B0B3</string>
+    <string name="sirf_nmea_waas_on">PSRF151,01</string>
+    <string name="sirf_nmea_waas_off">PSRF151,00</string>
+    
+<!--
+    <string name="sirf_sbas_on">$PSRF151,01*0F</string>
+    <string name="sirf_sbas_off">$PSRF151,00*0E</string>  
+-->
+    <string name="sirf_bin_static_nav_on">8F01</string>
+    <string name="sirf_bin_static_nav_off">8F00</string> 
+    <string name="sirf_bin_to_nmea">8702</string>
+    <string name="sirf_bin_to_nmea_38400">810201010001050105010001000100010001000100019600</string>
+    <string name="sirf_bin_dgps_ext_on">85020000000000</string>
+    <string name="sirf_bin_dgps_sbas_on">85010000000000</string>
+    
+    <!--
+    <string name="sirf_bin_to_nmea4800_1">A0A20018 8102010100010501050100010001000100010001000112C0 016AB0B3</string>
+    <string name="sirf_bin_to_nmea_on_2">A0A20002 8702 0089B0B3</string>
+    <string name="sirf_bin_dgps_ext_on">A0A20007 85020000000000 0087B0B3</string>
+    <string name="sirf_bin_dgps_sbas_on">A0A20007 85010000000000 0086B0B3</string>
+    -->
     
     <string name="pref_start_gps_key">startGps</string>
     <string name="pref_gps_location_provider_key">gpsLocationProviderKey</string>
@@ -51,6 +67,14 @@
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
+    
+    <string name="pref_sirf_enable_gll_key">enableGLL</string>
+    <string name="pref_sirf_enable_vtg_key">enableVTG</string>
+    <string name="pref_sirf_enable_gsa_key">enableGSA</string>
+    <string name="pref_sirf_enable_gsv_key">enableGSV</string>
+    <string name="pref_sirf_enable_zda_key">enableZDA</string>
+    <string name="pref_sirf_enable_sbas_key">enableSBAS</string>
+    <string name="pref_sirf_enable_nmea_key">enableNMEA</string>
 
     <string name="defaultTrackMinDistance">0.0</string>
     <string name="defaultTrackMinTime">0</string>
@@ -61,7 +85,7 @@
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Bluetooth GPS is off</string>
     <string name="pref_start_gps_summary_on">Bluetooth GPS is on</string>
-    <string name="pref_start_gps_params_title">GPS Options</string>
+    <string name="pref_start_gps_params_title">SiRF GPS Options</string>
     <string name="pref_gps_location_provider_title">Location provider options</string>
     <string name="pref_gps_location_provider_summary">Bluetooth GPS will replace internal GPS</string>
     <string name="pref_replace_std_gps_title">Replace internal GPS</string>
@@ -86,6 +110,26 @@
     <string name="pref_trackfile_directory_summary">Select the directory for the track files</string>
     <string name="pref_bluetooth_device_title">Choose Bluetooth GPS</string>
     <string name="pref_bluetooth_device_summary">"Current device: %s"</string>    
+
+    <string name="pref_enable_gll_title">Enable NMEA GLL</string>
+    <string name="pref_enable_gll_summary_off">NMEA GLL sentences are off</string>
+    <string name="pref_enable_gll_summary_on">NMEA GLL sentences are on</string>
+    <string name="pref_enable_vtg_title">Enable NMEA VTG</string>
+    <string name="pref_enable_vtg_summary_off">NMEA VTG sentences are off</string>
+    <string name="pref_enable_vtg_summary_on">NMEA VTG sentences are on</string>
+    <string name="pref_enable_gsa_title">Enable NMEA GSA</string>
+    <string name="pref_enable_gsa_summary_off">NMEA GSA sentences are off</string>
+    <string name="pref_enable_gsa_summary_on">NMEA GSA sentences are on</string>
+    <string name="pref_enable_gsv_title">Enable NMEA GSV</string>
+    <string name="pref_enable_gsv_summary_off">NMEA GSV sentences are off</string>
+    <string name="pref_enable_gsv_summary_on">NMEA GSV sentences are on</string>
+    <string name="pref_enable_zda_title">Enable NMEA ZDA</string>
+    <string name="pref_enable_zda_summary_off">NMEA ZDA sentences are off</string>
+    <string name="pref_enable_zda_summary_on">NMEA ZDA sentences are on</string>
+    <string name="pref_enable_sbas_title">Enable SBAS (WAAS/EGNOS)</string>
+    <string name="pref_enable_sbas_summary_off">SBAS is off</string>
+    <string name="pref_enable_sbas_summary_on">SBAS is on</string>
+
 
     <string name="msg_gps_provider_started">Bluetooth GPS... started</string>
     <string name="msg_gps_provider_stopped">Bluetooth GPS... stopped</string>

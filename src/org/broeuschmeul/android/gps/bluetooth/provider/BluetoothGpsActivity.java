@@ -161,6 +161,15 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 			}
 		} else if (BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE.equals(key)){
 			updateDevicePreferenceSummary();
+		} else if (BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)){
+			CheckBoxPreference pref = (CheckBoxPreference)(findPreference(key));
+			if (pref.isChecked() != sharedPref.getBoolean(key, false)){
+				pref.setChecked(sharedPref.getBoolean(key, false));
+			} else {
+				Intent configIntent = new Intent(BluetoothGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
+				configIntent.putExtra(key, pref.isChecked());
+				startService(configIntent);
+			}
 		}	
 		this.updateDevicePreferenceList();
 	}	
