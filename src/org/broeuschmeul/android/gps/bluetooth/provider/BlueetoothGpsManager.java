@@ -322,8 +322,10 @@ public class BlueetoothGpsManager {
 	
 	private void notifyNmeaSentence(final String nmeaSentence){
 		if (enabled){
-			parser.parseNmeaSentence(nmeaSentence);
+			final String recognizedSentence = parser.parseNmeaSentence(nmeaSentence);
 			final long timestamp = System.currentTimeMillis();
+			if (recognizedSentence != null){
+				Log.e("BT test", "NMEA : "+timestamp+" "+recognizedSentence);
 			synchronized(nmeaListeners) {
 				for(final NmeaListener listener : nmeaListeners){
 					notificationPool.execute(new Runnable(){
@@ -334,6 +336,7 @@ public class BlueetoothGpsManager {
 					});
 				}
 			}
+		}
 		}
 	}	
 }
