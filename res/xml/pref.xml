@@ -65,8 +65,11 @@
 	<PreferenceScreen 
 		android:title="@string/pref_start_gps_params_title"
 		android:dependency="@string/pref_sirf_gps_key"
-			android:shouldDisableView = "true" >
+		android:orderingFromXml="true"
+		android:shouldDisableView = "true" >
 		<PreferenceCategory
+			android:order="200"
+			android:orderingFromXml="true"
 			android:title="Choix des trames NMEA" >
 			<CheckBoxPreference
 				android:key="@string/pref_sirf_enable_gsa_key"
@@ -100,6 +103,7 @@
 				android:summaryOff="@string/pref_enable_zda_summary_off" />
 		</PreferenceCategory>
 		<PreferenceCategory
+			android:order="100"
 			android:title="Fonctionnement du GPS" >
 			<CheckBoxPreference 
 				android:key="@string/pref_sirf_enable_sbas_key"
