@@ -117,7 +117,6 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 				Intent myIntent = new Intent(this, BluetoothGpsActivity.class);
 				PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 				notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_gps_provider_started_notification), myPendingIntent);
-				startForeground(R.string.foreground_gps_provider_started_notification, notification);
 				if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
 					String mockProvider = LocationManager.GPS_PROVIDER;
 					if (! sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)){
@@ -126,7 +125,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 					gpsManager = new BlueetoothGpsManager(this, deviceAddress);
 					gpsManager.enableMockLocationProvider(mockProvider);
 //					gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
-					gpsManager.enable();
+					boolean enabled = gpsManager.enable();
 //    				String command1 = this.getString(R.string.sirf_nmea_gga_on);
 //    				String command2 = this.getString(R.string.sirf_nmea_gsa_off);
 //    				String command3 = this.getString(R.string.sirf_nmea_gsv_off);
@@ -141,15 +140,18 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 //       				gpsManager.sendNmeaCommand(command6);
 					
 //					Bundle extras = intent.getExtras();
-					if (sharedPreferences.getBoolean(PREF_SIRF_GPS, false)){
-						enableSirfConfig(sharedPreferences);
-					}					
-					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false)){
-						edit.putBoolean(PREF_START_GPS_PROVIDER,true);
+					if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled){
+						edit.putBoolean(PREF_START_GPS_PROVIDER,enabled);
 						edit.commit();
 					}
-					toast.setText(this.getString(R.string.msg_gps_provider_started));
-					toast.show();				
+					if (enabled) {
+						startForeground(R.string.foreground_gps_provider_started_notification, notification);
+						if (sharedPreferences.getBoolean(PREF_SIRF_GPS, false)){
+							enableSirfConfig(sharedPreferences);
+						}					
+						toast.setText(this.getString(R.string.msg_gps_provider_started));
+						toast.show();	
+					}
 				} else {
 //					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)){
 //						edit.putBoolean(PREF_START_GPS_PROVIDER,false);
@@ -228,14 +230,13 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		if (extras.containsKey(PREF_SIRF_ENABLE_ZDA)){
 			enableNmeaZDA(extras.getBoolean(PREF_SIRF_ENABLE_ZDA, false));
 		}
-		if (extras.containsKey(PREF_SIRF_ENABLE_SBAS)){
-			enableSBAS(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, true));
-		}
 		if (extras.containsKey(PREF_SIRF_ENABLE_STATIC_NAVIGATION)){
 			enableStaticNavigation(extras.getBoolean(PREF_SIRF_ENABLE_STATIC_NAVIGATION, false));
-		} 
-		if (extras.containsKey(PREF_SIRF_ENABLE_NMEA)){
+		} else if (extras.containsKey(PREF_SIRF_ENABLE_NMEA)){
 			enableNMEA(extras.getBoolean(PREF_SIRF_ENABLE_NMEA, true));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_SBAS)){
+			enableSBAS(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, true));
 		}
 	}
 	private void enableSirfConfig(SharedPreferences extras){
@@ -254,14 +255,13 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		if (extras.contains(PREF_SIRF_ENABLE_ZDA)){
 			enableNmeaZDA(extras.getBoolean(PREF_SIRF_ENABLE_ZDA, false));
 		}
-		if (extras.contains(PREF_SIRF_ENABLE_SBAS)){
-			enableSBAS(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, true));
-		}
 		if (extras.contains(PREF_SIRF_ENABLE_STATIC_NAVIGATION)){
 			enableStaticNavigation(extras.getBoolean(PREF_SIRF_ENABLE_STATIC_NAVIGATION, false));
-		} 
-		if (extras.contains(PREF_SIRF_ENABLE_NMEA)){
+		} else if (extras.contains(PREF_SIRF_ENABLE_NMEA)){
 			enableNMEA(extras.getBoolean(PREF_SIRF_ENABLE_NMEA, true));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_SBAS)){
+			enableSBAS(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, true));
 		}
 		gpsManager.sendNmeaCommand(this.getString(R.string.sirf_nmea_gga_on));
 		gpsManager.sendNmeaCommand(this.getString(R.string.sirf_nmea_rmc_on));
@@ -354,14 +354,14 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		if (gpsManager != null){
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 //			SharedPreferences.Editor edit = sharedPreferences.edit();
-			boolean isInNmeaMode = sharedPreferences.getBoolean(PREF_SIRF_ENABLE_NMEA, false);
+			boolean isInNmeaMode = sharedPreferences.getBoolean(PREF_SIRF_ENABLE_NMEA, true);
 			if (isInNmeaMode){
 				enableNMEA(false);
 			}
 			if (enable){
-				gpsManager.sendNmeaCommand(getString(R.string.sirf_bin_static_nav_on));
+				gpsManager.sendSirfCommand(getString(R.string.sirf_bin_static_nav_on));
 			} else {
-				gpsManager.sendNmeaCommand(getString(R.string.sirf_bin_static_nav_off));
+				gpsManager.sendSirfCommand(getString(R.string.sirf_bin_static_nav_off));
 			}
 			if (isInNmeaMode){
 				enableNMEA(true);

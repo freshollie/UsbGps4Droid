@@ -52,6 +52,7 @@ public class BlueetoothGpsManager {
 		    private final InputStream in;
 		    private final OutputStream out;
 		    private final PrintStream out2;
+		    private boolean ready = false;
 	
 		    public ConnectedThread(BluetoothSocket socket) {
 		        InputStream tmpIn = null;
@@ -78,6 +79,7 @@ public class BlueetoothGpsManager {
 					while((enabled && (s = reader.readLine()) != null)){
 						Log.e("BT test", "data: "+System.currentTimeMillis()+" "+s + "xxx");
 						notifyNmeaSentence(s+"\r\n");
+						ready = true;
 //						parser.parseNmeaSentence(s);
 //	//					writer.println(s);
 //						addNMEAString(s);
@@ -97,9 +99,15 @@ public class BlueetoothGpsManager {
 	         */
 	        public void write(byte[] buffer) {
 	            try {
+	            	do {
+	            		Thread.sleep(100);
+	            	} while (! ready);
 	                out.write(buffer);
+	                out.flush();
 	            } catch (IOException e) {
-//	                Log.e(TAG, "Exception during write", e);
+	            	Log.e("BT test", "Exception during write", e);
+	            } catch (InterruptedException e) {
+	            	Log.e("BT test", "Exception during write", e);
 	            }
 	        }
 	        /**
@@ -108,10 +116,15 @@ public class BlueetoothGpsManager {
 	         */
 	        public void write(String buffer) {
 	            try {
+	            	do {
+	            		Thread.sleep(100);
+	            	} while (! ready);
 	                out2.print(buffer);
-	                out.flush();
-	            } catch (IOException e) {
-//	                Log.e(TAG, "Exception during write", e);
+	                out2.flush();
+//	            } catch (IOException e) {
+//	            	Log.e("BT test", "Exception during write", e);
+	            } catch (InterruptedException e) {
+	            	Log.e("BT test", "Exception during write", e);
 	            }
 	        }
 		}
@@ -135,7 +148,7 @@ public class BlueetoothGpsManager {
 	/**
 	 * @return true if the bluetooth GPS is enabled
 	 */
-	public boolean isEnabled() {
+	public synchronized boolean isEnabled() {
 		return enabled;
 	}
 
@@ -146,9 +159,8 @@ public class BlueetoothGpsManager {
 		parser.setLocationManager(locationManager);	
 	}
 
-	public synchronized void enable() {
+	public synchronized boolean enable() {
 		if (! enabled){
-			this.enabled = true;
 			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	        if (bluetoothAdapter == null) {
 	            // Device does not support Bluetooth
@@ -157,7 +169,7 @@ public class BlueetoothGpsManager {
 //	        	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 //	        	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 	        	Log.e("BT test", "Bluetooth is not enabled");
-	        } else {
+ 	        } else {
 	    		BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
 	    		if (gpsDevice == null){
 	    			Log.e("BT test", "GPS device not found");       	    	
@@ -200,6 +212,9 @@ public class BlueetoothGpsManager {
 //				    				connectedThread.write(sentence1);	    								    				
 //				    				Log.e("BT test", "sending NMEA sentence: "+sentence2);
 //				    				connectedThread.write(sentence2);	    								    				
+//					                Thread.sleep(5000);
+//						        } catch (InterruptedException e) {
+//						        	Log.e("BT test", "error while connecting to socket", e);
 						        } catch (IOException connectException) {
 						            // Unable to connect; close everything and get out
 						        	Log.e("BT test", "error while connecting to socket", connectException);
@@ -208,6 +223,7 @@ public class BlueetoothGpsManager {
 						        }
 							}
 						};
+						this.enabled = true;
 						notificationPool = Executors.newSingleThreadExecutor();
 						notificationPool.execute(connectThread);
 //						enableMockLocationProvider(LocationManager.GPS_PROVIDER);
@@ -215,6 +231,7 @@ public class BlueetoothGpsManager {
 	    		}
 	        }
 		}
+		return this.enabled;
 	}
 	
 	public synchronized void disable() {
@@ -319,29 +336,33 @@ public class BlueetoothGpsManager {
 	
 	public void sendPackagedNmeaCommand(final String command){
 		Log.e("BT test", "sending NMEA sentence: "+command);
-		notificationPool.execute( new Runnable() {			
-			@Override
-			public void run() {
-				if (isEnabled() && (connectedThread != null)){
-					connectedThread.write(command);
-					Log.e("BT test", "sent NMEA sentence: "+command);
+		if (isEnabled()){
+			notificationPool.execute( new Runnable() {			
+				@Override
+				public void run() {
+					if (isEnabled() && (connectedThread != null)){
+						connectedThread.write(command);
+						Log.e("BT test", "sent NMEA sentence: "+command);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	
 	public void sendPackagedSirfCommand(final String commandHexa){
 		Log.e("BT test", "sending SIRF sentence: "+commandHexa);
-		final byte[] command = SirfUtils.genSirfCommand(commandHexa);
-		notificationPool.execute( new Runnable() {			
-			@Override
-			public void run() {
-				if (isEnabled() && (connectedThread != null)){
-					connectedThread.write(command);
-					Log.e("BT test", "sent SIRF sentence: "+commandHexa);
+		if (isEnabled()){
+			final byte[] command = SirfUtils.genSirfCommand(commandHexa);
+			notificationPool.execute( new Runnable() {			
+				@Override
+				public void run() {
+					if (isEnabled() && (connectedThread != null)){
+						connectedThread.write(command);
+						Log.e("BT test", "sent SIRF sentence: "+commandHexa);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	
 	public void sendNmeaCommand(String sentence){
