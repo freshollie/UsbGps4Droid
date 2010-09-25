@@ -119,6 +119,8 @@
     <string name="pref_sirf_gps_title">SiRF GPS</string>
     <string name="pref_sirf_gps_summary_off">"Use SiRF Options"</string>
     <string name="pref_sirf_gps_summary_on">"Don't SiRF Options"</string>
+    <string name="pref_sirf_nmea_category_title">Choice of NMEA sentences</string>
+    <string name="pref_sirf_gps_category_title">GPS operation</string>
     <string name="pref_enable_gll_title">Enable NMEA GLL</string>
     <string name="pref_enable_gll_summary_off">NMEA GLL sentences are off</string>
     <string name="pref_enable_gll_summary_on">NMEA GLL sentences are on</string>
