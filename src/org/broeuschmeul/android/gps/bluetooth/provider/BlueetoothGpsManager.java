@@ -105,31 +105,6 @@ public class BlueetoothGpsManager {
 //					disable();
 				}
 		    }
-
-	        /**
-	         * Write to the connected OutStream.
-	         * @param buffer  The bytes to write
-	         */
-	        public void write(byte[] buffer) {
-	            try {
-	                out.write(buffer);
-	                out.flush();
-	            } catch (IOException e) {
-//	                Log.e(TAG, "Exception during write", e);
-	            }
-	        }
-	        /**
-	         * Write to the connected OutStream.
-	         * @param buffer  The data to write
-	         */
-	        public void write(String buffer) {
-	            try {
-	                out2.print(buffer);
-	                out.flush();
-	            } catch (IOException e) {
-//	                Log.e(TAG, "Exception during write", e);
-	            }
-	        }
 		}
 
 	private Service callingService;
@@ -361,19 +336,4 @@ public class BlueetoothGpsManager {
 			}
 		}
 	}	
-	
-	public void sendPackagedNmeaCommand(String s){
-	}
-	public void sendPackagedSirfCommand(String s){
-	}
-	public void sendNmeaCommand(String s){
-		if (isEnabled()){
-			
-		}
-	}
-	public void sendSirfCommand(String payload){
-		if (isEnabled()){
-			
-		}
-	}
 }
