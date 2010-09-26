@@ -35,7 +35,6 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -56,7 +55,7 @@ import android.widget.Toast;
  *
  */
 public class BluetoothGpsProviderService extends Service implements NmeaListener, LocationListener {
-	
+
 	public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.bluetooth.tracker.nmea.intent.action.START_TRACK_RECORDING";
 	public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.bluetooth.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
 	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.START_GPS_PROVIDER";
@@ -72,18 +71,16 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
 	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
 
-	private LocationManager lm;
-    private BlueetoothGpsManager gpsManager = null;
+	private BlueetoothGpsManager gpsManager = null;
 	private PrintWriter writer;
 	private File trackFile;
 	private boolean preludeWritten = false;
 	private Toast toast ;
-	
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
-	    toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);		
-        lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+		toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);		
 	}
 
 	@Override
@@ -91,12 +88,8 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 //		super.onStart(intent, startId);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor edit = sharedPreferences.edit();
-//		long minTime = Long.parseLong(sharedPreferences.getString(PREF_TRACK_MIN_TIME, this.getString(R.string.defaultTrackMinTime)));
-//		float minDistance = Float.parseFloat(sharedPreferences.getString(PREF_TRACK_MIN_DISTANCE, this.getString(R.string.defaultTrackMinDistance)));
 		String deviceAddress = sharedPreferences.getString(PREF_BLUETOOTH_DEVICE, null);
 		if (Config.LOGD){
-//			Log.d(BluetoothGpsProviderService.class.getName(), "prefs minTime: "+minTime);
-//			Log.d(BluetoothGpsProviderService.class.getName(), "prefs minDistance: "+minDistance);
 			Log.d(BluetoothGpsProviderService.class.getName(), "prefs device addr: "+deviceAddress);
 		}
 		if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())){
@@ -112,7 +105,6 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 					}
 					gpsManager = new BlueetoothGpsManager(this, deviceAddress);
 					gpsManager.enableMockLocationProvider(mockProvider);
-//					gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
 					boolean enabled = gpsManager.enable();
 					if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled){
 						edit.putBoolean(PREF_START_GPS_PROVIDER,enabled);
@@ -120,16 +112,10 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 					}
 					if (enabled) {
 						startForeground(R.string.foreground_gps_provider_started_notification, notification);
-					toast.setText(this.getString(R.string.msg_gps_provider_started));
-					toast.show();				
+						toast.setText(this.getString(R.string.msg_gps_provider_started));
+						toast.show();				
 					}
 				} else {
-//					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)){
-//						edit.putBoolean(PREF_START_GPS_PROVIDER,false);
-//						edit.commit();
-//					}
-//					toast.setText(this.getString(R.string.msg_invalid_device));
-//					toast.show();				
 					stopSelf();
 				}
 			} else {
@@ -153,8 +139,6 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 						edit.putBoolean(PREF_TRACK_RECORDING,false);
 						edit.commit();
 					}
-//					toast.setText(this.getString(R.string.msg_device_not_started));
-//					toast.show();				
 				}
 			} else {
 				toast.setText(this.getString(R.string.msg_nmea_recording_already_started));
@@ -234,10 +218,6 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 			Log.e(BluetoothGpsProviderService.class.getName(), "Error while writing the prelude of the NMEA file: "+trackFile.getAbsolutePath(), e);
 			// there was an error while writing the prelude of the NMEA file, stopping the service...
 			stopSelf();
-//		} catch (SecurityException e) {
-//			Log.e(BluetoothGpsProviderService.class.getName(), "Error while writing the prelude of the NMEA file: "+trackFile.getAbsolutePath(), e);
-//			// there was an error while writing the prelude of the NMEA file, stopping the service...
-//			stopSelf();
 		}
 	}
 	private void endTrack(){
@@ -293,22 +273,4 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public void onNmeaReceived(long timestamp, String data) {
 		addNMEAString(data);
 	}
-
-//	private void startBluetoothGps(String deviceAddress){
-//		Notification notification = new Notification(R.drawable.icon, this.getString(R.string.foreground_service_started_notification),  System.currentTimeMillis());
-//		Intent myIntent = new Intent(this, BluetoothGpsActivity.class);
-//		PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-//		notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_service_started_notification), myPendingIntent);
-//		startForeground(R.string.foreground_service_started_notification, notification);
-//		if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
-//			gpsManager = new BlueetoothGpsManager(this, deviceAddress);
-//			gpsManager.enable();
-//			gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
-//			toast.setText(this.getString(R.string.msg_started));
-//			toast.show();				
-////		} else {
-////			toast.setText(this.getString(R.string.msg_invalid_device));
-////			toast.show();				
-//		}
-//	}
 }
