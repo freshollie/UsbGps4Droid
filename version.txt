@@ -1,0 +1,10 @@
+BlueGps4Droid 1.1
+	* reconnect automatically when the connection with the GPS is lost (5 attempts in 5 minutes)
+    * replace Android default internal GPS or use a new location provider 
+    * send status notifications when GPS loses fix or is disconnected.
+    
+BlueGps4Droid 1.0
+	* connect to bluetooth GPS (NMEA) and replace the internal GPS of an Android device.
+    * record GPS tracks in GPX files 
+    * compatible with Android version 2.0 and above
+    * English and French translations    
