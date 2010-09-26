@@ -54,23 +54,6 @@
 			android:defaultValue="@string/defaultMockGpsName"
 			android:summary="@string/pref_mock_gps_name_summary" />
 	</PreferenceScreen>
-	<PreferenceScreen 
-		android:title="@string/pref_start_gps_params_title"
-		android:shouldDisableView = "true"
-		android:enabled="false" >
-		<EditTextPreference
-			android:key="@string/pref_mintime_key"
-			android:title="@string/pref_mintime_title"
-			android:defaultValue="@string/defaultTrackMinTime"
-			android:summary="@string/pref_mintime_summary" 
-			android:inputType="number" />
-		<EditTextPreference
-			android:key="@string/pref_mindistance_key"
-			android:title="@string/pref_mindistance_title"
-			android:defaultValue="@string/defaultTrackMinDistance"
-			android:inputType="numberDecimal"
-			android:summary="@string/pref_mindistance_summary" />
-	</PreferenceScreen>
 	<CheckBoxPreference
 		android:enabled="true"
 		android:key="@string/pref_recording_key"

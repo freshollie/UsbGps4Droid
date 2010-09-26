@@ -46,8 +46,6 @@
     <string name="pref_replace_std_gps_key">replaceStdtGps</string>
     <string name="pref_mock_gps_name_key">mockGpsName</string>
     <string name="pref_recording_key">trackRecording</string>
-    <string name="pref_mindistance_key">trackMinDistance</string>
-    <string name="pref_mintime_key">trackMinTime</string>
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
