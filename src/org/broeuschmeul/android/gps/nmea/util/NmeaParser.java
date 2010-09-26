@@ -45,22 +45,22 @@ public class NmeaParser {
 	private float precision = 10f;
 	private boolean mockGpsEnabled = false;
 	private String mockLocationProvider = null;
-	
+
 	private int mockStatus = LocationProvider.OUT_OF_SERVICE;
-	
+
 	private Location fix = new Location(mockLocationProvider);
-	
+
 	public NmeaParser(){
 		this(5f);
 	}
 	public NmeaParser(float precision){
 		this.precision = precision;
 	}
-	
+
 	public void setLocationManager(LocationManager lm){
 		this.lm = lm;
 	}
-	 
+
 	public void enableMockLocationProvider(String gpsName){
 		LocationProvider prov;
 		if (gpsName != null && gpsName != "" ){
@@ -75,7 +75,6 @@ public class NmeaParser {
 				}
 				lm.addTestProvider(mockLocationProvider, false, true,false, false, true, true, true, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
 				if (! LocationManager.GPS_PROVIDER.equals(mockLocationProvider)){
-					// mockGpsEnabled = locationManager.isProviderEnabled(mockLocationProvider);
 					lm.setTestProviderEnabled(mockLocationProvider, true);
 				}
 				mockGpsEnabled = true;
@@ -88,7 +87,7 @@ public class NmeaParser {
 			}
 		}
 	}
-	
+
 	public void disableMockLocationProvider(){
 		LocationProvider prov;
 		if (mockLocationProvider != null && mockLocationProvider != "" && mockGpsEnabled){
@@ -98,10 +97,8 @@ public class NmeaParser {
 			}
 			mockGpsEnabled = false;
 			if (! LocationManager.GPS_PROVIDER.equals(mockLocationProvider)){
-				// mockGpsEnabled = locationManager.isProviderEnabled(mockLocationProvider);
 				lm.setTestProviderEnabled(mockLocationProvider, false);
 			}
-			// locationManager.setTestProviderEnabled(mockLocationProvider, mockGpsEnabled);
 			prov = lm.getProvider(mockLocationProvider);
 			if (prov != null){
 				Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
@@ -145,7 +142,6 @@ public class NmeaParser {
 	}
 	
 	private void notifyFix(Location fix){
-		//R.drawable.stat
 		fixTime = null;
 		hasGGA = false;
 		hasRMC=false;
@@ -160,7 +156,6 @@ public class NmeaParser {
 	}
 	
 	private void notifyStatusChanged(int status, Bundle extras, long updateTime){
-		//R.drawable.stat
 		fixTime = null;
 		hasGGA = false;
 		hasRMC=false;
@@ -168,8 +163,8 @@ public class NmeaParser {
 			Log.e(this.getClass().getSimpleName(), "New mockStatus: "+System.currentTimeMillis()+" "+status);
 			if (lm != null && mockGpsEnabled){
 				lm.setTestProviderStatus(mockLocationProvider, status, extras, updateTime);
-//				lm.setTestProviderStatus(mockLocationProvider, status, extras, SystemClock.elapsedRealtime());
-//				lm.setTestProviderStatus(mockLocationProvider, status, extras, 50);
+				// lm.setTestProviderStatus(mockLocationProvider, status, extras, SystemClock.elapsedRealtime());
+				// lm.setTestProviderStatus(mockLocationProvider, status, extras, 50);
 				Log.e(this.getClass().getSimpleName(), "New mockStatus notified to Location Manager: " + status + " "+mockLocationProvider);
 			}
 			this.fix = null;

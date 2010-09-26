@@ -45,18 +45,18 @@ import android.util.Log;
 public class BluetoothGpsActivity extends PreferenceActivity implements OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 	private SharedPreferences sharedPref ;
 	private BluetoothAdapter bluetoothAdapter = null;
-	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.pref);      
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPref.registerOnSharedPreferenceChangeListener(this);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-   }
 
-    /* (non-Javadoc)
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		addPreferencesFromResource(R.xml.pref);      
+		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		sharedPref.registerOnSharedPreferenceChangeListener(this);
+		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	}
+
+	/* (non-Javadoc)
 	 * @see android.app.Activity#onResume()
 	 */
 	@Override
@@ -66,58 +66,56 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	}
 
 	private void updateDevicePreferenceSummary(){
-        // update bluetooth device summary
+		// update bluetooth device summary
 		String deviceName = "";
-        ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-        String deviceAddress = sharedPref.getString(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE, null);
-        if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
-        	deviceName = bluetoothAdapter.getRemoteDevice(deviceAddress).getName();
-        }
-        prefDevices.setSummary(getString(R.string.pref_bluetooth_device_summary, deviceName));
-    }   
+		ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
+		String deviceAddress = sharedPref.getString(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE, null);
+		if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
+			deviceName = bluetoothAdapter.getRemoteDevice(deviceAddress).getName();
+		}
+		prefDevices.setSummary(getString(R.string.pref_bluetooth_device_summary, deviceName));
+	}   
 
 	private void updateDevicePreferenceList(){
-        // update bluetooth device summary
+		// update bluetooth device summary
 		updateDevicePreferenceSummary();
 		// update bluetooth device list
-        ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();        
-        String[] entryValues = new String[pairedDevices.size()];
-        String[] entries = new String[pairedDevices.size()];
-        int i = 0;
-    	    // Loop through paired devices
-        for (BluetoothDevice device : pairedDevices) {
-        	// Add the name and address to the ListPreference enties and entyValues
-        	Log.e("BT test", "device: "+device.getName() + " -- " + device.getAddress());
-        	entryValues[i] = device.getAddress();
-            entries[i] = device.getName();
-            i++;
-        }
-        prefDevices.setEntryValues(entryValues);
-        prefDevices.setEntries(entries);
-//        if (sharedPref.getBoolean(BluetoothGpsProviderService.PREF_START_GPS_PROVIDER, false)){
-        	Preference pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_TRACK_RECORDING);
-        	pref.setEnabled(sharedPref.getBoolean(BluetoothGpsProviderService.PREF_START_GPS_PROVIDER, false));
-//        }
-        	pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME);
-        	String mockProvider = sharedPref.getString(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
-        	pref.setSummary(getString(R.string.pref_mock_gps_name_summary,mockProvider));
-        	
-        	pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
-        	if (sharedPref.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true)){
-        		String s = getString(R.string.pref_gps_location_provider_summary);
-            	pref.setSummary(s);
-               	Log.e("BT test", "loc. provider: "+s);
-               	Log.e("BT test", "loc. provider: "+pref.getSummary());               	
-        	} else {
-        		String s = getString(R.string.pref_mock_gps_name_summary, mockProvider);
-            	pref.setSummary(s);
-               	Log.e("BT test", "loc. provider: "+s);
-               	Log.e("BT test", "loc. provider: "+pref.getSummary());  
-        	} 
-        	this.onContentChanged();
-    }
-    
+		ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
+		Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();        
+		String[] entryValues = new String[pairedDevices.size()];
+		String[] entries = new String[pairedDevices.size()];
+		int i = 0;
+		// Loop through paired devices
+		for (BluetoothDevice device : pairedDevices) {
+			// Add the name and address to the ListPreference enties and entyValues
+			Log.e("BT test", "device: "+device.getName() + " -- " + device.getAddress());
+			entryValues[i] = device.getAddress();
+			entries[i] = device.getName();
+			i++;
+		}
+		prefDevices.setEntryValues(entryValues);
+		prefDevices.setEntries(entries);
+		Preference pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_TRACK_RECORDING);
+		pref.setEnabled(sharedPref.getBoolean(BluetoothGpsProviderService.PREF_START_GPS_PROVIDER, false));
+		pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME);
+		String mockProvider = sharedPref.getString(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+		pref.setSummary(getString(R.string.pref_mock_gps_name_summary,mockProvider));
+
+		pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
+		if (sharedPref.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true)){
+			String s = getString(R.string.pref_gps_location_provider_summary);
+			pref.setSummary(s);
+			Log.e("BT test", "loc. provider: "+s);
+			Log.e("BT test", "loc. provider: "+pref.getSummary());               	
+		} else {
+			String s = getString(R.string.pref_mock_gps_name_summary, mockProvider);
+			pref.setSummary(s);
+			Log.e("BT test", "loc. provider: "+s);
+			Log.e("BT test", "loc. provider: "+pref.getSummary());  
+		} 
+		this.onContentChanged();
+	}
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -136,7 +134,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		if (BluetoothGpsProviderService.PREF_START_GPS_PROVIDER.equals(key)){
 			boolean val = false;
 			if (val = sharedPreferences.getBoolean(key, false)){
-		        startService(new Intent(BluetoothGpsProviderService.ACTION_START_GPS_PROVIDER));
+				startService(new Intent(BluetoothGpsProviderService.ACTION_START_GPS_PROVIDER));
 			} else {
 				startService(new Intent(BluetoothGpsProviderService.ACTION_STOP_GPS_PROVIDER));
 			}
@@ -147,7 +145,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		} else if (BluetoothGpsProviderService.PREF_TRACK_RECORDING.equals(key)){
 			boolean val = false;
 			if (val = sharedPreferences.getBoolean(key, false)){
-		        startService(new Intent(BluetoothGpsProviderService.ACTION_START_TRACK_RECORDING));
+				startService(new Intent(BluetoothGpsProviderService.ACTION_START_TRACK_RECORDING));
 			} else {
 				startService(new Intent(BluetoothGpsProviderService.ACTION_STOP_TRACK_RECORDING));
 			}
@@ -165,7 +163,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_SBAS.equals(key)
 				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_NMEA.equals(key)
 				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION.equals(key)
-				){
+		){
 			enableSirfFeature(key);
 		}	
 		this.updateDevicePreferenceList();
