@@ -35,11 +35,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
 import android.os.SystemClock;
@@ -98,6 +102,34 @@ public class BlueetoothGpsManager {
 	private List<NmeaListener> nmeaListeners = Collections.synchronizedList(new LinkedList<NmeaListener>()); 
 	private LocationManager locationManager;
 	private ConnectedGps connectedGps;
+	private Notification connectionProblemNotification;
+	private Notification serviceStoppedNotification;
+	private Context appContext;
+	private NotificationManager notificationManager;
+
+	public BlueetoothGpsManager(Service callingService, String deviceAddress) {
+		this.gpsDeviceAddress = deviceAddress;
+		this.callingService = callingService;
+		this.appContext = callingService.getApplicationContext();
+		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
+		notificationManager = (NotificationManager)callingService.getSystemService(Context.NOTIFICATION_SERVICE);
+		parser.setLocationManager(locationManager);	
+		
+		connectionProblemNotification = new Notification();
+		connectionProblemNotification.icon = R.drawable.icon;
+		Intent stopIntent = new Intent(BluetoothGpsProviderService.ACTION_STOP_GPS_PROVIDER);
+		// PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, 0);
+		connectionProblemNotification.contentIntent = stopPendingIntent;
+
+		serviceStoppedNotification = new Notification();
+		serviceStoppedNotification.icon=R.drawable.icon;
+		Intent restartIntent = new Intent(BluetoothGpsProviderService.ACTION_START_GPS_PROVIDER);
+		PendingIntent restartPendingIntent = PendingIntent.getService(appContext, 0, restartIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		serviceStoppedNotification.setLatestEventInfo(appContext, appContext.getString(R.string.service_closed_because_connection_problem_notification_title), appContext.getString(R.string.service_closed_because_connection_problem_notification_title), restartPendingIntent);
+
+
+	}
 
 	/**
 	 * @return true if the bluetooth GPS is enabled
@@ -106,14 +138,8 @@ public class BlueetoothGpsManager {
 		return enabled;
 	}
 
-	public BlueetoothGpsManager(Service callingService, String deviceAddress) {
-		this.gpsDeviceAddress = deviceAddress;
-		this.callingService = callingService;
-		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
-		parser.setLocationManager(locationManager);	
-	}
-
 	public synchronized boolean enable() {
+		notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
 		if (! enabled){
 			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			if (bluetoothAdapter == null) {
@@ -168,16 +194,33 @@ public class BlueetoothGpsManager {
 										gpsSocket.connect();
 										// connection obtained so reset the number of connection try
 										connectionTry=0;
+										notificationManager.cancel(R.string.connection_problem_notification_title);
 										connectedGps = new ConnectedGps(gpsSocket);
 										connectionAndReadingPool.execute(connectedGps);
 									}
 								} catch (IOException connectException) {
-									// Unable to connect; close everything and get out
+									// Unable to connect
 									Log.e("BT test", "error while connecting to socket", connectException);
 								} finally {
+									if (connectionTry > 0)
+									{
+										// Unable to connect
+										Log.e("BT test", "Unable to establish connection");
+										connectionProblemNotification.when = System.currentTimeMillis();
+										String pbMessage = appContext.getResources().getQuantityString(R.plurals.connection_problem_notification, 5-connectionTry, 5-connectionTry);
+										connectionProblemNotification.setLatestEventInfo(appContext, 
+												appContext.getString(R.string.connection_problem_notification_title), 
+												pbMessage, 
+												connectionProblemNotification.contentIntent);
+										connectionProblemNotification.number = connectionTry;
+										notificationManager.notify(R.string.connection_problem_notification_title, connectionProblemNotification);
+									}
 									// if bluetooth has bean disabled or
 									// if two much tries consider that we are enable to connect. So close everything and get out
-									if ((!bluetoothAdapter.isEnabled()) || (connectionTry > 5 )){
+									if ((!bluetoothAdapter.isEnabled()) || (connectionTry >= 5 )){
+										notificationManager.cancel(R.string.connection_problem_notification_title);
+										serviceStoppedNotification.when = System.currentTimeMillis();
+										notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
 										disable();
 									}
 								}
@@ -207,6 +250,8 @@ public class BlueetoothGpsManager {
 			nmeaListeners.clear();
 			disableMockLocationProvider();
 			notificationPool.shutdown();
+			connectionAndReadingPool.shutdown();
+			notificationManager.cancel(R.string.connection_problem_notification_title);
 			callingService.stopSelf();
 		}
 	}
