@@ -84,4 +84,14 @@
     <string name="foreground_service_started_notification_title">BlueGps</string>
     <string name="foreground_gps_provider_started_notification">GPS Bluetooth démarré.</string>   
     <string name="foreground_nmea_recording_started_notification">Enregistrement des données NMEA en cours.</string>
+    <string name="connection_problem_notification_title">BlueGps : problème de connexion</string>
+    <plurals name="connection_problem_notification">
+    	<item quantity="one">"encore un essai avant fermeture"</item>
+    	<item quantity="other">"encore %d essais avant fermeture"</item>
+    </plurals>
+    <!-- 
+    <string name="connection_problem_notification">Have tried %d times - will retry %d more times</string>
+    -->
+    <string name="service_closed_because_connection_problem_notification_title">BlueGps arrêté</string>
+    <string name="service_closed_because_connection_problem_notification">Motif: problèmes de connexion avec le GPS</string>
 </resources>
