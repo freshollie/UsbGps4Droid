@@ -20,27 +20,6 @@
 -->
 <resources>
     <string name="app_name">BlueGps</string>
-    
-    <string name="sirf_gga_on">PSRF103,00,00,01,01</string>
-    <string name="sirf_gll_on">PSRF103,01,00,01,01</string>
-    <string name="sirf_gll_off">PSRF103,01,00,00,01</string>
-    <string name="sirf_gsa_on">PSRF103,02,00,05,01</string>
-    <string name="sirf_gsv_on">PSRF103,03,00,05,01</string>
-    <string name="sirf_rmc_on">PSRF103,04,00,01,01</string>
-    <string name="sirf_vtg_on">PSRF103,05,00,01,01</string>
-    <string name="sirf_vtg_off">PSRF103,05,00,00,01</string>
-<!--
-    <string name="sirf_waas_on">$PSRF151,01*0F</string>
-    <string name="sirf_waas_off">$PSRF151,00*0E</string>  
--->
-    <string name="sirf_waas_on">PSRF151,01</string>
-    <string name="sirf_waas_off">PSRF151,00</string>
-    
-    <string name="sirf_nmea4800_on1">A0A20018 8102010100010501050100010001000100010001000112C0 016AB0B3</string>
-    <string name="sirf_nmea_on2">A0A20002 8702 0089B0B3</string>
-    <string name="sirf_dgps_ext_on">A0A20007 85020000000000 0087B0B3</string>
-    <string name="sirf_dgps_sbas_on">A0A20007 85010000000000 0086B0B3</string>
-    
     <string name="pref_start_gps_key">startGps</string>
     <string name="pref_gps_location_provider_key">gpsLocationProviderKey</string>
     <string name="pref_replace_std_gps_key">replaceStdtGps</string>
@@ -59,7 +38,6 @@
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Bluetooth GPS is off</string>
     <string name="pref_start_gps_summary_on">Bluetooth GPS is on</string>
-    <string name="pref_start_gps_params_title">GPS Options</string>
     <string name="pref_gps_location_provider_title">Location provider options</string>
     <string name="pref_gps_location_provider_summary">Bluetooth GPS will replace internal GPS</string>
     <string name="pref_replace_std_gps_title">Replace internal GPS</string>
