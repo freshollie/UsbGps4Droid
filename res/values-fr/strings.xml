@@ -29,14 +29,12 @@
     <string name="pref_replace_std_gps_summary_off">Un nouveau location provider sera utilisé</string>
     <string name="pref_mock_gps_name_title">Nom du location provider</string>
     <string name="pref_mock_gps_name_summary">Nom du GPS Bluetooth : %s</string>
+    <string name="pref_connection_retries_title">Nombre de connexions</string>
+    <string name="pref_connection_retries_summary">"Nombre d'essais avant fermeture : %s"</string>
     <string name="pref_recording_title">Activer/Désactiver NMEA log</string>
     <string name="pref_recording_summary_off">Enregistrement du GPS inactif</string>
     <string name="pref_recording_summary_on">Enregistrement du GPS actif</string>
     <string name="pref_recording_params_title">"Paramètres d'enregistrement"</string>
-    <string name="pref_mintime_title">Intervalle de temps</string>
-    <string name="pref_mintime_summary">Durée entre les données GPS en millisecondes</string>
-    <string name="pref_mindistance_title">Intervalle de distance</string>
-    <string name="pref_mindistance_summary">Distance entre les données GPS en metres</string>
     <string name="pref_trackfile_prefix_title">Préfixe</string>
     <string name="pref_trackfile_prefix_summary">Indiquer un préfixe pour les fichiers de traces</string>
     <string name="pref_trackfile_directory_title">Dossier</string>
@@ -55,12 +53,9 @@
     <string name="foreground_nmea_recording_started_notification">Enregistrement des données NMEA en cours.</string>
     <string name="connection_problem_notification_title">BlueGps : problème de connexion</string>
     <plurals name="connection_problem_notification">
-    	<item quantity="one">"encore un essai avant fermeture"</item>
-    	<item quantity="other">"encore %d essais avant fermeture"</item>
+    	<item quantity="one">"Encore un essai avant fermeture"</item>
+    	<item quantity="other">"Encore %d essais avant fermeture"</item>
     </plurals>
-    <!-- 
-    <string name="connection_problem_notification">Have tried %d times - will retry %d more times</string>
-    -->
     <string name="service_closed_because_connection_problem_notification_title">BlueGps arrêté</string>
-    <string name="service_closed_because_connection_problem_notification">Motif: problèmes de connexion avec le GPS</string>
+    <string name="service_closed_because_connection_problem_notification">Motif : problèmes de connexion</string>
 </resources>

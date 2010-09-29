@@ -64,6 +64,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
 	public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
 	public static final String PREF_MOCK_GPS_NAME = "mockGpsName";
+	public static final String PREF_CONNECTION_RETRIES = "connectionRetries";
 	public static final String PREF_TRACK_RECORDING = "trackRecording";
 	public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
@@ -87,6 +88,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor edit = sharedPreferences.edit();
 		String deviceAddress = sharedPreferences.getString(PREF_BLUETOOTH_DEVICE, null);
+		int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
 		if (Config.LOGD){
 			Log.d(BluetoothGpsProviderService.class.getName(), "prefs device addr: "+deviceAddress);
 		}
@@ -101,7 +103,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 					if (! sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)){
 						mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
 					}
-					gpsManager = new BlueetoothGpsManager(this, deviceAddress);
+					gpsManager = new BlueetoothGpsManager(this, deviceAddress, maxConRetries);
 					gpsManager.enableMockLocationProvider(mockProvider);
 					boolean enabled = gpsManager.enable();
 					if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled){

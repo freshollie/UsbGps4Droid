@@ -106,10 +106,12 @@ public class BlueetoothGpsManager {
 	private Notification serviceStoppedNotification;
 	private Context appContext;
 	private NotificationManager notificationManager;
+	private int maxConnectionRetries;
 
-	public BlueetoothGpsManager(Service callingService, String deviceAddress) {
+	public BlueetoothGpsManager(Service callingService, String deviceAddress, int maxRetries) {
 		this.gpsDeviceAddress = deviceAddress;
 		this.callingService = callingService;
+		this.maxConnectionRetries = maxRetries;
 		this.appContext = callingService.getApplicationContext();
 		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
 		notificationManager = (NotificationManager)callingService.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -126,7 +128,10 @@ public class BlueetoothGpsManager {
 		serviceStoppedNotification.icon=R.drawable.icon;
 		Intent restartIntent = new Intent(BluetoothGpsProviderService.ACTION_START_GPS_PROVIDER);
 		PendingIntent restartPendingIntent = PendingIntent.getService(appContext, 0, restartIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-		serviceStoppedNotification.setLatestEventInfo(appContext, appContext.getString(R.string.service_closed_because_connection_problem_notification_title), appContext.getString(R.string.service_closed_because_connection_problem_notification_title), restartPendingIntent);
+		serviceStoppedNotification.setLatestEventInfo(appContext, 
+				appContext.getString(R.string.service_closed_because_connection_problem_notification_title), 
+				appContext.getString(R.string.service_closed_because_connection_problem_notification), 
+				restartPendingIntent);
 
 
 	}
@@ -217,7 +222,7 @@ public class BlueetoothGpsManager {
 									}
 									// if bluetooth has bean disabled or
 									// if two much tries consider that we are enable to connect. So close everything and get out
-									if ((!bluetoothAdapter.isEnabled()) || (connectionTry >= 5 )){
+									if ((!bluetoothAdapter.isEnabled()) || (connectionTry >= maxConnectionRetries )){
 										notificationManager.cancel(R.string.connection_problem_notification_title);
 										serviceStoppedNotification.when = System.currentTimeMillis();
 										notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
