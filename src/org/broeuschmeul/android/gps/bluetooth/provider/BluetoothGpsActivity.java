@@ -93,28 +93,30 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 			entries[i] = device.getName();
 			i++;
 		}
-		prefDevices.setEntryValues(entryValues);
-		prefDevices.setEntries(entries);
-		Preference pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_TRACK_RECORDING);
-		pref.setEnabled(sharedPref.getBoolean(BluetoothGpsProviderService.PREF_START_GPS_PROVIDER, false));
-		pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME);
-		String mockProvider = sharedPref.getString(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
-		pref.setSummary(getString(R.string.pref_mock_gps_name_summary,mockProvider));
-
-		pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
-		if (sharedPref.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true)){
-			String s = getString(R.string.pref_gps_location_provider_summary);
-			pref.setSummary(s);
-			Log.e("BT test", "loc. provider: "+s);
-			Log.e("BT test", "loc. provider: "+pref.getSummary());               	
-		} else {
-			String s = getString(R.string.pref_mock_gps_name_summary, mockProvider);
-			pref.setSummary(s);
-			Log.e("BT test", "loc. provider: "+s);
-			Log.e("BT test", "loc. provider: "+pref.getSummary());  
-		} 
-		this.onContentChanged();
-	}
+        prefDevices.setEntryValues(entryValues);
+        prefDevices.setEntries(entries);
+        Preference pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_TRACK_RECORDING);
+        pref.setEnabled(sharedPref.getBoolean(BluetoothGpsProviderService.PREF_START_GPS_PROVIDER, false));
+        pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME);
+        String mockProvider = sharedPref.getString(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+        pref.setSummary(getString(R.string.pref_mock_gps_name_summary,mockProvider));
+        pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_CONNECTION_RETRIES);
+        String maxConnRetries = sharedPref.getString(BluetoothGpsProviderService.PREF_CONNECTION_RETRIES, getString(R.string.defaultConnectionRetries));
+        pref.setSummary(getString(R.string.pref_connection_retries_summary,maxConnRetries));
+        pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
+        if (sharedPref.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true)){
+        	String s = getString(R.string.pref_gps_location_provider_summary);
+        	pref.setSummary(s);
+        	Log.e("BT test", "loc. provider: "+s);
+        	Log.e("BT test", "loc. provider: "+pref.getSummary());               	
+        } else {
+        	String s = getString(R.string.pref_mock_gps_name_summary, mockProvider);
+        	pref.setSummary(s);
+        	Log.e("BT test", "loc. provider: "+s);
+        	Log.e("BT test", "loc. provider: "+pref.getSummary());  
+        } 
+        this.onContentChanged();
+    }
 
 	@Override
 	protected void onDestroy() {

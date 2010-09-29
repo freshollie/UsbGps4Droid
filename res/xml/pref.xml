@@ -53,6 +53,12 @@
 			android:title="@string/pref_mock_gps_name_title"
 			android:defaultValue="@string/defaultMockGpsName"
 			android:summary="@string/pref_mock_gps_name_summary" />
+		<EditTextPreference
+			android:key="@string/pref_connection_retries_key"
+			android:title="@string/pref_connection_retries_title"
+			android:defaultValue="@string/defaultConnectionRetries"
+			android:inputType="numberDecimal"
+			android:summary="@string/pref_connection_retries_summary" />
 	</PreferenceScreen>
 	<CheckBoxPreference 
 		android:key="@string/pref_sirf_gps_key"
