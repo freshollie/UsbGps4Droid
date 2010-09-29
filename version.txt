@@ -1,6 +1,7 @@
 BlueGps4Droid 1.1.1
 	* Bug fix (Ticket #4: Connection service is not properly closed https://sourceforge.net/p/bluegps4droid/tickets/4/).
 	* Add notifications when the connection with the GPS fails and when the connection service is closed because of two many connection retry.
+	* Add settings to choose the number of connection retries before exiting.
 	
 BlueGps4Droid 1.1 (does not work properly because of bug #4. Use either version 1.0 or 1.1.1 !)
 	* Reconnect automatically when the connection with the GPS is lost (5 attempts in 5 minutes)
