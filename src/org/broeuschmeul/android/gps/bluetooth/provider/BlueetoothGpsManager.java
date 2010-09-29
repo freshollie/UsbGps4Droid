@@ -317,7 +317,7 @@ public class BlueetoothGpsManager {
 						notificationPool.execute(new Runnable(){
 							@Override
 							public void run() {
-								listener.onNmeaReceived(timestamp, nmeaSentence);
+								listener.onNmeaReceived(timestamp, recognizedSentence);
 							}					 
 						});
 					}
