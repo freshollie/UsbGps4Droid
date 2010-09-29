@@ -65,8 +65,6 @@
     <string name="pref_replace_std_gps_key">replaceStdtGps</string>
     <string name="pref_mock_gps_name_key">mockGpsName</string>
     <string name="pref_recording_key">trackRecording</string>
-    <string name="pref_mindistance_key">trackMinDistance</string>
-    <string name="pref_mintime_key">trackMinTime</string>
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
@@ -155,4 +153,14 @@
     <string name="foreground_service_started_notification_title">BlueGps</string>
     <string name="foreground_gps_provider_started_notification">BlueGps service started</string>
     <string name="foreground_nmea_recording_started_notification">BlueGps NMEA recording service started</string>
+    <string name="connection_problem_notification_title">BlueGps connection problem</string>
+    <plurals name="connection_problem_notification">
+    	<item quantity="one">will retry one more time</item>
+    	<item quantity="other">will retry %d more times</item>
+    </plurals>
+    <!-- 
+    <string name="connection_problem_notification">Have tried %d times - will retry %d more times</string>
+    -->
+    <string name="service_closed_because_connection_problem_notification_title">BlueGps stopped</string>
+    <string name="service_closed_because_connection_problem_notification">Reason: too many connection problems</string>
 </resources>
