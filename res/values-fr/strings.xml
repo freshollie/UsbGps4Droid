@@ -22,7 +22,6 @@
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Le GPS Bluetooth est arrêté</string>
     <string name="pref_start_gps_summary_on">Le GPS Bluetooth est démarré</string>
-    <string name="pref_start_gps_params_title">Options du GPS</string>
     <string name="pref_gps_location_provider_title">Location provider options</string>
     <string name="pref_gps_location_provider_summary">Le GPS Bluetooth remplacera le GPS interne</string>
     <string name="pref_replace_std_gps_title">Remplacer le GPS interne</string>
