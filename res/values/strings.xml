@@ -72,10 +72,10 @@
     <string name="foreground_service_started_notification_title">BlueGps</string>
     <string name="foreground_gps_provider_started_notification">BlueGps service started</string>
     <string name="foreground_nmea_recording_started_notification">BlueGps NMEA recording service started</string>
-    <string name="connection_problem_notification_title">BlueGps connection problem</string>
+    <string name="connection_problem_notification_title">BlueGps: connection problem</string>
     <plurals name="connection_problem_notification">
-    	<item quantity="one">will retry one more time</item>
-    	<item quantity="other">will retry %d more times</item>
+    	<item quantity="one">will retry one more time before closing</item>
+    	<item quantity="other">will retry %d more times before closing</item>
     </plurals>
     <!-- 
     <string name="connection_problem_notification">Have tried %d times - will retry %d more times</string>
