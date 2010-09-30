@@ -102,8 +102,7 @@ public class BlueetoothGpsManager {
 				Log.e("BT test", "error while getting data", e);
 				setMockLocationProviderOutOfService();
 			} finally {
-				// remove because we want to retry...
-				// disable();
+				disableIfNeeded();
 			}
 		}
 
@@ -158,11 +157,14 @@ public class BlueetoothGpsManager {
 	private Context appContext;
 	private NotificationManager notificationManager;
 	private int maxConnectionRetries;
+	private int nbRetriesRemaining;
+	private boolean connected = false;
 
 	public BlueetoothGpsManager(Service callingService, String deviceAddress, int maxRetries) {
 		this.gpsDeviceAddress = deviceAddress;
 		this.callingService = callingService;
 		this.maxConnectionRetries = maxRetries;
+		this.nbRetriesRemaining = 1+maxRetries;
 		this.appContext = callingService.getApplicationContext();
 		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
 		notificationManager = (NotificationManager)callingService.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -172,7 +174,7 @@ public class BlueetoothGpsManager {
 		connectionProblemNotification.icon = R.drawable.icon;
 		Intent stopIntent = new Intent(BluetoothGpsProviderService.ACTION_STOP_GPS_PROVIDER);
 		// PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-		PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, 0);
+		PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		connectionProblemNotification.contentIntent = stopPendingIntent;
 
 		serviceStoppedNotification = new Notification();
@@ -219,65 +221,50 @@ public class BlueetoothGpsManager {
 					if (gpsSocket == null){
 						Log.e("BT test", "Error while establishing connection: no socket");
 					} else {
-						Runnable connectThread = new Runnable() {	
-							private int connectionTry=0;
+						Runnable connectThread = new Runnable() {							
 							@Override
 							public void run() {
 								try {
-									connectionTry++;
+									connected = false;
 									Log.e("BT test", "current device: "+gpsDevice.getName() + " -- " + gpsDevice.getAddress());
-									try {
-										if (gpsSocket != null){
-											Log.e("BT test", "trying to close old socket");
-											gpsSocket.close();
+									if ((bluetoothAdapter.isEnabled()) && (nbRetriesRemaining > 0 )){										
+										try {
+											if (gpsSocket != null){
+												Log.e("BT test", "trying to close old socket");
+												gpsSocket.close();
+											}
+										} catch (IOException e) {
+											Log.e("BT test", "Error during disconnection", e);
 										}
-									} catch (IOException e) {
-										Log.e("BT test", "Error during disconnection", e);
-									}
-									try {
-										gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-									} catch (IOException e) {
-										Log.e("BT test", "Error during connection", e);
-									}
-									if (gpsSocket == null){
-										Log.e("BT test", "Error while establishing connection: no socket");
-									} else {
-										// Cancel discovery because it will slow down the connection
-										bluetoothAdapter.cancelDiscovery();
-										// we increment the number of connection try
-										// Connect the device through the socket. This will block
-										// until it succeeds or throws an exception
-										gpsSocket.connect();
-										// connection obtained so reset the number of connection try
-										connectionTry=0;
-										notificationManager.cancel(R.string.connection_problem_notification_title);
-										connectedGps = new ConnectedGps(gpsSocket);
-										connectionAndReadingPool.execute(connectedGps);
+										try {
+											gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+										} catch (IOException e) {
+											Log.e("BT test", "Error during connection", e);
+										}
+										if (gpsSocket == null){
+											Log.e("BT test", "Error while establishing connection: no socket");
+										} else {
+											// Cancel discovery because it will slow down the connection
+											bluetoothAdapter.cancelDiscovery();
+											// we increment the number of connection try
+											// Connect the device through the socket. This will block
+											// until it succeeds or throws an exception
+											gpsSocket.connect();
+											// connection obtained so reset the number of connection try
+											connected = true;
+											nbRetriesRemaining = 1+maxConnectionRetries ;
+											notificationManager.cancel(R.string.connection_problem_notification_title);
+											connectedGps = new ConnectedGps(gpsSocket);
+											connectionAndReadingPool.execute(connectedGps);
+										}
 									}
 								} catch (IOException connectException) {
 									// Unable to connect
-									Log.e("BT test", "error while connecting to socket", connectException);
+									Log.e("BT test", "error while connecting to socket", connectException);									
 								} finally {
-									if (connectionTry > 0)
-									{
-										// Unable to connect
-										Log.e("BT test", "Unable to establish connection");
-										connectionProblemNotification.when = System.currentTimeMillis();
-										String pbMessage = appContext.getResources().getQuantityString(R.plurals.connection_problem_notification, 5-connectionTry, 5-connectionTry);
-										connectionProblemNotification.setLatestEventInfo(appContext, 
-												appContext.getString(R.string.connection_problem_notification_title), 
-												pbMessage, 
-												connectionProblemNotification.contentIntent);
-										connectionProblemNotification.number = connectionTry;
-										notificationManager.notify(R.string.connection_problem_notification_title, connectionProblemNotification);
-									}
-									// if bluetooth has bean disabled or
-									// if two much tries consider that we are enable to connect. So close everything and get out
-									if ((!bluetoothAdapter.isEnabled()) || (connectionTry >= maxConnectionRetries )){
-										notificationManager.cancel(R.string.connection_problem_notification_title);
-										serviceStoppedNotification.when = System.currentTimeMillis();
-										notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
-										disable();
+									nbRetriesRemaining--;
+									if (! connected) {
+										disableIfNeeded();
 									}
 								}
 							}
@@ -285,12 +272,33 @@ public class BlueetoothGpsManager {
 						this.enabled = true;
 						notificationPool = Executors.newSingleThreadExecutor();
 						connectionAndReadingPool = Executors.newSingleThreadScheduledExecutor();
-						connectionAndReadingPool.scheduleWithFixedDelay(connectThread, 100, 60000, TimeUnit.MILLISECONDS);
+						connectionAndReadingPool.scheduleWithFixedDelay(connectThread, 5000, 60000, TimeUnit.MILLISECONDS);
 					}
 				}
 			}
 		}
 		return this.enabled;
+	}
+	private synchronized void disableIfNeeded(){
+		if (enabled){
+			if (nbRetriesRemaining > 0){
+				// Unable to connect
+				Log.e("BT test", "Unable to establish connection");
+				connectionProblemNotification.when = System.currentTimeMillis();
+				String pbMessage = appContext.getResources().getQuantityString(R.plurals.connection_problem_notification, nbRetriesRemaining, nbRetriesRemaining);
+				connectionProblemNotification.setLatestEventInfo(appContext, 
+						appContext.getString(R.string.connection_problem_notification_title), 
+						pbMessage, 
+						connectionProblemNotification.contentIntent);
+				connectionProblemNotification.number = 1 + maxConnectionRetries - nbRetriesRemaining;
+				notificationManager.notify(R.string.connection_problem_notification_title, connectionProblemNotification);
+			} else {
+				notificationManager.cancel(R.string.connection_problem_notification_title);
+				serviceStoppedNotification.when = System.currentTimeMillis();
+				notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
+				disable();
+			}
+		}
 	}
 	
 	public synchronized void disable() {
@@ -311,7 +319,6 @@ public class BlueetoothGpsManager {
 			callingService.stopSelf();
 		}
 	}
-
 
 	public void enableMockLocationProvider(String gpsName){
 		if (parser != null){

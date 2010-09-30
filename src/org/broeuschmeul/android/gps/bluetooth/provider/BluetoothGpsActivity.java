@@ -131,29 +131,26 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key) {
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (BluetoothGpsProviderService.PREF_START_GPS_PROVIDER.equals(key)){
-			boolean val = false;
-			if (val = sharedPreferences.getBoolean(key, false)){
+			boolean val = sharedPreferences.getBoolean(key, false);
+			CheckBoxPreference pref = (CheckBoxPreference)findPreference(key);
+			if (pref.isChecked() != val){
+				pref.setChecked(val);
+			} else if (val){
 				startService(new Intent(BluetoothGpsProviderService.ACTION_START_GPS_PROVIDER));
 			} else {
 				startService(new Intent(BluetoothGpsProviderService.ACTION_STOP_GPS_PROVIDER));
 			}
+		} else if (BluetoothGpsProviderService.PREF_TRACK_RECORDING.equals(key)){
+			boolean val = sharedPreferences.getBoolean(key, false);
 			CheckBoxPreference pref = (CheckBoxPreference)findPreference(key);
 			if (pref.isChecked() != val){
 				pref.setChecked(val);
-			}
-		} else if (BluetoothGpsProviderService.PREF_TRACK_RECORDING.equals(key)){
-			boolean val = false;
-			if (val = sharedPreferences.getBoolean(key, false)){
+			} else if (val){
 				startService(new Intent(BluetoothGpsProviderService.ACTION_START_TRACK_RECORDING));
 			} else {
 				startService(new Intent(BluetoothGpsProviderService.ACTION_STOP_TRACK_RECORDING));
-			}
-			CheckBoxPreference pref = (CheckBoxPreference)findPreference(key);
-			if (pref.isChecked() != val){
-				pref.setChecked(val);
 			}
 		} else if (BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE.equals(key)){
 			updateDevicePreferenceSummary();
