@@ -44,6 +44,7 @@
 			android:key="@string/pref_replace_std_gps_key"
 			android:persistent="true"
 			android:disableDependentsState="true"
+			android:defaultValue="true"
 			android:title="@string/pref_replace_std_gps_title"
 			android:summaryOn="@string/pref_replace_std_gps_summary_on"
 			android:summaryOff="@string/pref_replace_std_gps_summary_off" />
