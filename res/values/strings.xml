@@ -30,7 +30,7 @@
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
 
-    <string name="defaultConnectionRetries">5</string>
+    <string name="defaultConnectionRetries">0</string>
     <string name="defaultTrackFileDirectory">/sdcard/nmea</string>
     <string name="defaultTrackFilePrefix">btnmeatrack</string>
     <string name="defaultMockGpsName">bluetooth_gps</string>
