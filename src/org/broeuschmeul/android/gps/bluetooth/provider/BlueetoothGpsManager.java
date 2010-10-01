@@ -78,7 +78,11 @@ public class BlueetoothGpsManager {
 			out = tmpOut;
 			out2 = tmpOut2;
 		}
-
+		
+		public boolean isReady(){
+			return ready;
+		}
+		
 		public void run() {
 			try {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(in,"US-ASCII"));
@@ -102,6 +106,7 @@ public class BlueetoothGpsManager {
 				Log.e("BT test", "error while getting data", e);
 				setMockLocationProviderOutOfService();
 			} finally {
+				ready = false;
 				disableIfNeeded();
 			}
 		}
@@ -396,6 +401,10 @@ public class BlueetoothGpsManager {
 			notificationPool.execute( new Runnable() {			
 				@Override
 				public void run() {
+					while ((!enabled) || (!connected) || (connectedGps == null) || (!connectedGps.isReady())){
+						Log.e("BT test", "writing thread is not ready");
+						SystemClock.sleep(500);
+					}
 					if (isEnabled() && (connectedGps != null)){
 						connectedGps.write(command);
 						Log.e("BT test", "sent NMEA sentence: "+command);
@@ -412,6 +421,10 @@ public class BlueetoothGpsManager {
 			notificationPool.execute( new Runnable() {			
 				@Override
 				public void run() {
+					while ((!enabled) || (!connected) || (connectedGps == null) || (!connectedGps.isReady())){
+						Log.e("BT test", "writing thread is not ready");
+						SystemClock.sleep(500);
+					}
 					if (isEnabled() && (connectedGps != null)){
 						connectedGps.write(command);
 						Log.e("BT test", "sent SIRF sentence: "+commandHexa);
