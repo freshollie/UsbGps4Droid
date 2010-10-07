@@ -132,19 +132,18 @@ public class BlueetoothGpsManager {
 
 //	private Handler nmeaSentenceHandler = new Handler();
 
+	public BlueetoothGpsManager(Service callingService, String deviceAddress) {
+		this.gpsDeviceAddress = deviceAddress;
+		this.callingService = callingService;
+		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
+		parser.setLocationManager(locationManager);	
+	}
 	
 	/**
 	 * @return true if the bluetooth GPS is enabled
 	 */
 	public boolean isEnabled() {
 		return enabled;
-	}
-
-	public BlueetoothGpsManager(Service callingService, String deviceAddress) {
-		this.gpsDeviceAddress = deviceAddress;
-		this.callingService = callingService;
-		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
-		parser.setLocationManager(locationManager);	
 	}
 
 	public synchronized void enable() {
