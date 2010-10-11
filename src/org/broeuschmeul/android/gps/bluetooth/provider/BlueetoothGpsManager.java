@@ -43,9 +43,13 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.location.Criteria;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -100,6 +104,7 @@ public class BlueetoothGpsManager {
 	private ScheduledExecutorService connectionAndReadingPool;
 	private List<NmeaListener> nmeaListeners = Collections.synchronizedList(new LinkedList<NmeaListener>()); 
 	private LocationManager locationManager;
+	private SharedPreferences sharedPreferences;
 	private ConnectedGps connectedGps;
 	private Notification connectionProblemNotification;
 	private Notification serviceStoppedNotification;
@@ -116,6 +121,7 @@ public class BlueetoothGpsManager {
 		this.nbRetriesRemaining = 1+maxRetries;
 		this.appContext = callingService.getApplicationContext();
 		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
 		notificationManager = (NotificationManager)callingService.getSystemService(Context.NOTIFICATION_SERVICE);
 		parser.setLocationManager(locationManager);	
 		
@@ -134,10 +140,7 @@ public class BlueetoothGpsManager {
 				appContext.getString(R.string.service_closed_because_connection_problem_notification_title), 
 				appContext.getString(R.string.service_closed_because_connection_problem_notification), 
 				restartPendingIntent);
-
-
 	}
-
 	/**
 	 * @return true if the bluetooth GPS is enabled
 	 */
@@ -149,14 +152,20 @@ public class BlueetoothGpsManager {
 		notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
 		if (! enabled){
 			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-			if (bluetoothAdapter == null) {
-				// Device does not support Bluetooth
-				Log.e("BT test", "Device does not support Bluetooth");
-			} else if (!bluetoothAdapter.isEnabled()) {
+	        if (bluetoothAdapter == null) {
+	            // Device does not support Bluetooth
+	        	Log.e("BT test", "Device does not support Bluetooth");
+	        } else if (!bluetoothAdapter.isEnabled()) {
 				// Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 				//	startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-				Log.e("BT test", "Bluetooth is not enabled");
-			} else {
+	        	Log.e("BT test", "Bluetooth is not enabled");
+	        } else if (Settings.Secure.getInt(callingService.getContentResolver(),Settings.Secure.ALLOW_MOCK_LOCATION, 0)==0){
+	        	Log.e("BT test", "Mock location provider OFF");
+	        } else if ( (! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+	        		// && (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true))
+	        			) {
+	        	Log.e("BT test", "GPS location provider OFF");
+	        } else {
 				final BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
 				if (gpsDevice == null){
 					Log.e("BT test", "GPS device not found");       	    	
