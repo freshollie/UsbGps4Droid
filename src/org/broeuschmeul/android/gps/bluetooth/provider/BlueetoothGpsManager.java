@@ -41,10 +41,13 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.location.GpsStatus.NmeaListener;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.PrintStreamPrinter;
 
@@ -126,6 +129,7 @@ public class BlueetoothGpsManager {
 	private ExecutorService notificationPool;
 	private List<NmeaListener> nmeaListeners = Collections.synchronizedList(new LinkedList<NmeaListener>()); 
 	private LocationManager locationManager;
+	private SharedPreferences sharedPreferences;
 //	private boolean mockGpsEnabled = true;
 //	private String mockLocationProvider = LocationManager.GPS_PROVIDER;
 	private ConnectedThread connectedThread;
@@ -136,6 +140,7 @@ public class BlueetoothGpsManager {
 		this.gpsDeviceAddress = deviceAddress;
 		this.callingService = callingService;
 		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
 		parser.setLocationManager(locationManager);	
 	}
 	
@@ -157,6 +162,12 @@ public class BlueetoothGpsManager {
 //	        	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 //	        	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 	        	Log.e("BT test", "Bluetooth is not enabled");
+	        } else if (Settings.Secure.getInt(callingService.getContentResolver(),Settings.Secure.ALLOW_MOCK_LOCATION, 0)==0){
+	        	Log.e("BT test", "Mock location provider OFF");
+	        } else if ( (! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+	        		// && (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true))
+	        			) {
+	        	Log.e("BT test", "GPS location provider OFF");
 	        } else {
 	    		BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
 	    		if (gpsDevice == null){
