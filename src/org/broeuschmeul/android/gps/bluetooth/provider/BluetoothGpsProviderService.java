@@ -88,12 +88,8 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 //		super.onStart(intent, startId);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor edit = sharedPreferences.edit();
-//		long minTime = Long.parseLong(sharedPreferences.getString(PREF_TRACK_MIN_TIME, this.getString(R.string.defaultTrackMinTime)));
-//		float minDistance = Float.parseFloat(sharedPreferences.getString(PREF_TRACK_MIN_DISTANCE, this.getString(R.string.defaultTrackMinDistance)));
 		String deviceAddress = sharedPreferences.getString(PREF_BLUETOOTH_DEVICE, null);
 		if (Config.LOGD){
-//			Log.d(BluetoothGpsProviderService.class.getName(), "prefs minTime: "+minTime);
-//			Log.d(BluetoothGpsProviderService.class.getName(), "prefs minDistance: "+minDistance);
 			Log.d(BluetoothGpsProviderService.class.getName(), "prefs device addr: "+deviceAddress);
 		}
 		if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())){
@@ -287,22 +283,4 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public void onNmeaReceived(long timestamp, String data) {
 		addNMEAString(data);
 	}
-
-//	private void startBluetoothGps(String deviceAddress){
-//		Notification notification = new Notification(R.drawable.icon, this.getString(R.string.foreground_service_started_notification),  System.currentTimeMillis());
-//		Intent myIntent = new Intent(this, BluetoothGpsActivity.class);
-//		PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-//		notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_service_started_notification), myPendingIntent);
-//		startForeground(R.string.foreground_service_started_notification, notification);
-//		if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
-//			gpsManager = new BlueetoothGpsManager(this, deviceAddress);
-//			gpsManager.enable();
-//			gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
-//			toast.setText(this.getString(R.string.msg_started));
-//			toast.show();				
-////		} else {
-////			toast.setText(this.getString(R.string.msg_invalid_device));
-////			toast.show();				
-//		}
-//	}
 }

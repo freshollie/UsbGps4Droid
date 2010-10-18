@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,14 +41,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Criteria;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.location.GpsStatus.NmeaListener;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
-import android.util.PrintStreamPrinter;
 
 public class BlueetoothGpsManager {
 
@@ -83,10 +79,6 @@ public class BlueetoothGpsManager {
 					while((enabled && (s = reader.readLine()) != null)){
 						Log.e("BT test", "data: "+System.currentTimeMillis()+" "+s + "xxx");
 						notifyNmeaSentence(s+"\r\n");
-//						parser.parseNmeaSentence(s);
-//	//					writer.println(s);
-//						addNMEAString(s);
-//						nmeaSentenceHandler.ob
 					}
 				} catch (IOException e) {
 		        	Log.e("BT test", "error while getting data", e);
@@ -94,30 +86,6 @@ public class BlueetoothGpsManager {
 					disable();
 				}
 		    }
-
-	        /**
-	         * Write to the connected OutStream.
-	         * @param buffer  The bytes to write
-	         */
-	        public void write(byte[] buffer) {
-	            try {
-	                out.write(buffer);
-	            } catch (IOException e) {
-//	                Log.e(TAG, "Exception during write", e);
-	            }
-	        }
-	        /**
-	         * Write to the connected OutStream.
-	         * @param buffer  The data to write
-	         */
-	        public void write(String buffer) {
-	            try {
-	                out2.print(buffer);
-	                out.flush();
-	            } catch (IOException e) {
-//	                Log.e(TAG, "Exception during write", e);
-	            }
-	        }
 		}
 
 	private Service callingService;
@@ -130,11 +98,7 @@ public class BlueetoothGpsManager {
 	private List<NmeaListener> nmeaListeners = Collections.synchronizedList(new LinkedList<NmeaListener>()); 
 	private LocationManager locationManager;
 	private SharedPreferences sharedPreferences;
-//	private boolean mockGpsEnabled = true;
-//	private String mockLocationProvider = LocationManager.GPS_PROVIDER;
 	private ConnectedThread connectedThread;
-
-//	private Handler nmeaSentenceHandler = new Handler();
 
 	public BlueetoothGpsManager(Service callingService, String deviceAddress) {
 		this.gpsDeviceAddress = deviceAddress;
@@ -181,14 +145,6 @@ public class BlueetoothGpsManager {
 	    			if (gpsSocket == null){
 	    				Log.e("BT test", "Error while establishing connection: no socket");
 	    			} else {
-////	    				mockGpsEnabled = locationManager.isProviderEnabled(mockLocationProvider);
-//	    				LocationProvider prov = locationManager.getProvider(mockLocationProvider);
-//	    				Log.e("BT test", "Mock power: "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+locationManager.isProviderEnabled(mockLocationProvider));
-//	    				locationManager.addTestProvider(mockLocationProvider, false, true,false, false, 
-//	    						true, true, true, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
-////	    				locationManager.setTestProviderEnabled(mockLocationProvider, true);
-//	    				prov = locationManager.getProvider(mockLocationProvider);
-//	    				Log.e("BT test", "Mock power: "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+locationManager.isProviderEnabled(mockLocationProvider));
 
 	    				Runnable connectThread = new Runnable() {							
 							@Override
@@ -201,26 +157,8 @@ public class BlueetoothGpsManager {
 						        	gpsSocket.connect();
 				    				connectedThread = new ConnectedThread(gpsSocket);
 				    				connectedThread.start();
-//				    				String command = callingService.getString(R.string.sirf_gll_on);
-//				    				String sentence = String.format((Locale)null,"$%s*%X\r\n", command, parser.computeChecksum(command)); 
-//				    				String command1 = callingService.getString(R.string.sirf_gll_off);
-//				    				String sentence1 = String.format((Locale)null,"$%s*%X\r\n", command1, parser.computeChecksum(command1)); 
-//				    				String command2 = callingService.getString(R.string.sirf_vtg_off);
-//				    				String sentence2 = String.format((Locale)null,"$%s*%X\r\n", command2, parser.computeChecksum(command2)); 
-//				    				try {
-//										Thread.sleep(5000);
-//									} catch (InterruptedException e) {
-//										// TODO Auto-generated catch block
-//										e.printStackTrace();
-//									}
-//				    				Log.e("BT test", "sending NMEA sentence: "+"$PSRF105,1*3E\r\n");
-//				    				connectedThread.write("$PSRF105,1*3E\r\n");	    								    				
-//				    				Log.e("BT test", "sending NMEA sentence: "+sentence1);
-//				    				connectedThread.write(sentence1);	    								    				
-//				    				Log.e("BT test", "sending NMEA sentence: "+sentence2);
-//				    				connectedThread.write(sentence2);	    								    				
 						        } catch (IOException connectException) {
-						            // Unable to connect; close everything and get out
+						            // Unable to connect; So close everything and get out
 						        	Log.e("BT test", "error while connecting to socket", connectException);
 									disable();
 //						        	callingService.stopSelf();
@@ -250,18 +188,6 @@ public class BlueetoothGpsManager {
 			nmeaListeners.clear();
 			disableMockLocationProvider();
 			notificationPool.shutdown();
-////			locationManager.setTestProviderEnabled(mockLocationProvider, mockGpsEnabled);
-//			LocationProvider prov = locationManager.getProvider(mockLocationProvider);
-//			Log.e("BT test", "Mock power: "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+locationManager.isProviderEnabled(mockLocationProvider));
-//			locationManager.clearTestProviderEnabled(mockLocationProvider);
-//			prov = locationManager.getProvider(mockLocationProvider);
-//			Log.e("BT test", "Mock power: "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+locationManager.isProviderEnabled(mockLocationProvider));
-//			locationManager.clearTestProviderStatus(mockLocationProvider);
-//			locationManager.removeTestProvider(mockLocationProvider);
-//			prov = locationManager.getProvider(mockLocationProvider);
-//			Log.e("BT test", "Mock power: "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+locationManager.isProviderEnabled(mockLocationProvider));
-//			Log.e("BT test", "removed mock GPS");
-			
 			callingService.stopSelf();
 		}
 	}
