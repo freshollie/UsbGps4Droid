@@ -147,13 +147,12 @@ public class BlueetoothGpsManager {
 	/**
 	 * @return true if the bluetooth GPS is enabled
 	 */
-	public boolean isEnabled() {
+	public synchronized boolean isEnabled() {
 		return enabled;
 	}
 
 	public synchronized void enable() {
 		if (! enabled){
-			this.enabled = true;
 			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	        if (bluetoothAdapter == null) {
 	            // Device does not support Bluetooth
@@ -228,6 +227,7 @@ public class BlueetoothGpsManager {
 						        }
 							}
 						};
+						this.enabled = true;
 						notificationPool = Executors.newSingleThreadExecutor();
 						notificationPool.execute(connectThread);
 //						enableMockLocationProvider(LocationManager.GPS_PROVIDER);

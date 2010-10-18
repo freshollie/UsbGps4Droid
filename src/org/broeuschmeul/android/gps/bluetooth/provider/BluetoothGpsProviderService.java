@@ -105,14 +105,18 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 				startForeground(R.string.foreground_gps_provider_started_notification, notification);
 				if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
 					gpsManager = new BlueetoothGpsManager(this, deviceAddress);
-					gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
 					gpsManager.enable();
-					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false)){
-						edit.putBoolean(PREF_START_GPS_PROVIDER,true);
-						edit.commit();
+					if (gpsManager.isEnabled()){
+						gpsManager.enableMockLocationProvider(LocationManager.GPS_PROVIDER);
+						if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false)){
+							edit.putBoolean(PREF_START_GPS_PROVIDER,true);
+							edit.commit();
+						}
+						toast.setText(this.getString(R.string.msg_gps_provider_started));
+						toast.show();	
+					} else {
+						stopSelf();
 					}
-					toast.setText(this.getString(R.string.msg_gps_provider_started));
-					toast.show();				
 				} else {
 //					if (! sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)){
 //						edit.putBoolean(PREF_START_GPS_PROVIDER,false);
