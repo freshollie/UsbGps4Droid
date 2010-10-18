@@ -19,6 +19,8 @@
 	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
 -->
 <resources>
+    <string name="app_name">BlueGps</string>
+    
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">le GPS Bluetooth est arrêté</string>
     <string name="pref_start_gps_summary_on">le GPS Bluetooth est démarré</string>
