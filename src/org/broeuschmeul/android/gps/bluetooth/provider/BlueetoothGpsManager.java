@@ -51,8 +51,6 @@ public class BlueetoothGpsManager {
 
 	private class ConnectedThread extends Thread {
 		    private final InputStream in;
-		    private final OutputStream out;
-		    private final PrintStream out2;
 	
 		    public ConnectedThread(BluetoothSocket socket) {
 		        InputStream tmpIn = null;
@@ -68,8 +66,6 @@ public class BlueetoothGpsManager {
 		        	Log.e("BT test", "error while getting socket streams", e);
 		        }	
 		        in = tmpIn;
-		        out = tmpOut;
-		        out2 = tmpOut2;
 		    }
 	
 		    public void run() {
@@ -99,6 +95,7 @@ public class BlueetoothGpsManager {
 	private LocationManager locationManager;
 	private SharedPreferences sharedPreferences;
 	private ConnectedThread connectedThread;
+	private int disableReason = 0;
 
 	public BlueetoothGpsManager(Service callingService, String deviceAddress) {
 		this.gpsDeviceAddress = deviceAddress;
@@ -108,6 +105,14 @@ public class BlueetoothGpsManager {
 		parser.setLocationManager(locationManager);	
 	}
 	
+	private void setDisableReason(int reasonId){
+		disableReason = reasonId;
+	}
+	
+	public int getDisableReason(){
+		return disableReason;
+	}
+
 	/**
 	 * @return true if the bluetooth GPS is enabled
 	 */
@@ -121,29 +126,36 @@ public class BlueetoothGpsManager {
 	        if (bluetoothAdapter == null) {
 	            // Device does not support Bluetooth
 	        	Log.e("BT test", "Device does not support Bluetooth");
+	        	disable(R.string.msg_bluetooth_unsupported);
 	        } else if (!bluetoothAdapter.isEnabled()) {
 //	        	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 //	        	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 	        	Log.e("BT test", "Bluetooth is not enabled");
+	        	disable(R.string.msg_bluetooth_disabled);
 	        } else if (Settings.Secure.getInt(callingService.getContentResolver(),Settings.Secure.ALLOW_MOCK_LOCATION, 0)==0){
 	        	Log.e("BT test", "Mock location provider OFF");
+	        	disable(R.string.msg_mock_location_disabled);
 	        } else if ( (! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
 	        		// && (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true))
 	        			) {
 	        	Log.e("BT test", "GPS location provider OFF");
+	        	disable(R.string.msg_gps_provider_disabled);
 	        } else {
 	    		BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
 	    		if (gpsDevice == null){
 	    			Log.e("BT test", "GPS device not found");       	    	
+		        	disable(R.string.msg_bluetooth_gps_unavaible);
 	    		} else {
 	    			Log.e("BT test", "current device: "+gpsDevice.getName() + " -- " + gpsDevice.getAddress());
 	    			try {
 	    				gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 	    			} catch (IOException e) {
 	    				Log.e("BT test", "Error during connection", e);
+	    				gpsSocket = null;
 	    			}
 	    			if (gpsSocket == null){
 	    				Log.e("BT test", "Error while establishing connection: no socket");
+			        	disable(R.string.msg_bluetooth_gps_unavaible);
 	    			} else {
 
 	    				Runnable connectThread = new Runnable() {							
@@ -160,8 +172,8 @@ public class BlueetoothGpsManager {
 						        } catch (IOException connectException) {
 						            // Unable to connect; So close everything and get out
 						        	Log.e("BT test", "error while connecting to socket", connectException);
-									disable();
-//						        	callingService.stopSelf();
+									disable(R.string.msg_bluetooth_gps_unavaible);
+						        	// callingService.stopSelf();
 						        }
 							}
 						};
@@ -175,6 +187,11 @@ public class BlueetoothGpsManager {
 		}
 	}
 	
+	public synchronized void disable(int reasonId) {
+		setDisableReason(reasonId);
+    	disable();
+	}
+		
 	public synchronized void disable() {
 		if (enabled){
 			enabled = false;
@@ -191,7 +208,6 @@ public class BlueetoothGpsManager {
 			callingService.stopSelf();
 		}
 	}
-
 	
 	public void enableMockLocationProvider(String gpsName){
 		if (parser != null){
@@ -240,7 +256,12 @@ public class BlueetoothGpsManager {
 	
 	private void notifyNmeaSentence(final String nmeaSentence){
 		if (enabled){
-			parser.parseNmeaSentence(nmeaSentence);
+			try {
+				parser.parseNmeaSentence(nmeaSentence);
+			} catch (SecurityException e){
+				// a priori Mock Location is disabled
+				disable(R.string.msg_mock_location_disabled);
+			}
 			final long timestamp = System.currentTimeMillis();
 			synchronized(nmeaListeners) {
 				for(final NmeaListener listener : nmeaListeners){
