@@ -128,18 +128,18 @@ public class BlueetoothGpsManager {
 	        	Log.e("BT test", "Device does not support Bluetooth");
 	        	disable(R.string.msg_bluetooth_unsupported);
 	        } else if (!bluetoothAdapter.isEnabled()) {
-//	        	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//	        	    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+	        	// Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	        	// startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 	        	Log.e("BT test", "Bluetooth is not enabled");
 	        	disable(R.string.msg_bluetooth_disabled);
 	        } else if (Settings.Secure.getInt(callingService.getContentResolver(),Settings.Secure.ALLOW_MOCK_LOCATION, 0)==0){
 	        	Log.e("BT test", "Mock location provider OFF");
 	        	disable(R.string.msg_mock_location_disabled);
-	        } else if ( (! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-	        		// && (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true))
-	        			) {
-	        	Log.e("BT test", "GPS location provider OFF");
-	        	disable(R.string.msg_gps_provider_disabled);
+//	        } else if ( (! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+//	        		// && (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true))
+//	        			) {
+//	        	Log.e("BT test", "GPS location provider OFF");
+//	        	disable(R.string.msg_gps_provider_disabled);
 	        } else {
 	    		BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
 	    		if (gpsDevice == null){
