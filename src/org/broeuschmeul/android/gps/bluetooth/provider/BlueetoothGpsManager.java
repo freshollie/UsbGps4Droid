@@ -162,7 +162,7 @@ public class BlueetoothGpsManager {
 	        } else if (Settings.Secure.getInt(callingService.getContentResolver(),Settings.Secure.ALLOW_MOCK_LOCATION, 0)==0){
 	        	Log.e("BT test", "Mock location provider OFF");
 	        } else if ( (! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-	        		// && (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true))
+	        		 && (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_REPLACE_STD_GPS, true))
 	        			) {
 	        	Log.e("BT test", "GPS location provider OFF");
 	        } else {
