@@ -24,8 +24,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,14 +52,8 @@ public class BlueetoothGpsManager {
 	
 		    public ConnectedThread(BluetoothSocket socket) {
 		        InputStream tmpIn = null;
-		        OutputStream tmpOut = null;
-		        PrintStream tmpOut2 = null;
 		        try {
 		        	tmpIn = socket.getInputStream();
-		        	tmpOut = socket.getOutputStream();
-		        	if (tmpOut != null){
-		        		tmpOut2 = new PrintStream(tmpOut, false, "US-ASCII");
-		        	}
 		        } catch (IOException e) {
 		        	Log.e("BT test", "error while getting socket streams", e);
 		        }	
@@ -85,7 +77,6 @@ public class BlueetoothGpsManager {
 		}
 
 	private Service callingService;
-	private BluetoothDevice gpsDevice;
 	private BluetoothSocket gpsSocket;
 	private String gpsDeviceAddress;
 	private NmeaParser parser = new NmeaParser(10f);
