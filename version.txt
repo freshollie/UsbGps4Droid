@@ -1,3 +1,6 @@
+BlueGps4Droid 1.2 alpha version
+	* SiRF configuration (NMEA sentences - SBAS - Static Navigation)
+
 BlueGps4Droid 1.1.1
 	* Bug fix (Ticket #4: Connection service is not properly closed https://sourceforge.net/p/bluegps4droid/tickets/4/).
 	* Add notifications when the connection with the GPS fails and when the connection service is closed because of two many connection retry.
@@ -10,6 +13,6 @@ BlueGps4Droid 1.1 (does not work properly because of bug #4. Use either version 
     
 BlueGps4Droid 1.0
 	* Connect to bluetooth GPS (NMEA) and replace the internal GPS of an Android device.
-    * Record GPS tracks in GPX files 
+    * Record GPS tracks in NMEA files 
     * Compatible with Android version 2.0 and above
     * English and French translations    
