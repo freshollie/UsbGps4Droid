@@ -50,10 +50,12 @@
     <string name="msg_gps_provider_started">Bluetooth GPS... started</string>
     <string name="msg_gps_provider_stopped">Bluetooth GPS... stopped</string>
     <string name="msg_gps_provider_already_started">Bluetooth GPS... is already on</string>
-    <string name="msg_gps_provider_disabled">Cannot start: GPS is disabled</string>
-    <string name="msg_bluetooth_unsupported">Cannot start: Bluetooth is not supported</string>
-    <string name="msg_bluetooth_disabled">Cannot start: Bluetooth is disabled</string>
-    <string name="msg_mock_location_disabled">Cannot start: Mock location is disabled</string>
+    <string name="msg_gps_provider_stopped_by_problem">"Cannot start: %s"</string>
+    <string name="msg_two_many_connection_problems">Too many connection problems</string>
+    <string name="msg_gps_provider_disabled">GPS is disabled</string>
+    <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string>
+    <string name="msg_bluetooth_disabled">Bluetooth is disabled</string>
+    <string name="msg_mock_location_disabled">Mock location is disabled</string>
     <string name="msg_bluetooth_gps_unavaible">Cannot connect to bluetooth GPS</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
     <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
@@ -67,5 +69,5 @@
     	<item quantity="other">Will retry %d more times before closing</item>
     </plurals>
     <string name="service_closed_because_connection_problem_notification_title">BlueGps stopped</string>
-    <string name="service_closed_because_connection_problem_notification">Reason: too many connection problems</string>
+    <string name="service_closed_because_connection_problem_notification">"Reason: %"</string>
 </resources>

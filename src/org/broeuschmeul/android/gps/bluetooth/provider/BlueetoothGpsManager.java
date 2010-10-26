@@ -228,16 +228,20 @@ public class BlueetoothGpsManager {
 											gpsSocket.connect();
 											// connection obtained so reset the number of connection try
 											connected = true;
+											// reset eventual disabling cause
+//											setDisableReason(0);
 											nbRetriesRemaining = 1+maxConnectionRetries ;
 											notificationManager.cancel(R.string.connection_problem_notification_title);
 											connectedGps = new ConnectedGps(gpsSocket);
 											connectionAndReadingPool.execute(connectedGps);
 										}
+//									} else if (! bluetoothAdapter.isEnabled()) {
+//										setDisableReason(R.string.msg_bluetooth_disabled);
 									}
 								} catch (IOException connectException) {
 									// Unable to connect
 									Log.e("BT test", "error while connecting to socket", connectException);									
-									disable(R.string.msg_bluetooth_gps_unavaible);
+									// disable(R.string.msg_bluetooth_gps_unavaible);
 								} finally {
 									nbRetriesRemaining--;
 									if (! connected) {
@@ -271,10 +275,10 @@ public class BlueetoothGpsManager {
 				connectionProblemNotification.number = 1 + maxConnectionRetries - nbRetriesRemaining;
 				notificationManager.notify(R.string.connection_problem_notification_title, connectionProblemNotification);
 			} else {
-				notificationManager.cancel(R.string.connection_problem_notification_title);
-				serviceStoppedNotification.when = System.currentTimeMillis();
-				notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
-				disable();
+//				notificationManager.cancel(R.string.connection_problem_notification_title);
+//				serviceStoppedNotification.when = System.currentTimeMillis();
+//				notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
+				disable(R.string.msg_two_many_connection_problems);
 			}
 		}
 	}
@@ -285,6 +289,15 @@ public class BlueetoothGpsManager {
 	}
 		
 	public synchronized void disable() {
+		notificationManager.cancel(R.string.connection_problem_notification_title);
+		if (getDisableReason() != 0){
+			serviceStoppedNotification.when = System.currentTimeMillis();
+			serviceStoppedNotification.setLatestEventInfo(appContext, 
+					appContext.getString(R.string.service_closed_because_connection_problem_notification_title), 
+					appContext.getString(R.string.service_closed_because_connection_problem_notification, appContext.getString(getDisableReason())),
+					serviceStoppedNotification.contentIntent);
+			notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
+		}
 		if (enabled){
 			enabled = false;
 			if (gpsSocket != null){
@@ -298,7 +311,6 @@ public class BlueetoothGpsManager {
 			disableMockLocationProvider();
 			notificationPool.shutdown();
 			connectionAndReadingPool.shutdown();
-			notificationManager.cancel(R.string.connection_problem_notification_title);
 			callingService.stopSelf();
 		}
 	}

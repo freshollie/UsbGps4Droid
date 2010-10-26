@@ -181,7 +181,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		gpsManager  = null;
 		if (manager != null){
 			if (manager.getDisableReason() != 0){
-				toast.setText(manager.getDisableReason());
+				toast.setText(getString(R.string.msg_gps_provider_stopped_by_problem, getString(manager.getDisableReason())));
 				toast.show();
 			} else {
 				toast.setText(R.string.msg_gps_provider_stopped);
