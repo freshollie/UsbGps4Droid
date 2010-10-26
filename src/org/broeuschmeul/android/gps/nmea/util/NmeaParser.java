@@ -36,19 +36,20 @@ import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
 public class NmeaParser {
-	private String fixTime;
+	private String fixTime = null;
 	private long fixTimestamp;
 
 	private boolean hasGGA = false;
 	private boolean hasRMC = false;
 	private LocationManager lm;
 	private float precision = 10f;
+	private boolean mockGpsAutoEnabled = false;
 	private boolean mockGpsEnabled = false;
 	private String mockLocationProvider = null;
 
 	private int mockStatus = LocationProvider.OUT_OF_SERVICE;
 
-	private Location fix = new Location(mockLocationProvider);
+	private Location fix = null;
 
 	public NmeaParser(){
 		this(5f);
@@ -62,65 +63,81 @@ public class NmeaParser {
 	}
 
 	public void enableMockLocationProvider(String gpsName){
-		LocationProvider prov;
-		if (gpsName != null && gpsName != "" ){
-			if (! gpsName.equals(mockLocationProvider)){
-				disableMockLocationProvider();
-				mockLocationProvider = gpsName;
-			}
-			if (! mockGpsEnabled){
+		try {
+			LocationProvider prov;
+			if (gpsName != null && gpsName != "" ){
+				if (! gpsName.equals(mockLocationProvider)){
+					disableMockLocationProvider();
+					mockLocationProvider = gpsName;
+				}
+				if (! mockGpsEnabled){
+					prov = lm.getProvider(mockLocationProvider);
+					if (prov != null){
+						Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+					}
+					lm.addTestProvider(mockLocationProvider, false, true,false, false, true, true, true, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
+					if ((prov == null)  
+							// || (! LocationManager.GPS_PROVIDER.equals(mockLocationProvider))
+					){
+						Log.e("BT test", "enabling Mock provider: "+mockLocationProvider);
+						lm.setTestProviderEnabled(mockLocationProvider, true);
+						mockGpsAutoEnabled = true;
+					}
+					mockGpsEnabled = true;
+				} else {
+					Log.e("BT test", "Mock provider already enabled: "+mockLocationProvider);
+				}
 				prov = lm.getProvider(mockLocationProvider);
 				if (prov != null){
 					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 				}
-				lm.addTestProvider(mockLocationProvider, false, true,false, false, true, true, true, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
-				if (! LocationManager.GPS_PROVIDER.equals(mockLocationProvider)){
-					lm.setTestProviderEnabled(mockLocationProvider, true);
-				}
-				mockGpsEnabled = true;
-			} else {
-				Log.e("BT test", "Mock provider already enabled: "+mockLocationProvider);
 			}
-			prov = lm.getProvider(mockLocationProvider);
-			if (prov != null){
-				Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
-			}
+		} catch (SecurityException e){
+			Log.e("BT test", "Error while enabling Mock Mocations Provider", e);
+			disableMockLocationProvider();
 		}
 	}
 
 	public void disableMockLocationProvider(){
-		LocationProvider prov;
-		if (mockLocationProvider != null && mockLocationProvider != "" && mockGpsEnabled){
-			prov = lm.getProvider(mockLocationProvider);
-			if (prov != null){
-				Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+		try {
+			LocationProvider prov;
+			if (mockLocationProvider != null && mockLocationProvider != "" && mockGpsEnabled){
+				prov = lm.getProvider(mockLocationProvider);
+				if (prov != null){
+					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+				}
+				mockGpsEnabled = false;
+				if ( mockGpsAutoEnabled )  { 
+					Log.e("BT test", "disabling Mock provider: "+mockLocationProvider);
+					lm.setTestProviderEnabled(mockLocationProvider, false);
+				}
+				prov = lm.getProvider(mockLocationProvider);
+				if (prov != null){
+					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+				}
+				lm.clearTestProviderEnabled(mockLocationProvider);
+				prov = lm.getProvider(mockLocationProvider);
+				if (prov != null){
+					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+				}
+				lm.clearTestProviderStatus(mockLocationProvider);
+				lm.removeTestProvider(mockLocationProvider);
+				prov = lm.getProvider(mockLocationProvider);
+				if (prov != null){
+					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+				}
+				Log.e("BT test", "removed mock GPS");
+			} else {
+				Log.e("BT test", "Mock provider already disabled: "+mockLocationProvider);			
 			}
+		} catch (SecurityException e){
+			Log.e("BT test", "Error while enabling Mock Mocations Provider", e);
+		} finally {
+			mockLocationProvider = null;
 			mockGpsEnabled = false;
-			if (! LocationManager.GPS_PROVIDER.equals(mockLocationProvider)){
-				lm.setTestProviderEnabled(mockLocationProvider, false);
-			}
-			prov = lm.getProvider(mockLocationProvider);
-			if (prov != null){
-				Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
-			}
-			lm.clearTestProviderEnabled(mockLocationProvider);
-			prov = lm.getProvider(mockLocationProvider);
-			if (prov != null){
-				Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
-			}
-			lm.clearTestProviderStatus(mockLocationProvider);
-			lm.removeTestProvider(mockLocationProvider);
-			prov = lm.getProvider(mockLocationProvider);
-			if (prov != null){
-				Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
-			}
-			Log.e("BT test", "removed mock GPS");
-		} else {
-			Log.e("BT test", "Mock provider already disabled: "+mockLocationProvider);			
+			mockGpsAutoEnabled = false;
+			mockStatus = LocationProvider.OUT_OF_SERVICE;
 		}
-		mockLocationProvider = null;
-		mockGpsEnabled = false;
-		mockStatus = LocationProvider.OUT_OF_SERVICE;
 	}
 
 	/**
@@ -141,7 +158,7 @@ public class NmeaParser {
 		return mockLocationProvider;
 	}
 	
-	private void notifyFix(Location fix){
+	private void notifyFix(Location fix) throws SecurityException {
 		fixTime = null;
 		hasGGA = false;
 		hasRMC=false;
@@ -173,7 +190,7 @@ public class NmeaParser {
 	}
 	
 	// parse NMEA Sentence 
-	public String parseNmeaSentence(String gpsSentence){
+	public String parseNmeaSentence(String gpsSentence) throws SecurityException {
 		String nmeaSentence = null;
 		Log.e("BT test", "data: "+System.currentTimeMillis()+" "+gpsSentence);
 		Pattern xx = Pattern.compile("\\$([^*$]*)\\*([0-9A-F][0-9A-F])?\r\n");
