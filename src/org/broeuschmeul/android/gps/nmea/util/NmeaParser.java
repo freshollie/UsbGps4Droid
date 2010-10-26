@@ -36,7 +36,7 @@ import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
 public class NmeaParser {
-	private String fixTime;
+	private String fixTime = null;
 	private long fixTimestamp;
 
 	private boolean hasGGA = false;
@@ -47,7 +47,7 @@ public class NmeaParser {
 	private boolean mockGpsEnabled = false;
 	private String mockLocationProvider = null;
 	
-	private Location fix = new Location(mockLocationProvider);
+	private Location fix = null;
 	
 	public NmeaParser(){
 		this(5f);
