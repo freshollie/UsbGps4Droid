@@ -30,6 +30,8 @@
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
 
     <string name="pref_sirf_gps_key">sirfGps</string>
+    <string name="pref_sirf_enable_gga_key">enableGGA</string>
+    <string name="pref_sirf_enable_rmc_key">enableRMC</string>
     <string name="pref_sirf_enable_gll_key">enableGLL</string>
     <string name="pref_sirf_enable_vtg_key">enableVTG</string>
     <string name="pref_sirf_enable_gsa_key">enableGSA</string>
@@ -46,7 +48,9 @@
 
     
     <string name="sirf_nmea_gga_on">PSRF103,00,00,01,01</string>
+    <string name="sirf_nmea_gga_off">PSRF103,00,00,00,01</string>
     <string name="sirf_nmea_rmc_on">PSRF103,04,00,01,01</string>
+    <string name="sirf_nmea_rmc_off">PSRF103,04,00,00,01</string>
     <string name="sirf_nmea_gll_on">PSRF103,01,00,01,01</string>
     <string name="sirf_nmea_gll_off">PSRF103,01,00,00,01</string>
     <string name="sirf_nmea_gsa_on">PSRF103,02,00,05,01</string>

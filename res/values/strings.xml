@@ -53,6 +53,12 @@
     <string name="pref_sirf_gps_summary_on">"Don't SiRF Options"</string>
     <string name="pref_sirf_nmea_category_title">Choice of NMEA sentences</string>
     <string name="pref_sirf_gps_category_title">GPS operation</string>
+    <string name="pref_enable_gga_title">Enable NMEA GGA</string>
+    <string name="pref_enable_gga_summary_off">NMEA GGA sentences are off</string>
+    <string name="pref_enable_gga_summary_on">NMEA GGA sentences are on</string>
+    <string name="pref_enable_rmc_title">Enable NMEA RMC</string>
+    <string name="pref_enable_rmc_summary_off">NMEA RMC sentences are off</string>
+    <string name="pref_enable_rmc_summary_on">NMEA RMC sentences are on</string>
     <string name="pref_enable_gll_title">Enable NMEA GLL</string>
     <string name="pref_enable_gll_summary_off">NMEA GLL sentences are off</string>
     <string name="pref_enable_gll_summary_on">NMEA GLL sentences are on</string>

@@ -155,6 +155,8 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		} else if (BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE.equals(key)){
 			updateDevicePreferenceSummary();
 		} else if (BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_GGA.equals(key)
+				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_RMC.equals(key)
 				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_VTG.equals(key)
 				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSA.equals(key)
 				|| BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSV.equals(key)

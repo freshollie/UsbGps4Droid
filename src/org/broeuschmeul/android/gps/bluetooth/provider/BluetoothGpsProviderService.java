@@ -74,6 +74,8 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
 
 	public static final String PREF_SIRF_GPS = "sirfGps";
+	public static final String PREF_SIRF_ENABLE_GGA = "enableGGA";
+	public static final String PREF_SIRF_ENABLE_RMC = "enableRMC";
 	public static final String PREF_SIRF_ENABLE_GLL = "enableGLL";
 	public static final String PREF_SIRF_ENABLE_VTG = "enableVTG";
 	public static final String PREF_SIRF_ENABLE_GSA = "enableGSA";
@@ -189,6 +191,12 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	}
 
 	private void enableSirfConfig(Bundle extras){
+		if (extras.containsKey(PREF_SIRF_ENABLE_GGA)){
+			enableNmeaGGA(extras.getBoolean(PREF_SIRF_ENABLE_GGA, true));
+		}
+		if (extras.containsKey(PREF_SIRF_ENABLE_RMC)){
+			enableNmeaRMC(extras.getBoolean(PREF_SIRF_ENABLE_RMC, true));
+		}
 		if (extras.containsKey(PREF_SIRF_ENABLE_GLL)){
 			enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GLL, false));
 		}
@@ -213,6 +221,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 			enableSBAS(extras.getBoolean(PREF_SIRF_ENABLE_SBAS, true));
 		}
 	}
+
 	private void enableSirfConfig(SharedPreferences extras){
 		if (extras.contains(PREF_SIRF_ENABLE_GLL)){
 			enableNmeaGLL(extras.getBoolean(PREF_SIRF_ENABLE_GLL, false));
@@ -239,6 +248,32 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		}
 		gpsManager.sendNmeaCommand(this.getString(R.string.sirf_nmea_gga_on));
 		gpsManager.sendNmeaCommand(this.getString(R.string.sirf_nmea_rmc_on));
+		if (extras.contains(PREF_SIRF_ENABLE_GGA)){
+			enableNmeaGGA(extras.getBoolean(PREF_SIRF_ENABLE_GGA, true));
+		}
+		if (extras.contains(PREF_SIRF_ENABLE_RMC)){
+			enableNmeaRMC(extras.getBoolean(PREF_SIRF_ENABLE_RMC, true));
+		}
+	}
+
+	private void enableNmeaGGA(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gga_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_gga_off));
+			}
+		}
+	}
+
+	private void enableNmeaRMC(boolean enable){
+		if (gpsManager != null){
+			if (enable){
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_rmc_on));
+			} else {
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_rmc_off));
+			}
+		}
 	}
 
 	private void enableNmeaGLL(boolean enable){

@@ -79,6 +79,22 @@
 			android:orderingFromXml="true"
 			android:title="@string/pref_sirf_nmea_category_title" >
 			<CheckBoxPreference
+				android:key="@string/pref_sirf_enable_gga_key"
+				android:enabled="false"
+				android:persistent="true"
+				android:defaultValue="true"
+				android:title="@string/pref_enable_gga_title"
+				android:summaryOn="@string/pref_enable_gga_summary_on"
+				android:summaryOff="@string/pref_enable_gga_summary_off" />
+			<CheckBoxPreference
+				android:key="@string/pref_sirf_enable_rmc_key"
+				android:enabled="false"
+				android:persistent="true"
+				android:defaultValue="true"
+				android:title="@string/pref_enable_rmc_title"
+				android:summaryOn="@string/pref_enable_rmc_summary_on"
+				android:summaryOff="@string/pref_enable_rmc_summary_off" />
+			<CheckBoxPreference
 				android:key="@string/pref_sirf_enable_gsa_key"
 				android:persistent="true"
 				android:title="@string/pref_enable_gsa_title"
