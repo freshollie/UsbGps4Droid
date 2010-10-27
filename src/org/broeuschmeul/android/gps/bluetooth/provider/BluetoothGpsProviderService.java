@@ -63,8 +63,6 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.STOP_GPS_PROVIDER";
 	public static final String PREF_START_GPS_PROVIDER = "startGps";
 	public static final String PREF_TRACK_RECORDING = "trackRecording";
-	public static final String PREF_TRACK_MIN_DISTANCE = "trackMinDistance";
-	public static final String PREF_TRACK_MIN_TIME = "trackMinTime";
 	public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
 	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
