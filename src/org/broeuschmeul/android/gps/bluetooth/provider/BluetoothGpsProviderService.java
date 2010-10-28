@@ -70,7 +70,6 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	private static final String LOG_TAG = "BlueGPS";
 //	private static final String LOG_TAG = BluetoothGpsProviderService.class.getSimpleName();
 
-	private LocationManager lm;
     private BlueetoothGpsManager gpsManager = null;
 	private PrintWriter writer;
 	private File trackFile;
@@ -81,7 +80,6 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public void onCreate() {
 		super.onCreate();
 	    toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);		
-        lm = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
 	}
 
 	@Override
