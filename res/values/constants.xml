@@ -21,14 +21,10 @@
 <resources>
     <string name="pref_start_gps_key">startGps</string>
     <string name="pref_recording_key">trackRecording</string>
-    <string name="pref_mindistance_key">trackMinDistance</string>
-    <string name="pref_mintime_key">trackMinTime</string>
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
 
-    <string name="defaultTrackMinDistance">0.0</string>
-    <string name="defaultTrackMinTime">0</string>
     <string name="defaultTrackFileDirectory">/sdcard/nmea</string>
     <string name="defaultTrackFilePrefix">btnmeatrack</string>
 </resources>

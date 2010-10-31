@@ -29,10 +29,6 @@
     <string name="pref_recording_summary_off">Enregistrement du GPS inactif</string>
     <string name="pref_recording_summary_on">Enregistrement du GPS actif</string>
     <string name="pref_recording_params_title">"Paramètres d'enregistrement"</string>
-    <string name="pref_mintime_title">Intervalle de temps</string>
-    <string name="pref_mintime_summary">Durée entre les données GPS en millisecondes</string>
-    <string name="pref_mindistance_title">Intervalle de distance</string>
-    <string name="pref_mindistance_summary">Distance entre les données GPS en metres</string>
     <string name="pref_trackfile_prefix_title">Préfixe</string>
     <string name="pref_trackfile_prefix_summary">Indiquer un préfixe pour les fichiers de traces</string>
     <string name="pref_trackfile_directory_title">Dossier</string>

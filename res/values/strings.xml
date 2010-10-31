@@ -29,10 +29,6 @@
     <string name="pref_recording_summary_off">Track recording is off</string>
     <string name="pref_recording_summary_on">Track recording is on</string>
     <string name="pref_recording_params_title">Recording parameters</string>
-    <string name="pref_mintime_title">Time between records</string>
-    <string name="pref_mintime_summary">Time between records in milliseconds</string>
-    <string name="pref_mindistance_title">Distance between records</string>
-    <string name="pref_mindistance_summary">Distance between records in meters</string>
     <string name="pref_trackfile_prefix_title">Trackfiles prefix</string>
     <string name="pref_trackfile_prefix_summary">Select the prefix for the track files</string>
     <string name="pref_trackfile_directory_title">Trackfiles directory</string>

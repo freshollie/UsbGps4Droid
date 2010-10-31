@@ -34,22 +34,6 @@
 		android:title="@string/pref_start_gps_title"
 		android:summaryOn="@string/pref_start_gps_summary_on"
 		android:summaryOff="@string/pref_start_gps_summary_off" />
-	<PreferenceScreen android:title="@string/pref_start_gps_params_title"
-		android:shouldDisableView = "true"
-		android:enabled="false" >
-	<EditTextPreference
-		android:key="@string/pref_mintime_key"
-		android:title="@string/pref_mintime_title"
-		android:defaultValue="@string/defaultTrackMinTime"
-		android:summary="@string/pref_mintime_summary" 
-		android:inputType="number"/>
-	<EditTextPreference
-		android:key="@string/pref_mindistance_key"
-		android:title="@string/pref_mindistance_title"
-		android:defaultValue="@string/defaultTrackMinDistance"
-		android:inputType="numberDecimal"
-		android:summary="@string/pref_mindistance_summary" />
-	</PreferenceScreen>
 	<CheckBoxPreference
 		android:dependency="@string/pref_start_gps_key"
 		android:enabled="true"
