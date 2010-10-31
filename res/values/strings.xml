@@ -106,5 +106,5 @@
     	<item quantity="other">Will retry %d more times before closing</item>
     </plurals>
     <string name="service_closed_because_connection_problem_notification_title">BlueGps stopped</string>
-    <string name="service_closed_because_connection_problem_notification">"Reason: %"</string>
+    <string name="service_closed_because_connection_problem_notification">"Reason: %s"</string>
 </resources>
