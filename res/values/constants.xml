@@ -19,6 +19,8 @@
 	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
 -->
 <resources>
+	<string name="versionName">1.0.1</string>
+
     <string name="pref_start_gps_key">startGps</string>
     <string name="pref_recording_key">trackRecording</string>
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
