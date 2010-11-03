@@ -24,7 +24,6 @@
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">le GPS Bluetooth est arrêté</string>
     <string name="pref_start_gps_summary_on">le GPS Bluetooth est démarré</string>
-    <string name="pref_start_gps_params_title">Options du GPS</string>
     <string name="pref_recording_title">Activer/Désactiver NMEA log</string>
     <string name="pref_recording_summary_off">Enregistrement du GPS inactif</string>
     <string name="pref_recording_summary_on">Enregistrement du GPS actif</string>
