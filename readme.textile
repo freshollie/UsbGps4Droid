@@ -1,3 +1,6 @@
+BlueGps4Droid 1.2
+* SiRF configuration management (NMEA sentences - SBAS - Static Navigation)
+
 BlueGps4Droid 1.1.2
 * Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
 * Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
