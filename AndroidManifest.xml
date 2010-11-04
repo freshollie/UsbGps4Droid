@@ -21,7 +21,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.broeuschmeul.android.gps.bluetooth.provider"
       android:versionCode="112"
-      android:versionName="1.1.2">
+      android:versionName="@string/versionName">
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:allowClearUserData="true">
         <activity android:name=".BluetoothGpsActivity"
                   android:label="@string/app_name"
