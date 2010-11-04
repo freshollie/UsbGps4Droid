@@ -55,7 +55,7 @@
     <string name="msg_gps_provider_disabled">GPS is disabled</string>
     <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string>
     <string name="msg_bluetooth_disabled">Bluetooth is disabled</string>
-    <string name="msg_mock_location_disabled">Mock location is disabled</string>
+    <string name="msg_mock_location_disabled">Mock locations disabled</string>
     <string name="msg_bluetooth_gps_unavaible">Cannot connect to bluetooth GPS</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
     <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
