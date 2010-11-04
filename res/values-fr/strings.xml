@@ -41,7 +41,7 @@
     <string name="msg_gps_provider_disabled">Oups ! Le GPS est désactivé</string>
     <string name="msg_bluetooth_unsupported">Oups ! Bluetooth non disponible</string>
     <string name="msg_bluetooth_disabled">Oups ! Bluetooth désactivé</string>
-    <string name="msg_mock_location_disabled">Oups ! Postitions fictives non autorisées</string>
+    <string name="msg_mock_location_disabled">Oups ! Positions fictives non autorisées</string>
     <string name="msg_bluetooth_gps_unavaible">Impossible de se connecter au GPS</string>
     <string name="msg_nmea_recording_started">Enregistrement des traces NMEA... démarré</string>
     <string name="msg_nmea_recording_stopped">Enregistrement des traces NMEA... arrêté</string>
