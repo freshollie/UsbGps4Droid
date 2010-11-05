@@ -1,22 +1,27 @@
-BlueGps4Droid 1.2
+BlueGps4Droid 1.2 alpha (2010-10-25)
 	* SiRF configuration management (NMEA sentences - SBAS - Static Navigation)
 
-BlueGps4Droid 1.1.2
+BlueGps4Droid 1.1.2 (2010-11-04)
 	* Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
 	* Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
 	* If device doesn't have an internal GPS, the bluetooth GPS provider will be enabled automatically
 
-BlueGps4Droid 1.1.1
+BlueGps4Droid 1.1.1 (2010-09-29)
 	* Bug fix (Ticket #4: Connection service is not properly closed https://sourceforge.net/p/bluegps4droid/tickets/4/).
 	* Add notifications when the connection with the GPS fails and when the connection service is closed because of two many connection retry.
 	* Add settings to choose the number of connection retries before exiting.
 	
-BlueGps4Droid 1.1 (does not work properly because of bug #4. Use either version 1.0 or 1.1.1 !)
+BlueGps4Droid 1.1 (2010-09-26) - does not work properly because of bug #4. Use either version 1.0 or 1.1.1 !
 	* Reconnect automatically when the connection with the GPS is lost (5 attempts in 5 minutes)
 	* Replace Android default internal GPS or use a new location provider 
 	* Send status notifications when GPS loses fix or is disconnected.
     
-BlueGps4Droid 1.0
+BlueGps4Droid 1.0.1 (2010-10-25)
+	* Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
+	* Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
+	* If device doesn't have an internal GPS, the bluetooth GPS provider will be enabled automatically
+    
+BlueGps4Droid 1.0 (2010-09-12)
 	* Connect to bluetooth GPS (NMEA) and replace the internal GPS of an Android device.
 	* Record GPS tracks in NMEA files 
 	* Compatible with Android version 2.0 and above
