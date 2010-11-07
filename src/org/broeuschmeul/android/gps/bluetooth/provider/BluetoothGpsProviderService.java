@@ -216,7 +216,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		String trackDirName = sharedPreferences.getString(PREF_TRACK_FILE_DIR, this.getString(R.string.defaultTrackFileDirectory));
 		String trackFilePrefix = sharedPreferences.getString(PREF_TRACK_FILE_PREFIX, this.getString(R.string.defaultTrackFilePrefix));
 		trackFile = new File(trackDirName,trackFilePrefix+fmt.format(new Date()));
-		Log.d(BluetoothGpsProviderService.class.getName(), "Writing the prelude of the NMEA file: "+trackFile.getAbsolutePath());
+		Log.d(LOG_TAG, "Writing the prelude of the NMEA file: "+trackFile.getAbsolutePath());
 		File trackDir = trackFile.getParentFile();
 		try {
 			if ((! trackDir.mkdirs()) && (! trackDir.isDirectory())){
