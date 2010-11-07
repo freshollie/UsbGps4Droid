@@ -69,6 +69,9 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
 	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
+	
+	private static final String LOG_TAG = "BlueGPS";
+//	private static final String LOG_TAG = BluetoothGpsProviderService.class.getSimpleName();
 
 	private BlueetoothGpsManager gpsManager = null;
 	private PrintWriter writer;
@@ -90,7 +93,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		String deviceAddress = sharedPreferences.getString(PREF_BLUETOOTH_DEVICE, null);
 		int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
 		if (Config.LOGD){
-			Log.d(BluetoothGpsProviderService.class.getName(), "prefs device addr: "+deviceAddress);
+			Log.d(LOG_TAG, "prefs device addr: "+deviceAddress);
 		}
 		if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())){
 			if (gpsManager == null){
@@ -211,23 +214,23 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		String trackDirName = sharedPreferences.getString(PREF_TRACK_FILE_DIR, this.getString(R.string.defaultTrackFileDirectory));
 		String trackFilePrefix = sharedPreferences.getString(PREF_TRACK_FILE_PREFIX, this.getString(R.string.defaultTrackFilePrefix));
 		trackFile = new File(trackDirName,trackFilePrefix+fmt.format(new Date()));
-		Log.i(BluetoothGpsProviderService.class.getName(), "Writing the prelude of the NMEA file: "+trackFile.getAbsolutePath());
+		Log.d(LOG_TAG, "Writing the prelude of the NMEA file: "+trackFile.getAbsolutePath());
 		File trackDir = trackFile.getParentFile();
 		try {
 			if ((! trackDir.mkdirs()) && (! trackDir.isDirectory())){
-				Log.e(BluetoothGpsProviderService.class.getName(), "Error while creating parent dir of NMEA file: "+trackDir.getAbsolutePath());
+				Log.e(LOG_TAG, "Error while creating parent dir of NMEA file: "+trackDir.getAbsolutePath());
 			}
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(trackFile)));
 			preludeWritten = true;
 		} catch (IOException e) {
-			Log.e(BluetoothGpsProviderService.class.getName(), "Error while writing the prelude of the NMEA file: "+trackFile.getAbsolutePath(), e);
+			Log.e(LOG_TAG, "Error while writing the prelude of the NMEA file: "+trackFile.getAbsolutePath(), e);
 			// there was an error while writing the prelude of the NMEA file, stopping the service...
 			stopSelf();
 		}
 	}
 	private void endTrack(){
 		if (trackFile != null && writer != null){
-			Log.i(BluetoothGpsProviderService.class.getName(), "Ending the NMEA file: "+trackFile.getAbsolutePath());
+			Log.d(LOG_TAG, "Ending the NMEA file: "+trackFile.getAbsolutePath());
 			preludeWritten = false;
 			writer.close();
 			trackFile = null;
@@ -237,7 +240,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		if (! preludeWritten){
 			beginTrack();
 		}
-		Log.d(BluetoothGpsProviderService.class.getName(), "Adding data in the NMEA file: "+ data);
+		Log.v(LOG_TAG, "Adding data in the NMEA file: "+ data);
 		if (trackFile != null && writer != null){
 			writer.print(data);
 		}
@@ -248,7 +251,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	@Override
 	public IBinder onBind(Intent intent) {
 		if (Config.LOGD){
-			Log.d(BluetoothGpsProviderService.class.getName(), "trying access IBinder");
+			Log.d(LOG_TAG, "trying access IBinder");
 		}				
 		return null;
 	}
@@ -260,7 +263,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		Log.e(BluetoothGpsProviderService.class.getName(), "The GPS has been disabled.....stopping the NMEA tracker service.");
+		Log.i(LOG_TAG, "The GPS has been disabled.....stopping the NMEA tracker service.");
 		stopSelf();
 	}
 
