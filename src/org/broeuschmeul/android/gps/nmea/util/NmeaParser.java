@@ -36,6 +36,9 @@ import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
 public class NmeaParser {
+	private static final String LOG_TAG = "BlueGPS";
+//	private static final String LOG_TAG = NmeaParser.class.getSimpleName();
+
 	private String fixTime = null;
 	private long fixTimestamp;
 
@@ -71,27 +74,27 @@ public class NmeaParser {
 				if (! mockGpsEnabled){
 					prov = lm.getProvider(mockLocationProvider);
 					if (prov != null){
-						Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+						Log.v(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 					}
 					lm.addTestProvider(mockLocationProvider, false, true,false, false, true, true, true, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
 					if ((prov == null)  
 							// || (! LocationManager.GPS_PROVIDER.equals(mockLocationProvider))
 					){
-						Log.e("BT test", "enabling Mock provider: "+mockLocationProvider);
+						Log.d(LOG_TAG, "enabling Mock provider: "+mockLocationProvider);
 						lm.setTestProviderEnabled(mockLocationProvider, true);
 						mockGpsAutoEnabled = true;
 					}
 					mockGpsEnabled = true;
 				} else {
-					Log.e("BT test", "Mock provider already enabled: "+mockLocationProvider);
+					Log.d(LOG_TAG, "Mock provider already enabled: "+mockLocationProvider);
 				}
 				prov = lm.getProvider(mockLocationProvider);
 				if (prov != null){
-					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+					Log.e(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 				}
 			}
 		} catch (SecurityException e){
-			Log.e("BT test", "Error while enabling Mock Mocations Provider", e);
+			Log.e(LOG_TAG, "Error while enabling Mock Mocations Provider", e);
 			disableMockLocationProvider();
 		}
 	}
@@ -102,34 +105,34 @@ public class NmeaParser {
 			if (mockLocationProvider != null && mockLocationProvider != "" && mockGpsEnabled){
 				prov = lm.getProvider(mockLocationProvider);
 				if (prov != null){
-					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+					Log.v(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 				}
 				mockGpsEnabled = false;
 				if ( mockGpsAutoEnabled )  { 
-					Log.e("BT test", "disabling Mock provider: "+mockLocationProvider);
+					Log.d(LOG_TAG, "disabling Mock provider: "+mockLocationProvider);
 					lm.setTestProviderEnabled(mockLocationProvider, false);
 				}
 				prov = lm.getProvider(mockLocationProvider);
 				if (prov != null){
-					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+					Log.v(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 				}
 				lm.clearTestProviderEnabled(mockLocationProvider);
 				prov = lm.getProvider(mockLocationProvider);
 				if (prov != null){
-					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+					Log.v(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 				}
 				lm.clearTestProviderStatus(mockLocationProvider);
 				lm.removeTestProvider(mockLocationProvider);
 				prov = lm.getProvider(mockLocationProvider);
 				if (prov != null){
-					Log.e("BT test", "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+					Log.v(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 				}
-				Log.e("BT test", "removed mock GPS");
+				Log.d(LOG_TAG, "removed mock GPS");
 			} else {
-				Log.e("BT test", "Mock provider already disabled: "+mockLocationProvider);			
+				Log.d(LOG_TAG, "Mock provider already disabled: "+mockLocationProvider);			
 			}
 		} catch (SecurityException e){
-			Log.e("BT test", "Error while enabling Mock Mocations Provider", e);
+			Log.e(LOG_TAG, "Error while enabling Mock Mocations Provider", e);
 		} finally {
 			mockLocationProvider = null;
 			mockGpsEnabled = false;
@@ -156,10 +159,10 @@ public class NmeaParser {
 		hasGGA = false;
 		hasRMC=false;
 		if (fix != null){
-			Log.e(this.getClass().getSimpleName(), "New Fix: "+System.currentTimeMillis()+" "+fix);
+			Log.v(LOG_TAG, "New Fix: "+System.currentTimeMillis()+" "+fix);
 			if (lm != null && mockGpsEnabled){
 				lm.setTestProviderLocation(mockLocationProvider, fix);
-				Log.e(this.getClass().getSimpleName(), "New Fix notified to Location Manager: "+mockLocationProvider);
+				Log.v(LOG_TAG, "New Fix notified to Location Manager: "+mockLocationProvider);
 			}
 			this.fix = null;
 		}
@@ -168,14 +171,14 @@ public class NmeaParser {
 	// parse NMEA Sentence 
 	public String parseNmeaSentence(String gpsSentence) throws SecurityException {
 		String nmeaSentence = null;
-		Log.e("BT test", "data: "+System.currentTimeMillis()+" "+gpsSentence);
+		Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+gpsSentence);
 		Pattern xx = Pattern.compile("\\$([^*$]*)\\*([0-9A-F][0-9A-F])?\r\n");
 		Matcher m = xx.matcher(gpsSentence);
 		if (m.matches()){
 			nmeaSentence = m.group(0);
 			String sentence = m.group(1);
 			String checkSum = m.group(2);
-			Log.e("BT test", "data: "+System.currentTimeMillis()+" "+sentence+" cheksum; "+checkSum +" control: "+String.format("%X",computeChecksum(sentence)));
+			Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+sentence+" cheksum; "+checkSum +" control: "+String.format("%X",computeChecksum(sentence)));
 			SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
 			splitter.setString(sentence);
 			String command = splitter.next();
@@ -244,7 +247,7 @@ public class NmeaParser {
 						fixTime = time;
 						fixTimestamp = parseNmeaTime(time);
 						fix.setTime(fixTimestamp);				
-						Log.e(this.getClass().getSimpleName(), "Fix: "+fix);
+						Log.v(LOG_TAG, "Fix: "+fix);
 					}
 					if (lat != null && !lat.equals("")){
 						fix.setLatitude(parseNmeaLatitude(lat,latDir));
@@ -263,7 +266,7 @@ public class NmeaParser {
 						extras.putInt("satellites", Integer.parseInt(nbSat));
 						fix.setExtras(extras);
 					}
-					Log.e(this.getClass().getSimpleName(), "Fix: "+System.currentTimeMillis()+" "+fix);
+					Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
 					hasGGA = true;
 					if (hasGGA && hasRMC){
 						notifyFix(fix);
@@ -315,7 +318,7 @@ public class NmeaParser {
 						fixTime = time;
 						fixTimestamp = parseNmeaTime(time);
 						fix.setTime(fixTimestamp);					
-						Log.e(this.getClass().getSimpleName(), "Fix: "+fix);
+						Log.v(LOG_TAG, "Fix: "+fix);
 					} 
 					if (lat != null && !lat.equals("")){
 						fix.setLatitude(parseNmeaLatitude(lat,latDir));
@@ -329,7 +332,7 @@ public class NmeaParser {
 					if (bearing != null && !bearing.equals("")){
 						fix.setBearing(Float.parseFloat(bearing));
 					}
-					Log.e(this.getClass().getSimpleName(), "Fix: "+System.currentTimeMillis()+" "+fix);
+					Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
 					hasRMC = true;
 					if (hasGGA && hasRMC){
 						notifyFix(fix);
@@ -484,8 +487,7 @@ public class NmeaParser {
 				}
 			}
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			Log.e(this.getClass().getSimpleName(), "Error while parsing NMEA time", e);
+			Log.e(LOG_TAG, "Error while parsing NMEA time", e);
 		}
 		return timestamp;
 	}

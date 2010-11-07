@@ -43,6 +43,10 @@ import android.util.Log;
  *
  */
 public class BluetoothGpsActivity extends PreferenceActivity implements OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
+
+	private static final String LOG_TAG = "BlueGPS";
+//	private static final String LOG_TAG = BluetoothGpsActivity.class.getSimpleName();
+	
 	private SharedPreferences sharedPref ;
 	private BluetoothAdapter bluetoothAdapter = null;
 	
@@ -88,7 +92,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
     	    // Loop through paired devices
         for (BluetoothDevice device : pairedDevices) {
         	// Add the name and address to the ListPreference enties and entyValues
-        	Log.e("BT test", "device: "+device.getName() + " -- " + device.getAddress());
+        	Log.d(LOG_TAG, "device: "+device.getName() + " -- " + device.getAddress());
         	entryValues[i] = device.getAddress();
             entries[i] = device.getName();
             i++;
