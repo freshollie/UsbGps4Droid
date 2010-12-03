@@ -22,6 +22,7 @@ package org.broeuschmeul.android.gps.bluetooth.provider;
 
 import java.util.Set;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -35,6 +36,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 /**
  * A PreferenceActivity Class used to configure, start and stop the NMEA tracker service.
@@ -128,6 +131,23 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		sharedPref.unregisterOnSharedPreferenceChangeListener(this);
 	}
 
+	private void displayAboutDialog(){
+        View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+        // When linking text, force to always use default color. This works
+        // around a pressed color state bug.
+        TextView textView = (TextView) messageView.findViewById(R.id.about_sources);
+        int defaultColor = textView.getTextColors().getDefaultColor();
+        textView.setTextColor(defaultColor);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.aboutTitle);
+        builder.setView(messageView);
+
+//		CharSequence styledText = Html.fromHtml(getString(R.string.about));
+//		builder.setMessage(R.string.about);
+//		builder.setMessage(styledText);
+		builder.show();
+	}
+
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 		// TODO Auto-generated method stub
@@ -135,7 +155,9 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		displayAboutDialog();
 		if (BluetoothGpsProviderService.PREF_START_GPS_PROVIDER.equals(key)){
 			boolean val = sharedPreferences.getBoolean(key, false);
 			CheckBoxPreference pref = (CheckBoxPreference)findPreference(key);

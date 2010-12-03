@@ -70,4 +70,27 @@
     </plurals>
     <string name="service_closed_because_connection_problem_notification_title">BlueGps stopped</string>
     <string name="service_closed_because_connection_problem_notification">"Reason: %s"</string>
+    
+    <string name="aboutTitle">About</string>
+    <string name="about_version">BlueGPS4Droid version </string>
+    <string name="about_copyright">Copyright (C) 2010 Herbert von Broeuschmeul
+		\n\nCopyright (C) 2010 BluetoothGPS4Droid Project
+    </string>
+    <string name="about_app_desc">Bluetooth GPS for Android is an application 
+    	for using an external bluetooth GPS on Android devices.
+    </string>
+    <string name="about_license">BluetoothGPS4Droid (BlueGPS4Droid) is open source software 
+    	distributed free of charge under the terms of the <b>GNU General Public License</b>.
+    </string>
+    <string name="about_sources">The source code is available from the project\'s Git repository: 
+		http://sourceforge.net/p/bluegps4droid
+    </string>
+    <string name="about">Copyright (C) 2010 Herbert von Broeuschmeul
+		\n\nCopyright (C) 2010 BluetoothGPS4Droid Project
+		\n\nBluetooth GPS for Android is an application for using an external bluetooth GPS on Android devices.
+		\n\nBluetoothGPS4Droid (BlueGPS4Droid) is open source software distributed free of charge under the terms of 
+		the <b>GNU General Public License</b>.
+		\n\nThe source code is available from the project\'s Git repository: 
+		http://sourceforge.net/p/bluegps4droid
+    </string>
 </resources>
