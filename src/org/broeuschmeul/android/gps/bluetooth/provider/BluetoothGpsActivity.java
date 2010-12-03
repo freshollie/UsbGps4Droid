@@ -20,6 +20,7 @@
 
 package org.broeuschmeul.android.gps.bluetooth.provider;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import android.app.AlertDialog;
@@ -35,6 +36,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -61,6 +63,14 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        Preference pref = findPreference(BluetoothGpsProviderService.PREF_ABOUT);
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {		
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				BluetoothGpsActivity.this.displayAboutDialog();
+				return true;
+			}
+		});
    }
 
     /* (non-Javadoc)
@@ -88,7 +98,10 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		updateDevicePreferenceSummary();
 		// update bluetooth device list
         ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();        
+        Set<BluetoothDevice> pairedDevices = new HashSet<BluetoothDevice>();
+        if (bluetoothAdapter != null){
+        	pairedDevices = bluetoothAdapter.getBondedDevices();  
+        }
         String[] entryValues = new String[pairedDevices.size()];
         String[] entries = new String[pairedDevices.size()];
         int i = 0;
@@ -112,15 +125,22 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	
 	private void displayAboutDialog(){
         View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+        // we need this to enable html links
+        TextView textView = (TextView) messageView.findViewById(R.id.about_license);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
         // When linking text, force to always use default color. This works
         // around a pressed color state bug.
-        TextView textView = (TextView) messageView.findViewById(R.id.about_sources);
         int defaultColor = textView.getTextColors().getDefaultColor();
         textView.setTextColor(defaultColor);
+        textView = (TextView) messageView.findViewById(R.id.about_sources);
+        textView.setTextColor(defaultColor);
+       
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.aboutTitle);
+		builder.setTitle(R.string.about_title);
+		builder.setIcon(R.drawable.gplv3_icon);
         builder.setView(messageView);
 
+        
 //		CharSequence styledText = Html.fromHtml(getString(R.string.about));
 //		builder.setMessage(R.string.about);
 //		builder.setMessage(styledText);
@@ -134,9 +154,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key) {
-		displayAboutDialog();
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (BluetoothGpsProviderService.PREF_START_GPS_PROVIDER.equals(key)){
 			boolean val = false;
 			if (val = sharedPreferences.getBoolean(key, false)){
