@@ -70,16 +70,6 @@
 			android:id="@+id/about_sources"
 			style="@style/about_text"
 			android:text="@string/about_sources"
-		/><!--
-		<TextView
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-        	android:paddingTop="16sp"
-			android:textSize="16sp"
-			android:textColor="?android:attr/textColorPrimary"
-			android:autoLink="web"
-			android:text="@string/about"
 		/>
-	-->
 	</LinearLayout>
 </ScrollView>
