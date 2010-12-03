@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	Copyright (C) 2010 Herbert von Broeuschmeul
+	Copyright (C) 2010 BluetoothGPS4Droid Project
+	  
+	This file is part of BluetoothGPS4Droid.
+	
+	BluetoothGPS4Droid is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+	
+	BluetoothGPS4Droid is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
+-->
 <ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
@@ -17,53 +36,39 @@
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textSize="16sp"
-				android:textColor="?android:attr/textColorPrimary"
+				style="@style/about_text"
 				android:text="@string/about_version"
 			/>
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textSize="16sp"
-				android:textColor="?android:attr/textColorPrimary"
+				style="@style/about_text"
 				android:text="@string/versionName"
 			/>
 		</LinearLayout>
+<!-- 		
 		<TextView
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-        	android:paddingTop="16sp"
-			android:textSize="16sp"
-			android:textColor="?android:attr/textColorPrimary"
-			android:autoLink="web"
-			android:text="@string/about_copyright"
+			style="@style/about_text"
+			android:text="@string/about_copyright_1"
 		/>
 		<TextView
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-        	android:paddingTop="16sp"
-			android:textSize="16sp"
-			android:textColor="?android:attr/textColorPrimary"
-			android:autoLink="web"
+			style="@style/about_text"
+			android:text="@string/about_copyright_2"
+		/>
+-->
+		<TextView
+			style="@style/about_text"
 			android:text="@string/about_app_desc"
 		/>
 		<TextView
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-        	android:paddingTop="16sp"
-			android:textSize="16sp"
-			android:textColor="?android:attr/textColorPrimary"
-			android:autoLink="web"
-			android:text="@string/about_license"
+			android:id="@+id/about_license"
+			style="@style/about_text"
+ 			android:text="@string/about_license"
+ 			android:autoLink="none"
 		/>
 		<TextView
 			android:id="@+id/about_sources"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-        	android:paddingTop="16sp"
-			android:textSize="16sp"
-			android:textColor="?android:attr/textColorPrimary"
-			android:autoLink="web"
+			style="@style/about_text"
 			android:text="@string/about_sources"
 		/><!--
 		<TextView
@@ -75,5 +80,6 @@
 			android:autoLink="web"
 			android:text="@string/about"
 		/>
-	--></LinearLayout>
+	-->
+	</LinearLayout>
 </ScrollView>
