@@ -30,6 +30,7 @@
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
     <string name="pref_bluetooth_device_key">bluetoothDevice</string>
+    <string name="pref_about_key">about</string>
 
     <string name="pref_sirf_gps_key">sirfGps</string>
     <string name="pref_sirf_enable_gga_key">enableGGA</string>

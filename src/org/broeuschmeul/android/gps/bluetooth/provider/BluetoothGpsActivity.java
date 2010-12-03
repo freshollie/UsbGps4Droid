@@ -20,8 +20,10 @@
 
 package org.broeuschmeul.android.gps.bluetooth.provider;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -34,7 +36,10 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 /**
  * A PreferenceActivity Class used to configure, start and stop the NMEA tracker service.
@@ -58,6 +63,14 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        Preference pref = findPreference(BluetoothGpsProviderService.PREF_ABOUT);
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {		
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				BluetoothGpsActivity.this.displayAboutDialog();
+				return true;
+			}
+		});
    }
 
     /* (non-Javadoc)
@@ -85,7 +98,10 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		updateDevicePreferenceSummary();
 		// update bluetooth device list
         ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();        
+        Set<BluetoothDevice> pairedDevices = new HashSet<BluetoothDevice>();
+        if (bluetoothAdapter != null){
+        	pairedDevices = bluetoothAdapter.getBondedDevices();  
+        }
         String[] entryValues = new String[pairedDevices.size()];
         String[] entries = new String[pairedDevices.size()];
         int i = 0;
@@ -118,7 +134,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         	pref.setSummary(s);
         	Log.v(LOG_TAG, "loc. provider: "+s);
         	Log.v(LOG_TAG, "loc. provider: "+pref.getSummary());  
-        }
+    }
         this.onContentChanged();
     }
     
@@ -126,6 +142,30 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	protected void onDestroy() {
 		super.onDestroy();
 		sharedPref.unregisterOnSharedPreferenceChangeListener(this);
+	}
+	
+	private void displayAboutDialog(){
+        View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+        // we need this to enable html links
+        TextView textView = (TextView) messageView.findViewById(R.id.about_license);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        // When linking text, force to always use default color. This works
+        // around a pressed color state bug.
+        int defaultColor = textView.getTextColors().getDefaultColor();
+        textView.setTextColor(defaultColor);
+        textView = (TextView) messageView.findViewById(R.id.about_sources);
+        textView.setTextColor(defaultColor);
+       
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.about_title);
+		builder.setIcon(R.drawable.gplv3_icon);
+        builder.setView(messageView);
+
+        
+//		CharSequence styledText = Html.fromHtml(getString(R.string.about));
+//		builder.setMessage(R.string.about);
+//		builder.setMessage(styledText);
+		builder.show();
 	}
 
 	@Override
