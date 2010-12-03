@@ -139,11 +139,6 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		builder.setTitle(R.string.about_title);
 		builder.setIcon(R.drawable.gplv3_icon);
         builder.setView(messageView);
-
-        
-//		CharSequence styledText = Html.fromHtml(getString(R.string.about));
-//		builder.setMessage(R.string.about);
-//		builder.setMessage(styledText);
 		builder.show();
 	}
 
