@@ -1,7 +1,14 @@
+*BlueGps4Droid 1.2.0* (2010-12-10)
+* Add SiRF configuration management (NMEA sentences - SBAS - Static Navigation)
+* Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
+* Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
+* If device doesn't have an internal GPS, the bluetooth GPS provider is enabled automatically
+* Add an _about window_ that gives the version of application, licensing information and where the sources may be downloaded.
+
 BlueGps4Droid 1.2 alpha (2010-10-25)
 * SiRF configuration management (NMEA sentences - SBAS - Static Navigation)
 
-BlueGps4Droid 1.1.2 (2010-11-04)
+*BlueGps4Droid 1.1.2* (2010-11-04)
 * Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
 * Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
 * If device doesn't have an internal GPS, the bluetooth GPS provider will be enabled automatically
@@ -16,7 +23,7 @@ BlueGps4Droid 1.1 (2010-09-26) - does not work properly because of bug #4. Use e
 * Replace Android default internal GPS or use a new location provider 
 * Send status notifications when GPS loses fix or is disconnected.
     
-BlueGps4Droid 1.0.1 (2010-10-25)
+*BlueGps4Droid 1.0.1* (2010-10-25)
 * Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
 * Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
 * If device doesn't have an internal GPS, the bluetooth GPS provider will be enabled automatically
