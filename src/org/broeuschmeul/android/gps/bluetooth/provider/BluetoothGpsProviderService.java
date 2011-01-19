@@ -125,7 +125,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 					}
 					if (enabled) {
 						gpsManager.enableMockLocationProvider(mockProvider);
-						Notification notification = new Notification(R.drawable.icon, this.getString(R.string.foreground_gps_provider_started_notification),  System.currentTimeMillis());
+						Notification notification = new Notification(R.drawable.ic_stat_notify, this.getString(R.string.foreground_gps_provider_started_notification),  System.currentTimeMillis());
 						Intent myIntent = new Intent(this, BluetoothGpsActivity.class);
 						PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 						notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_gps_provider_started_notification), myPendingIntent);

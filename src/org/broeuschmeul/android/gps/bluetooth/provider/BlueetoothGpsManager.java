@@ -185,14 +185,14 @@ public class BlueetoothGpsManager {
 		parser.setLocationManager(locationManager);	
 		
 		connectionProblemNotification = new Notification();
-		connectionProblemNotification.icon = R.drawable.icon;
+		connectionProblemNotification.icon = R.drawable.ic_stat_notify;
 		Intent stopIntent = new Intent(BluetoothGpsProviderService.ACTION_STOP_GPS_PROVIDER);
 		// PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		connectionProblemNotification.contentIntent = stopPendingIntent;
 
 		serviceStoppedNotification = new Notification();
-		serviceStoppedNotification.icon=R.drawable.icon;
+		serviceStoppedNotification.icon=R.drawable.ic_stat_notify;
 		Intent restartIntent = new Intent(BluetoothGpsProviderService.ACTION_START_GPS_PROVIDER);
 		PendingIntent restartPendingIntent = PendingIntent.getService(appContext, 0, restartIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		serviceStoppedNotification.setLatestEventInfo(appContext, 
