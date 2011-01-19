@@ -1,3 +1,7 @@
+*BlueGps4Droid 1.2.1* (2011-01-20)
+* Add Spanish translation (thanks to "Colegota - XDA-Developers":http://forum.xda-developers.com/showpost.php?p=10628971&postcount=55 )
+* Change launcher and notification icons.  The new icons are inspired from "XlAfbk's proposition":http://forum.xda-developers.com/showpost.php?p=10277778&postcount=29.
+
 *BlueGps4Droid 1.2.0* (2010-12-10)
 * Add SiRF configuration management (NMEA sentences - SBAS - Static Navigation)
 * Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
