@@ -78,7 +78,7 @@ public class NmeaParser {
 					if (prov != null){
 						Log.v(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
 					}
-					lm.addTestProvider(mockLocationProvider, false, true,false, false, true, true, true, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
+					lm.addTestProvider(mockLocationProvider, false, true,false, false, true, true, true, Criteria.POWER_MEDIUM, Criteria.ACCURACY_FINE);
 					if ((prov == null)  
 							// || (! LocationManager.GPS_PROVIDER.equals(mockLocationProvider))
 					){
