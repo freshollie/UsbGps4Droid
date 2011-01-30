@@ -67,6 +67,14 @@ public class BlueetoothGpsManager {
 	private static final String LOG_TAG = "BlueGPS";
 //	private static final String LOG_TAG = BlueetoothGpsManager.class.getSimpleName();
 
+	/**
+	 * A utility class used to manage the communication with the bluetooth GPS whn the connection has been established.
+	 * It is used to read NMEA data from the GPS or to send SIRF III binary commands or SIRF III NMEA commands to the GPS.
+	 * You should run the main read loop in one thread and send the commands in a separate one.   
+	 * 
+	 * @author Herbert von Broeuschmeul
+	 *
+	 */
 	private class ConnectedGps extends Thread {
 		private final InputStream in;
 		private final OutputStream out;
@@ -152,10 +160,10 @@ public class BlueetoothGpsManager {
 				out2.print(buffer);
 				out2.flush();
 				// } catch (IOException e) {
-					//	Log.e("BT test", "Exception during write", e);
+				//	Log.e("BT test", "Exception during write", e);
 			} catch (InterruptedException e) {
 				Log.e(LOG_TAG, "Exception during write", e);
-	}
+			}
 		}
 	}
 
