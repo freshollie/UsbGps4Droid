@@ -35,6 +35,14 @@ import android.text.TextUtils;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
+/**
+ * This class is used to parse NMEA sentences an generate the Android Locations when there is a new GPS FIX.
+ * It manage also the Mock Location Provider (enable/disable/fix & status notification)
+ * and can compute the the checksum of a NMEA sentence.
+ * 
+ * @author Herbert von Broeuschmeul
+ *
+ */
 public class NmeaParser {
 	private static final String LOG_TAG = "BlueGPS";
 //	private static final String LOG_TAG = NmeaParser.class.getSimpleName();

@@ -25,6 +25,19 @@ import java.nio.ByteBuffer;
 import java.util.Formatter;
 import java.util.Locale;
 
+/**
+ * Utilities for generation of SIRF III binary command.
+ * 
+ * It can be used to generate a array of byte corresponding 
+ * to a SIRF III binary command expressed in an hexadecimal string.  
+ * 
+ * The input can be a complete SIRF III command or just the payload.
+ * In this last case the utility will add the start and end parts of the command 
+ * (including the size and the checksum).
+ * 
+ * @author Herbert von Broeuschmeul
+ *
+ */
 public class SirfUtils {
 	
 	private static final String start ="A0A2";

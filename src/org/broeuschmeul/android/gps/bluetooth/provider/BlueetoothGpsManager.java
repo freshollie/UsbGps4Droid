@@ -56,6 +56,12 @@ import android.provider.Settings;
 import android.os.SystemClock;
 import android.util.Log;
 
+/**
+ * This class is used to establish and manage the connection with the bluetooth GPS.
+ * 
+ * @author Herbert von Broeuschmeul
+ *
+ */
 public class BlueetoothGpsManager {
 
 	private static final String LOG_TAG = "BlueGPS";
