@@ -296,7 +296,7 @@ public class BlueetoothGpsManager {
 										} else {
 											// Cancel discovery because it will slow down the connection
 											bluetoothAdapter.cancelDiscovery();
-											// we increment the number of connection try
+											// we increment the number of connection tries
 											// Connect the device through the socket. This will block
 											// until it succeeds or throws an exception
 											Log.v(LOG_TAG, "connecting to socket");
@@ -399,6 +399,14 @@ public class BlueetoothGpsManager {
 		}
 	}
 
+	/**
+	 * Enables the Mock GPS Location Provider used for the bluetooth GPS.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#enableMockLocationProvider(java.lang.String)
+
+	 * @param gpsName	the name of the Location Provider to use for the bluetooth GPS
+	 */
 	public void enableMockLocationProvider(String gpsName){
 		if (parser != null){
 	       	Log.d(LOG_TAG, "enabling mock locations provider: "+gpsName);
@@ -406,6 +414,12 @@ public class BlueetoothGpsManager {
 		}
 	}
 
+	/**
+	 * Disables the current Mock GPS Location Provider used for the bluetooth GPS.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#disableMockLocationProvider()
+	 */
 	public void disableMockLocationProvider(){
 		if (parser != null){
 	       	Log.d(LOG_TAG, "disabling mock locations provider");
@@ -414,7 +428,12 @@ public class BlueetoothGpsManager {
 	}
 
 	/**
-	 * @return the mockGpsEnabled
+	 * Getter use to know if the Mock GPS Listener used for the bluetooth GPS is enabled or not.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#isMockGpsEnabled()
+	 * 
+	 * @return 	true if the Mock GPS Listener used for the bluetooth GPS is enabled.
 	 */
 	public boolean isMockGpsEnabled() {
 		boolean mockGpsEnabled = false;
@@ -424,7 +443,12 @@ public class BlueetoothGpsManager {
 		return mockGpsEnabled;
 	}
 	/**
-	 * @return the mockLocationProvider
+	 * Getter for the name of the current Mock Location Provider in use.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#getMockLocationProvider()
+	 * 
+	 * @return the Mock Location Provider name used for the bluetooth GPS
 	 */
 	public String getMockLocationProvider() {
 		String  mockLocationProvider = null;
@@ -434,12 +458,26 @@ public class BlueetoothGpsManager {
 		return mockLocationProvider;
 	}
 
+	/**
+	 * Indicates that the bluetooth GPS Provider is out of service.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#setMockLocationProviderOutOfService()
+	 */
 	private void setMockLocationProviderOutOfService(){
 		if (parser != null){
 			parser.setMockLocationProviderOutOfService();
 		}
 	}
 
+	/**
+	 * Adds an NMEA listener.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#addNmeaListener(NmeaListener)
+	 * @param listener	a {@link NmeaListener} object to register
+	 * @return	true if the listener was successfully added
+	 */
 	public boolean addNmeaListener(NmeaListener listener){
 		if (!nmeaListeners.contains(listener)){
 	       	Log.d(LOG_TAG, "adding new NMEA listener");
@@ -448,11 +486,23 @@ public class BlueetoothGpsManager {
 		return true;
 	}
 
+	/**
+	 * Removes an NMEA listener.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#removeNmeaListener(NmeaListener)
+	 * @param listener	a {@link NmeaListener} object to remove 
+	 */
 	public void removeNmeaListener(NmeaListener listener){
        	Log.d(LOG_TAG, "removing NMEA listener");
 		nmeaListeners.remove(listener);
 	}
 
+	/**
+	 * Notifies the reception of a NMEA sentence from the bluetooth GPS to registered NMEA listeners.
+	 * 
+	 * @param nmeaSentence	the complete NMEA sentence received from the bluetooth GPS (i.e. $....*XY where XY is the checksum)
+	 */
 	private void notifyNmeaSentence(final String nmeaSentence){
 		if (enabled){
 	       	Log.v(LOG_TAG, "parsing and notifying NMEA sentence: "+nmeaSentence);
@@ -483,6 +533,11 @@ public class BlueetoothGpsManager {
 		}
 	}	
 
+	/**
+	 * Sends a NMEA sentence to the bluetooth GPS.
+	 * 
+	 * @param command	the complete NMEA sentence (i.e. $....*XY where XY is the checksum).
+	 */
 	public void sendPackagedNmeaCommand(final String command){
 		Log.d(LOG_TAG, "sending NMEA sentence: "+command);
 		if (isEnabled()){
@@ -502,6 +557,12 @@ public class BlueetoothGpsManager {
 		}
 	}
 
+	/**
+	 * Sends a SIRF III binary command to the bluetooth GPS.
+	 * 
+	 * @param commandHexa	an hexadecimal string representing a complete binary command 
+	 * (i.e. with the <em>Start Sequence</em>, <em>Payload Length</em>, <em>Payload</em>, <em>Message Checksum</em> and <em>End Sequence</em>).
+	 */
 	public void sendPackagedSirfCommand(final String commandHexa){
 		Log.d(LOG_TAG, "sending SIRF sentence: "+commandHexa);
 		if (isEnabled()){
@@ -522,11 +583,22 @@ public class BlueetoothGpsManager {
 		}
 	}
 
+	/**
+	 * Sends a NMEA sentence to the bluetooth GPS.
+	 * 
+	 * @param sentence	the NMEA sentence without the first "$", the last "*" and the checksum.
+	 */
 	public void sendNmeaCommand(String sentence){
 		String command = String.format((Locale)null,"$%s*%X\r\n", sentence, parser.computeChecksum(sentence));
 		sendPackagedNmeaCommand(command);
 	}
 
+	/**
+	 * Sends a SIRF III binary command to the bluetooth GPS.
+	 * 
+	 * @param payload	an hexadecimal string representing the payload of the binary command
+	 * (i.e. without <em>Start Sequence</em>, <em>Payload Length</em>, <em>Message Checksum</em> and <em>End Sequence</em>).
+	 */
 	public void sendSirfCommand(String payload){
 		String command = SirfUtils.createSirfCommandFromPayload(payload);
 		sendPackagedSirfCommand(command);
