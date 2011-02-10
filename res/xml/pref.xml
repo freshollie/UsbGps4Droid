@@ -48,6 +48,13 @@
 			android:title="@string/pref_replace_std_gps_title"
 			android:summaryOn="@string/pref_replace_std_gps_summary_on"
 			android:summaryOff="@string/pref_replace_std_gps_summary_off" />
+		<CheckBoxPreference
+			android:key="@string/pref_force_enable_provider_key"
+			android:persistent="true"
+			android:defaultValue="false"
+			android:title="@string/pref_force_enable_provider_title"
+			android:summaryOn="@string/pref_force_enable_provider_summary_on"
+			android:summaryOff="@string/pref_force_enable_provider_summary_off" />
 		<EditTextPreference
 			android:dependency="@string/pref_replace_std_gps_key"
 			android:key="@string/pref_mock_gps_name_key"

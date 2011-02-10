@@ -30,6 +30,9 @@
     <string name="pref_replace_std_gps_title">Remplacer le GPS interne</string>
     <string name="pref_replace_std_gps_summary_on">Le GPS Bluetooth remplacera le GPS interne</string>
     <string name="pref_replace_std_gps_summary_off">Un nouveau location provider sera utilisé</string>
+    <string name="pref_force_enable_provider_title">Forcer l\'activation du location provider</string>
+    <string name="pref_force_enable_provider_summary_on">Auto-activation du provider, même si l\'utilisateur l\'a desactivé</string>
+    <string name="pref_force_enable_provider_summary_off">Auto-activation du provider, uniquement s\'il n\'existe pas déjà.</string>
     <string name="pref_mock_gps_name_title">Nom du location provider</string>
     <string name="pref_mock_gps_name_summary">Nom du GPS Bluetooth : %s</string>
     <string name="pref_connection_retries_title">Nombre de connexions</string>

@@ -29,6 +29,9 @@
     <string name="pref_replace_std_gps_title">Replace internal GPS</string>
     <string name="pref_replace_std_gps_summary_on">Bluetooth GPS will replace internal GPS</string>
     <string name="pref_replace_std_gps_summary_off">Bluetooth GPS will use a new location provider</string>
+    <string name="pref_force_enable_provider_title">Auto-enable location provider</string>
+    <string name="pref_force_enable_provider_summary_on">Auto-enable the location provider, even if it has been disabled</string>
+    <string name="pref_force_enable_provider_summary_off">Auto-enable the location provider only if it doesn\'t exist yet</string>
     <string name="pref_mock_gps_name_title">Mock location provider name</string>
     <string name="pref_mock_gps_name_summary">Bluetooth GPS name: %s</string>
     <string name="pref_recording_title">Enable/Disable NMEA log</string>
