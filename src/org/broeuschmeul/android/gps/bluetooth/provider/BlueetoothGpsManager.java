@@ -62,6 +62,10 @@ import android.util.Log;
  * @author Herbert von Broeuschmeul
  *
  */
+/**
+ * @author stalb
+ *
+ */
 public class BlueetoothGpsManager {
 
 	private static final String LOG_TAG = "BlueGPS";
@@ -187,6 +191,11 @@ public class BlueetoothGpsManager {
 	private int nbRetriesRemaining;
 	private boolean connected = false;
 
+	/**
+	 * @param callingService
+	 * @param deviceAddress
+	 * @param maxRetries
+	 */
 	public BlueetoothGpsManager(Service callingService, String deviceAddress, int maxRetries) {
 		this.gpsDeviceAddress = deviceAddress;
 		this.callingService = callingService;
@@ -219,6 +228,9 @@ public class BlueetoothGpsManager {
 		disableReason = reasonId;
 	}
 	
+	/**
+	 * @return
+	 */
 	public int getDisableReason(){
 		return disableReason;
 	}
@@ -230,6 +242,10 @@ public class BlueetoothGpsManager {
 		return enabled;
 	}
 
+	/**
+	 * Enables the bluetooth GPS Provider.
+	 * @return
+	 */
 	public synchronized boolean enable() {
 		notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
 		if (! enabled){
@@ -342,6 +358,13 @@ public class BlueetoothGpsManager {
 		}
 		return this.enabled;
 	}
+	
+	/**
+	 * Disables the bluetooth GPS Provider if the maximal number of connection retries is exceeded.
+	 * This is used when there are possibly non fatal connection problems. 
+	 * In these cases the provider will try to reconnect with the bluetooth device 
+	 * and only after a given retries number will give up and shutdown the service.
+	 */
 	private synchronized void disableIfNeeded(){
 		if (enabled){
 			if (nbRetriesRemaining > 0){
@@ -364,12 +387,39 @@ public class BlueetoothGpsManager {
 		}
 	}
 	
+	/**
+	 * Disables the bluetooth GPS provider.
+	 * 
+	 * It will: 
+	 * <ul>
+	 * 	<li>close the connection with the bluetooth device</li>
+	 * 	<li>disable the Mock Location Provider used for the bluetooth GPS</li>
+	 * 	<li>stop the BlueGPS4Droid service</li>
+	 * </ul>
+	 * The reasonId parameter indicates the reason to close the bluetooth provider. 
+	 * If its value is zero, it's a normal shutdown (normally, initiated by the user).
+	 * If it's non-zero this value should correspond a valid localized string id (res/values..../...) 
+	 * which will be used to display a notification.
+	 * 
+	 * @param reasonId	the reason to close the bluetooth provider.
+	 */
 	public synchronized void disable(int reasonId) {
     	Log.d(LOG_TAG, "disabling Bluetooth GPS manager reason: "+callingService.getString(reasonId));
 		setDisableReason(reasonId);
     	disable();
 	}
 		
+	/**
+	 * Disables the bluetooth GPS provider.
+	 * 
+	 * It will: 
+	 * <ul>
+	 * 	<li>close the connection with the bluetooth device</li>
+	 * 	<li>disable the Mock Location Provider used for the bluetooth GPS</li>
+	 * 	<li>stop the BlueGPS4Droid service</li>
+	 * </ul>
+	 * If the bluetooth provider is closed because of a problem, a notification is displayed.
+	 */
 	public synchronized void disable() {
 		notificationManager.cancel(R.string.connection_problem_notification_title);
 		if (getDisableReason() != 0){
