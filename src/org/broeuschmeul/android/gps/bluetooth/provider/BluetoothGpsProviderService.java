@@ -64,6 +64,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_START_GPS_PROVIDER = "startGps";
 	public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
 	public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
+	public static final String PREF_FORCE_ENABLE_PROVIDER = "forceEnableProvider";
 	public static final String PREF_MOCK_GPS_NAME = "mockGpsName";
 	public static final String PREF_CONNECTION_RETRIES = "connectionRetries";
 	public static final String PREF_TRACK_RECORDING = "trackRecording";

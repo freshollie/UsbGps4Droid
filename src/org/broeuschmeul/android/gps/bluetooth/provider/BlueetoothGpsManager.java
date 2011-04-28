@@ -456,11 +456,28 @@ public class BlueetoothGpsManager {
 	 * @see NmeaParser#enableMockLocationProvider(java.lang.String)
 
 	 * @param gpsName	the name of the Location Provider to use for the bluetooth GPS
+	 * @param force		true if we want to force auto-activation of the mock location provider (and bypass user preference).
+	 */
+	public void enableMockLocationProvider(String gpsName, boolean force){
+		if (parser != null){
+	       	Log.d(LOG_TAG, "enabling mock locations provider: "+gpsName);
+			parser.enableMockLocationProvider(gpsName, force);
+		}
+	}
+
+	/**
+	 * Enables the Mock GPS Location Provider used for the bluetooth GPS.
+	 * In fact, it delegates to the NMEA parser. 
+	 * 
+	 * @see NmeaParser#enableMockLocationProvider(java.lang.String)
+
+	 * @param gpsName	the name of the Location Provider to use for the bluetooth GPS
 	 */
 	public void enableMockLocationProvider(String gpsName){
 		if (parser != null){
 	       	Log.d(LOG_TAG, "enabling mock locations provider: "+gpsName);
-			parser.enableMockLocationProvider(gpsName);
+	    	boolean force = sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_FORCE_ENABLE_PROVIDER, false);
+			parser.enableMockLocationProvider(gpsName, false);
 		}
 	}
 
