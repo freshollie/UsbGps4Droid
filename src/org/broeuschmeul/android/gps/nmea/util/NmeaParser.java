@@ -44,8 +44,10 @@ import android.util.Log;
  *
  */
 public class NmeaParser {
+	/**
+	 * Tag used for log messages
+	 */
 	private static final String LOG_TAG = "BlueGPS";
-//	private static final String LOG_TAG = NmeaParser.class.getSimpleName();
 
 	private String fixTime = null;
 	private long fixTimestamp;
