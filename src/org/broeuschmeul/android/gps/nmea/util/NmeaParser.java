@@ -87,7 +87,13 @@ public class NmeaParser {
 					prov = lm.getProvider(mockLocationProvider);
 					if (prov != null){
 						Log.v(LOG_TAG, "Mock provider: "+prov.getName()+" "+prov.getPowerRequirement()+" "+prov.getAccuracy()+" "+lm.isProviderEnabled(mockLocationProvider));
+						try {
+							lm.removeTestProvider(mockLocationProvider);
+						} catch (IllegalArgumentException e){
+							Log.d(LOG_TAG, "unable to remove current provider Mock provider: "+mockLocationProvider);
+						}
 					}
+					prov = lm.getProvider(mockLocationProvider);
 					lm.addTestProvider(mockLocationProvider, false, true,false, false, true, true, true, Criteria.POWER_MEDIUM, Criteria.ACCURACY_FINE);
 					if ( force 
 							|| (prov == null)  
