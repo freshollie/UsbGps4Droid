@@ -160,9 +160,11 @@ public class BlueetoothGpsManager {
 			try {
 				do {
 					Thread.sleep(100);
-				} while (! ready);
-				out.write(buffer);
-				out.flush();
+				} while ((enabled) && (! ready));
+				if ((enabled) && (ready)){
+					out.write(buffer);
+					out.flush();
+				}
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "Exception during write", e);
 			} catch (InterruptedException e) {
@@ -177,11 +179,11 @@ public class BlueetoothGpsManager {
 			try {
 				do {
 					Thread.sleep(100);
-				} while (! ready);
-				out2.print(buffer);
-				out2.flush();
-				// } catch (IOException e) {
-				//	Log.e("BT test", "Exception during write", e);
+				} while ((enabled) && (! ready));
+				if ((enabled) && (ready)){
+					out2.print(buffer);
+					out2.flush();
+				}
 			} catch (InterruptedException e) {
 				Log.e(LOG_TAG, "Exception during write", e);
 			}
@@ -675,7 +677,7 @@ public class BlueetoothGpsManager {
 			notificationPool.execute( new Runnable() {			
 				@Override
 				public void run() {
-					while ((!enabled) || (!connected) || (connectedGps == null) || (!connectedGps.isReady())){
+					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
 						Log.v(LOG_TAG, "writing thread is not ready");
 						SystemClock.sleep(500);
 					}
@@ -701,7 +703,7 @@ public class BlueetoothGpsManager {
 			notificationPool.execute( new Runnable() {			
 				@Override
 				public void run() {
-					while ((!enabled) || (!connected) || (connectedGps == null) || (!connectedGps.isReady())){
+					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
 						Log.v(LOG_TAG, "writing thread is not ready");
 						SystemClock.sleep(500);
 					}
