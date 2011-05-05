@@ -73,8 +73,10 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
 	public static final String PREF_ABOUT = "about";
 	
+	/**
+	 * Tag used for log messages
+	 */
 	private static final String LOG_TAG = "BlueGPS";
-//	private static final String LOG_TAG = BluetoothGpsProviderService.class.getSimpleName();
 
 	public static final String PREF_SIRF_GPS = "sirfGps";
 	public static final String PREF_SIRF_ENABLE_GGA = "enableGGA";

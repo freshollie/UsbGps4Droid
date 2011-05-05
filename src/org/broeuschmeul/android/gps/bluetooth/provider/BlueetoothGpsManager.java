@@ -68,8 +68,10 @@ import android.util.Log;
  */
 public class BlueetoothGpsManager {
 
+	/**
+	 * Tag used for log messages
+	 */
 	private static final String LOG_TAG = "BlueGPS";
-//	private static final String LOG_TAG = BlueetoothGpsManager.class.getSimpleName();
 
 	/**
 	 * A utility class used to manage the communication with the bluetooth GPS whn the connection has been established.
@@ -80,9 +82,22 @@ public class BlueetoothGpsManager {
 	 *
 	 */
 	private class ConnectedGps extends Thread {
+		/**
+		 * GPS InputStream from which we read data. 
+		 */
 		private final InputStream in;
+		/**
+		 * GPS output stream to which we send data (SIRF III binary commands). 
+		 */
 		private final OutputStream out;
+		/**
+		 * GPS output stream to which we send data (SIRF III NMEA commands). 
+		 */
 		private final PrintStream out2;
+		/**
+		 * A boolean which indicates if the GPS is ready to receive data. 
+		 * In fact we consider that the GPS is ready when it begins to sends data...
+		 */
 		private boolean ready = false;
 
 		public ConnectedGps(BluetoothSocket socket) {

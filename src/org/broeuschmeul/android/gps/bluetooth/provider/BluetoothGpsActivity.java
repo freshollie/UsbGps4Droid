@@ -49,8 +49,10 @@ import android.widget.TextView;
  */
 public class BluetoothGpsActivity extends PreferenceActivity implements OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 
+	/**
+	 * Tag used for log messages
+	 */
 	private static final String LOG_TAG = "BlueGPS";
-//	private static final String LOG_TAG = BluetoothGpsActivity.class.getSimpleName();
 	
 	private SharedPreferences sharedPref ;
 	private BluetoothAdapter bluetoothAdapter = null;
