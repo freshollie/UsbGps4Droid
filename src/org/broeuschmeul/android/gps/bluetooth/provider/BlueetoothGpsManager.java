@@ -62,10 +62,6 @@ import android.util.Log;
  * @author Herbert von Broeuschmeul
  *
  */
-/**
- * @author stalb
- *
- */
 public class BlueetoothGpsManager {
 
 	/**
