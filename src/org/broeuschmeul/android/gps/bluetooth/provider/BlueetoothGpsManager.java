@@ -79,6 +79,10 @@ public class BlueetoothGpsManager {
 	 */
 	private class ConnectedGps extends Thread {
 		/**
+		 * GPS bluetooth socket used for communication. 
+		 */
+		private final BluetoothSocket socket;
+		/**
 		 * GPS InputStream from which we read data. 
 		 */
 		private final InputStream in;
@@ -97,6 +101,7 @@ public class BlueetoothGpsManager {
 		private boolean ready = false;
 
 		public ConnectedGps(BluetoothSocket socket) {
+			this.socket = socket;
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
 			PrintStream tmpOut2 = null;
@@ -141,7 +146,8 @@ public class BlueetoothGpsManager {
 				Log.e(LOG_TAG, "error while getting data", e);
 				setMockLocationProviderOutOfService();
 			} finally {
-				ready = false;
+				// cleanly closing everything...
+				this.close();
 				disableIfNeeded();
 			}
 		}
@@ -178,6 +184,31 @@ public class BlueetoothGpsManager {
 				//	Log.e("BT test", "Exception during write", e);
 			} catch (InterruptedException e) {
 				Log.e(LOG_TAG, "Exception during write", e);
+			}
+		}
+		
+		public void close(){
+			ready = false;
+			try {
+	        	Log.d(LOG_TAG, "closing Bluetooth GPS output sream");
+				in.close();
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "error while closing GPS NMEA output stream", e);
+			} finally {
+				try {
+		        	Log.d(LOG_TAG, "closing Bluetooth GPS input streams");
+					out2.close();
+					out.close();
+				} catch (IOException e) {
+					Log.e(LOG_TAG, "error while closing GPS input streams", e);
+				} finally {
+					try {
+			        	Log.d(LOG_TAG, "closing Bluetooth GPS socket");
+						socket.close();
+					} catch (IOException e) {
+						Log.e(LOG_TAG, "error while closing GPS socket", e);
+					}
+				}
 			}
 		}
 	}
@@ -304,6 +335,9 @@ public class BlueetoothGpsManager {
 									Log.v(LOG_TAG, "current device: "+gpsDevice.getName() + " -- " + gpsDevice.getAddress());
 									if ((bluetoothAdapter.isEnabled()) && (nbRetriesRemaining > 0 )){										
 										try {
+											if (connectedGps != null){
+												connectedGps.close();
+											}
 											if (gpsSocket != null){
 												Log.d(LOG_TAG, "trying to close old socket");
 												gpsSocket.close();
@@ -444,17 +478,36 @@ public class BlueetoothGpsManager {
 		if (enabled){
         	Log.d(LOG_TAG, "disabling Bluetooth GPS manager");
 			enabled = false;
-			if (gpsSocket != null){
-				try {
-					gpsSocket.close();
-				} catch (IOException closeException) {
-		    		Log.e(LOG_TAG, "error while closing socket", closeException);
+			connectionAndReadingPool.shutdown();
+			Runnable closeAndShutdown = new Runnable() {				
+				@Override
+				public void run(){
+					try {
+						connectionAndReadingPool.awaitTermination(10, TimeUnit.SECONDS);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if (!connectionAndReadingPool.isTerminated()){
+						if (connectedGps != null){
+							connectedGps.close();
+						}
+						if (gpsSocket != null){
+							try {
+								Log.d(LOG_TAG, "closing Bluetooth GPS socket");
+								gpsSocket.close();
+							} catch (IOException closeException) {
+								Log.e(LOG_TAG, "error while closing socket", closeException);
+							}
+						}
+						connectionAndReadingPool.shutdownNow();
+					}
 				}
-			}
+			};
+			notificationPool.execute(closeAndShutdown);
 			nmeaListeners.clear();
 			disableMockLocationProvider();
 			notificationPool.shutdown();
-			connectionAndReadingPool.shutdown();
+//			connectionAndReadingPool.shutdown();
 			callingService.stopSelf();
         	Log.d(LOG_TAG, "Bluetooth GPS manager disabled");
 		}
