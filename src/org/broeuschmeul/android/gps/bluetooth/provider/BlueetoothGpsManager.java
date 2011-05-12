@@ -338,7 +338,7 @@ public class BlueetoothGpsManager {
 											if (connectedGps != null){
 												connectedGps.close();
 											}
-											if (gpsSocket != null){
+											if ((gpsSocket != null) && ((connectedGps == null) || (connectedGps.socket != gpsSocket))){
 												Log.d(LOG_TAG, "trying to close old socket");
 												gpsSocket.close();
 											}
@@ -488,10 +488,11 @@ public class BlueetoothGpsManager {
 						e.printStackTrace();
 					}
 					if (!connectionAndReadingPool.isTerminated()){
+						connectionAndReadingPool.shutdownNow();
 						if (connectedGps != null){
 							connectedGps.close();
 						}
-						if (gpsSocket != null){
+						if ((gpsSocket != null) && ((connectedGps == null) || (connectedGps.socket != gpsSocket))){
 							try {
 								Log.d(LOG_TAG, "closing Bluetooth GPS socket");
 								gpsSocket.close();
@@ -499,7 +500,6 @@ public class BlueetoothGpsManager {
 								Log.e(LOG_TAG, "error while closing socket", closeException);
 							}
 						}
-						connectionAndReadingPool.shutdownNow();
 					}
 				}
 			};
