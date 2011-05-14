@@ -71,5 +71,16 @@
 			style="@style/about_text"
 			android:text="@string/about_sources"
 		/>
+		<TextView
+			android:id="@+id/about_bluetooth_license"
+			style="@style/about_text"
+			android:text="@string/about_bluetooth_license"
+ 			android:autoLink="none"
+		/>
+		<TextView
+			android:id="@+id/about_bluetooth_sources"
+			style="@style/about_text"
+			android:text="@string/about_bluetooth_sources"
+		/>
 	</LinearLayout>
 </ScrollView>

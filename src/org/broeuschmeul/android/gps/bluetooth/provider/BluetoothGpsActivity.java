@@ -157,6 +157,11 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         textView.setTextColor(defaultColor);
         textView = (TextView) messageView.findViewById(R.id.about_sources);
         textView.setTextColor(defaultColor);
+        textView = (TextView) messageView.findViewById(R.id.about_bluetooth_license);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        textView.setTextColor(defaultColor);
+        textView = (TextView) messageView.findViewById(R.id.about_bluetooth_sources);
+        textView.setTextColor(defaultColor);
        
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.about_title);
