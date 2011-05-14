@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
+import backport.android.bluetooth.BluetoothAdapter;
+import backport.android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;

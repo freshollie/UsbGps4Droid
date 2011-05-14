@@ -31,16 +31,19 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.broeuschmeul.android.gps.nmea.util.NmeaListener;
+
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
+import backport.android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -90,6 +93,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
 	public static final String PREF_SIRF_ENABLE_STATIC_NAVIGATION = "enableStaticNavigation";
 
+	private NotificationManager notificationManager = null;
 	private BlueetoothGpsManager gpsManager = null;
 	private PrintWriter writer;
 	private File trackFile;
@@ -99,6 +103,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		NotificationManager notificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
 	    toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);		
 	}
 
@@ -195,6 +200,58 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		}
 	}
 
+	/**
+	 * The notification id used to signal that this service runs in the foreground.
+	 * 
+	 * @see #startForeground(int, Notification)
+	 * @see #stopForeground(boolean)
+	 */
+	private int notificationId = R.string.foreground_gps_provider_started_notification;
+
+	
+	private NotificationManager getNotificationManager(){
+		if (notificationManager == null){
+			notificationManager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
+		}
+		return notificationManager;
+	}
+	
+	/**
+	 * Compatibility (see API 5) method used to run this service in the foreground, 
+	 * supplying the ongoing notification to be shown to the user while in this state. 
+	 * 
+	 * @param id	The identifier for this notification as per NotificationManager.notify(int, Notification)
+	 * @param notification	The Notification to be displayed.
+	 * 
+	 * @see #stopForeground(boolean)
+	 */
+	private final void startForeground (int id, Notification notification){
+		NotificationManager notificationManager = this.getNotificationManager();
+		setForeground(true);
+		if (notificationManager != null){
+			notificationManager.notify(notificationId = id, notification);
+		}
+	}
+	
+	/**
+	 * Compatibility (see API 5) method used to remove this service from foreground state, 
+	 * allowing it to be killed if more memory is needed.
+	 * This method should be called with value false, when the service is destroyed.
+	 * 
+	 * @param removeNotification	If true, the notification previously provided 
+	 * 								to startForeground(int, Notification) will be removed. 
+	 * 								Otherwise it will remain until a later call removes it (or the service is destroyed).
+	 * 
+	 * @see #startForeground(int, Notification)
+	 */
+	private final void stopForeground (boolean removeNotification){
+		NotificationManager notificationManager = this.getNotificationManager();
+		if (removeNotification && (notificationManager != null)){
+			notificationManager.cancel(notificationId);
+		}
+		setForeground(false);
+	}
+	
 	private void enableSirfConfig(Bundle extras){
 		if (extras.containsKey(PREF_SIRF_ENABLE_GGA)){
 			enableNmeaGGA(extras.getBoolean(PREF_SIRF_ENABLE_GGA, true));
@@ -380,14 +437,15 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
-	 */
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		onStart(intent, startId);
-		return Service.START_NOT_STICKY;
-	}
+//  This method has been introduced in Eclair
+//	/* (non-Javadoc)
+//	 * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
+//	 */
+//	@Override
+//	public int onStartCommand(Intent intent, int flags, int startId) {
+//		onStart(intent, startId);
+//		return Service.START_NOT_STICKY;
+//	}
 
 	@Override
 	public void onDestroy() {
@@ -416,6 +474,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 			edit.putBoolean(PREF_START_GPS_PROVIDER,false);
 			edit.commit();
 		}
+		stopForeground(true);
 		super.onDestroy();
 	}
 

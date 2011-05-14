@@ -36,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.broeuschmeul.android.gps.nmea.util.NmeaListener;
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
 
@@ -43,14 +44,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
+import backport.android.bluetooth.BluetoothAdapter;
+import backport.android.bluetooth.BluetoothDevice;
+import backport.android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.location.LocationManager;
-import android.location.GpsStatus.NmeaListener;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.os.SystemClock;
