@@ -88,6 +88,7 @@
 			<CheckBoxPreference
 				android:key="@string/pref_sirf_enable_gga_key"
 				android:enabled="false"
+				android:selectable="false"
 				android:persistent="true"
 				android:defaultValue="true"
 				android:title="@string/pref_enable_gga_title"
@@ -96,6 +97,7 @@
 			<CheckBoxPreference
 				android:key="@string/pref_sirf_enable_rmc_key"
 				android:enabled="false"
+				android:selectable="false"
 				android:persistent="true"
 				android:defaultValue="true"
 				android:title="@string/pref_enable_rmc_title"
@@ -145,6 +147,7 @@
 			<CheckBoxPreference 
 				android:key="@string/pref_sirf_enable_nmea_key"
 				android:enabled="false"
+				android:selectable="false"
 				android:persistent="true"
 				android:defaultValue="true"
 				android:title="@string/pref_enable_nmea_title"
