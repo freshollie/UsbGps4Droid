@@ -1,4 +1,13 @@
-*BlueGps4Droid 1.2.1* (2011-01-20)
+*BlueGps4Droid 1.2.2* (2011-05-14)
+* Add an option to force auto-activation of the chosen location provider (useful when the device defines a GPS provider but doesn't provide the preferences used to enable/disable it).
+* Update copyright infos.
+* Decrease the alleged power consumption of the bluetooth GPS (so now bluetooth GPS should consume less power than internal GPS).
+* Change default retries number before auto-closing BlueGPS4Droid. 
+* Bug fix (Ticket #5: "BlueGPS loops forever when SIRF is enabled but connection cannot be established":https://sourceforge.net/p/bluegps4droid/tickets/5/). 
+* Bug fixed (Ticket #6: "Cannot add mock provider if it exists already":https://sourceforge.net/p/bluegps4droid/tickets/6/). 
+* Closing of bluetooth connection improvements. 
+
+BlueGps4Droid 1.2.1 (2011-01-20)
 * Add Spanish translation (thanks to "Colegota - XDA-Developers":http://forum.xda-developers.com/showpost.php?p=10628971&postcount=55 )
 * Change launcher and notification icons.  The new icons are inspired from "XlAfbk's proposition":http://forum.xda-developers.com/showpost.php?p=10277778&postcount=29.
 
