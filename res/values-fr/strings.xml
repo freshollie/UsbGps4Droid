@@ -123,4 +123,10 @@
     <string name="about_sources">Le code source est librement téléchargeable à partir du dépot Git sur le site web du projet : 
 		http://sourceforge.net/p/bluegps4droid
     </string>
+    <string name="about_bluetooth_license">Le support du Bluetooth est fournit par le projet <i>backport-android-bluetooth</i> 
+    	qui le diffuse sous les termes de la <a href="http://www.apache.org/licenses/LICENSE-2.0"><b>Licence Apache, Version 2.0</b></a>.
+    </string>
+    <string name="about_bluetooth_sources">Le code source du portage <i>backport-android-bluetooth</i> est téléchargeable à l\'adresse suivante : 
+		http://code.google.com/p/backport-android-bluetooth
+    </string>
 </resources>
