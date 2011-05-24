@@ -1,3 +1,7 @@
+*"BlueGps4Cupcake 1.2.2":http://sourceforge.net/projects/bluegps4droid/files/Apk/BlueGPS4Droid_1.2.x/BlueGps4Cupcake_1.2.2.apk/download* (2011-05-24)
+* BlueGps4Droid version 1.2.2 for Cupcake and Donuts - *Do not use with Eclair, Froyo or Gingerbread !!!*
+* Bluetooth support is provided using the backport-android-bluetooth package:  "http://code.google.com/p/backport-android-bluetooth":http://code.google.com/p/backport-android-bluetooth.
+
 *BlueGps4Droid 1.2.2* (2011-05-14)
 * Add an option to force auto-activation of the chosen location provider (useful when the device defines a GPS provider but doesn't provide the preferences used to enable/disable it).
 * Update copyright infos.
