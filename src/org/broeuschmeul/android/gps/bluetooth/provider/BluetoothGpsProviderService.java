@@ -31,10 +31,12 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.broeuschmeul.android.gps.internal.provider.R;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
+//import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -56,11 +58,11 @@ import android.widget.Toast;
  */
 public class BluetoothGpsProviderService extends Service implements NmeaListener, LocationListener {
 
-	public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.bluetooth.tracker.nmea.intent.action.START_TRACK_RECORDING";
-	public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.bluetooth.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
-	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.START_GPS_PROVIDER";
-	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.STOP_GPS_PROVIDER";
-	public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.bluetooth.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
+	public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.internal.tracker.nmea.intent.action.START_TRACK_RECORDING";
+	public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.internal.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
+	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.START_GPS_PROVIDER";
+	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.STOP_GPS_PROVIDER";
+	public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
 	public static final String PREF_START_GPS_PROVIDER = "startGps";
 	public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
 	public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
@@ -107,14 +109,14 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 //		super.onStart(intent, startId);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor edit = sharedPreferences.edit();
-		String deviceAddress = sharedPreferences.getString(PREF_BLUETOOTH_DEVICE, null);
+		String deviceAddress = sharedPreferences.getString(PREF_BLUETOOTH_DEVICE, getString(R.string.defaultGpsDevice));
 		int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
 		if (Config.LOGD){
 			Log.d(LOG_TAG, "prefs device addr: "+deviceAddress);
 		}
 		if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())){
 			if (gpsManager == null){
-				if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
+				if (true /*|| BluetoothAdapter.checkBluetoothAddress(deviceAddress)*/){
 					String mockProvider = LocationManager.GPS_PROVIDER;
 					if (! sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)){
 						mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));

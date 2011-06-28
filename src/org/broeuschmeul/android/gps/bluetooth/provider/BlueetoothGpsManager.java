@@ -21,6 +21,8 @@
 package org.broeuschmeul.android.gps.bluetooth.provider;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.broeuschmeul.android.gps.internal.provider.R;
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
 
@@ -43,9 +46,9 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
+//import android.bluetooth.BluetoothAdapter;
+//import android.bluetooth.BluetoothDevice;
+//import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
@@ -81,7 +84,7 @@ public class BlueetoothGpsManager {
 		/**
 		 * GPS bluetooth socket used for communication. 
 		 */
-		private final BluetoothSocket socket;
+		private final File gpsDev ;
 		/**
 		 * GPS InputStream from which we read data. 
 		 */
@@ -89,34 +92,34 @@ public class BlueetoothGpsManager {
 		/**
 		 * GPS output stream to which we send data (SIRF III binary commands). 
 		 */
-		private final OutputStream out;
+		//private final OutputStream out;
 		/**
 		 * GPS output stream to which we send data (SIRF III NMEA commands). 
 		 */
-		private final PrintStream out2;
+		//private final PrintStream out2;
 		/**
 		 * A boolean which indicates if the GPS is ready to receive data. 
 		 * In fact we consider that the GPS is ready when it begins to sends data...
 		 */
 		private boolean ready = false;
 
-		public ConnectedGps(BluetoothSocket socket) {
-			this.socket = socket;
+		public ConnectedGps(File gpsDev) {
+			this.gpsDev = gpsDev;
 			InputStream tmpIn = null;
-			OutputStream tmpOut = null;
-			PrintStream tmpOut2 = null;
+			//OutputStream tmpOut = null;
+			//PrintStream tmpOut2 = null;
 			try {
-				tmpIn = socket.getInputStream();
-				tmpOut = socket.getOutputStream();
-				if (tmpOut != null){
-					tmpOut2 = new PrintStream(tmpOut, false, "US-ASCII");
-				}
+				tmpIn = new FileInputStream(gpsDev);
+				//tmpOut = new FileOutputStream(gpsDev);
+				//if (tmpOut != null){
+				//	tmpOut2 = new PrintStream(tmpOut, false, "US-ASCII");
+				//}
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "error while getting socket streams", e);
 			}	
 			in = tmpIn;
-			out = tmpOut;
-			out2 = tmpOut2;
+			//out = tmpOut;
+			//out2 = tmpOut2;
 		}
 	
 		public boolean isReady(){
@@ -156,38 +159,38 @@ public class BlueetoothGpsManager {
 		 * Write to the connected OutStream.
 		 * @param buffer  The bytes to write
 		 */
-		public void write(byte[] buffer) {
-			try {
-				do {
-					Thread.sleep(100);
-				} while ((enabled) && (! ready));
-				if ((enabled) && (ready)){
-					out.write(buffer);
-					out.flush();
-				}
-			} catch (IOException e) {
-				Log.e(LOG_TAG, "Exception during write", e);
-			} catch (InterruptedException e) {
-				Log.e(LOG_TAG, "Exception during write", e);
-			}
-		}
+//		public void write(byte[] buffer) {
+//			try {
+//				do {
+//					Thread.sleep(100);
+//				} while ((enabled) && (! ready));
+//				if ((enabled) && (ready)){
+//					out.write(buffer);
+//					out.flush();
+//				}
+//			} catch (IOException e) {
+//				Log.e(LOG_TAG, "Exception during write", e);
+//			} catch (InterruptedException e) {
+//				Log.e(LOG_TAG, "Exception during write", e);
+//			}
+//		}
 		/**
 		 * Write to the connected OutStream.
 		 * @param buffer  The data to write
 		 */
-		public void write(String buffer) {
-			try {
-				do {
-					Thread.sleep(100);
-				} while ((enabled) && (! ready));
-				if ((enabled) && (ready)){
-					out2.print(buffer);
-					out2.flush();
-				}
-			} catch (InterruptedException e) {
-				Log.e(LOG_TAG, "Exception during write", e);
-			}
-		}
+//		public void write(String buffer) {
+//			try {
+//				do {
+//					Thread.sleep(100);
+//				} while ((enabled) && (! ready));
+//				if ((enabled) && (ready)){
+//					out2.print(buffer);
+//					out2.flush();
+//				}
+//			} catch (InterruptedException e) {
+//				Log.e(LOG_TAG, "Exception during write", e);
+//			}
+//		}
 		
 		public void close(){
 			ready = false;
@@ -197,26 +200,27 @@ public class BlueetoothGpsManager {
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "error while closing GPS NMEA output stream", e);
 			} finally {
-				try {
-		        	Log.d(LOG_TAG, "closing Bluetooth GPS input streams");
-					out2.close();
-					out.close();
-				} catch (IOException e) {
-					Log.e(LOG_TAG, "error while closing GPS input streams", e);
-				} finally {
-					try {
-			        	Log.d(LOG_TAG, "closing Bluetooth GPS socket");
-						socket.close();
-					} catch (IOException e) {
-						Log.e(LOG_TAG, "error while closing GPS socket", e);
-					}
-				}
+//				try {
+//		        	Log.d(LOG_TAG, "closing Bluetooth GPS input streams");
+//					out2.close();
+//					out.close();
+//				} catch (IOException e) {
+//					Log.e(LOG_TAG, "error while closing GPS input streams", e);
+//				} finally {
+//					try {
+//			        	Log.d(LOG_TAG, "closing Bluetooth GPS socket");
+//						socket.close();
+//					} catch (IOException e) {
+//						Log.e(LOG_TAG, "error while closing GPS socket", e);
+//					}
+//				}
 			}
 		}
 	}
 
 	private Service callingService;
-	private BluetoothSocket gpsSocket;
+//	private BluetoothSocket gpsSocket;
+	private File gpsDev ;
 	private String gpsDeviceAddress;
 	private NmeaParser parser = new NmeaParser(10f);
 	private boolean enabled = false;
@@ -294,17 +298,18 @@ public class BlueetoothGpsManager {
 		notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
 		if (! enabled){
         	Log.d(LOG_TAG, "enabling Bluetooth GPS manager");
-			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-	        if (bluetoothAdapter == null) {
-	            // Device does not support Bluetooth
-	        	Log.e(LOG_TAG, "Device does not support Bluetooth");
-	        	disable(R.string.msg_bluetooth_unsupported);
-	        } else if (!bluetoothAdapter.isEnabled()) {
-	        	// Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-	        	// startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-	        	Log.e(LOG_TAG, "Bluetooth is not enabled");
-	        	disable(R.string.msg_bluetooth_disabled);
-	        } else if (Settings.Secure.getInt(callingService.getContentResolver(),Settings.Secure.ALLOW_MOCK_LOCATION, 0)==0){
+//			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//	        if (bluetoothAdapter == null) {
+//	            // Device does not support Bluetooth
+//	        	Log.e(LOG_TAG, "Device does not support Bluetooth");
+//	        	disable(R.string.msg_bluetooth_unsupported);
+//	        } else if (!bluetoothAdapter.isEnabled()) {
+//	        	// Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//	        	// startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+//	        	Log.e(LOG_TAG, "Bluetooth is not enabled");
+//	        	disable(R.string.msg_bluetooth_disabled);
+//	        } else 
+	        if (Settings.Secure.getInt(callingService.getContentResolver(),Settings.Secure.ALLOW_MOCK_LOCATION, 0)==0){
 	        	Log.e(LOG_TAG, "Mock location provider OFF");
 	        	disable(R.string.msg_mock_location_disabled);
 //	        } else if ( (! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
@@ -313,19 +318,21 @@ public class BlueetoothGpsManager {
 //	        	Log.e(LOG_TAG, "GPS location provider OFF");
 //	        	disable(R.string.msg_gps_provider_disabled);
 	        } else {
-				final BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
+//				final BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
+				final String gpsDevice = gpsDeviceAddress;
 				if (gpsDevice == null){
 					Log.e(LOG_TAG, "GPS device not found");       	    	
 		        	disable(R.string.msg_bluetooth_gps_unavaible);
 				} else {
-	    			Log.e(LOG_TAG, "current device: "+gpsDevice.getName() + " -- " + gpsDevice.getAddress());
-					try {
-						gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-					} catch (IOException e) {
-	    				Log.e(LOG_TAG, "Error during connection", e);
-	    				gpsSocket = null;
-					}
-					if (gpsSocket == null){
+	    			Log.e(LOG_TAG, "current device: "+gpsDevice );
+//					try {
+//						gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+						gpsDev = new File(gpsDeviceAddress);
+//					} catch (IOException e) {
+//	    				Log.e(LOG_TAG, "Error during connection", e);
+//	    				gpsDev = null;
+//					}
+					if (gpsDev == null){
 	    				Log.e(LOG_TAG, "Error while establishing connection: no socket");
 			        	disable(R.string.msg_bluetooth_gps_unavaible);
 					} else {
@@ -334,36 +341,37 @@ public class BlueetoothGpsManager {
 							public void run() {
 								try {
 									connected = false;
-									Log.v(LOG_TAG, "current device: "+gpsDevice.getName() + " -- " + gpsDevice.getAddress());
-									if ((bluetoothAdapter.isEnabled()) && (nbRetriesRemaining > 0 )){										
-										try {
+									Log.v(LOG_TAG, "current device: "+gpsDevice);
+									if (/*(bluetoothAdapter.isEnabled()) && */(nbRetriesRemaining > 0 )){										
+//										try {
 											if (connectedGps != null){
 												connectedGps.close();
 											}
-											if ((gpsSocket != null) && ((connectedGps == null) || (connectedGps.socket != gpsSocket))){
-												Log.d(LOG_TAG, "trying to close old socket");
-												gpsSocket.close();
-											}
-										} catch (IOException e) {
-											Log.e(LOG_TAG, "Error during disconnection", e);
-										}
-										try {
-											gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-										} catch (IOException e) {
-											Log.e(LOG_TAG, "Error during connection", e);
-						    				gpsSocket = null;
-										}
-										if (gpsSocket == null){
-											Log.e(LOG_TAG, "Error while establishing connection: no socket");
+//											if ((gpsDev != null) && ((connectedGps == null) || (connectedGps.gpsDev != gpsDev))){
+//												Log.d(LOG_TAG, "trying to close old socket");
+//												gpsSocket.close();
+//											}
+//										} catch (IOException e) {
+//											Log.e(LOG_TAG, "Error during disconnection", e);
+//										}
+//										try {
+//											gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+											gpsDev = new File(gpsDeviceAddress);
+//										} catch (IOException e) {
+//											Log.e(LOG_TAG, "Error during connection", e);
+//						    				gpsDev = null;
+//										}
+										if (gpsDev == null){
+											Log.e(LOG_TAG, "Error while establishing connection: no device");
 								        	disable(R.string.msg_bluetooth_gps_unavaible);
 										} else {
 											// Cancel discovery because it will slow down the connection
-											bluetoothAdapter.cancelDiscovery();
+//											bluetoothAdapter.cancelDiscovery();
 											// we increment the number of connection tries
 											// Connect the device through the socket. This will block
 											// until it succeeds or throws an exception
 											Log.v(LOG_TAG, "connecting to socket");
-											gpsSocket.connect();
+//											gpsDev.connect();
 						        			Log.d(LOG_TAG, "connected to socket");
 											connected = true;
 											// reset eventual disabling cause
@@ -372,17 +380,17 @@ public class BlueetoothGpsManager {
 											nbRetriesRemaining = 1+maxConnectionRetries ;
 											notificationManager.cancel(R.string.connection_problem_notification_title);
 						        			Log.v(LOG_TAG, "starting socket reading task");
-											connectedGps = new ConnectedGps(gpsSocket);
+											connectedGps = new ConnectedGps(gpsDev);
 											connectionAndReadingPool.execute(connectedGps);
 								        	Log.v(LOG_TAG, "socket reading thread started");
 										}
 //									} else if (! bluetoothAdapter.isEnabled()) {
 //										setDisableReason(R.string.msg_bluetooth_disabled);
 									}
-								} catch (IOException connectException) {
-									// Unable to connect
-									Log.e(LOG_TAG, "error while connecting to socket", connectException);									
-									// disable(R.string.msg_bluetooth_gps_unavaible);
+//								} catch (IOException connectException) {
+//									// Unable to connect
+//									Log.e(LOG_TAG, "error while connecting to socket", connectException);									
+//									// disable(R.string.msg_bluetooth_gps_unavaible);
 								} finally {
 									nbRetriesRemaining--;
 									if (! connected) {
@@ -494,14 +502,14 @@ public class BlueetoothGpsManager {
 						if (connectedGps != null){
 							connectedGps.close();
 						}
-						if ((gpsSocket != null) && ((connectedGps == null) || (connectedGps.socket != gpsSocket))){
-							try {
-								Log.d(LOG_TAG, "closing Bluetooth GPS socket");
-								gpsSocket.close();
-							} catch (IOException closeException) {
-								Log.e(LOG_TAG, "error while closing socket", closeException);
-							}
-						}
+//						if ((gpsDev != null) && ((connectedGps == null) || (connectedGps.gpsDev != gpsDev))){
+//							try {
+//								Log.d(LOG_TAG, "closing Bluetooth GPS socket");
+//								gpsDev.close();
+//							} catch (IOException closeException) {
+//								Log.e(LOG_TAG, "error while closing socket", closeException);
+//							}
+//						}
 					}
 				}
 			};
@@ -672,22 +680,22 @@ public class BlueetoothGpsManager {
 	 * @param command	the complete NMEA sentence (i.e. $....*XY where XY is the checksum).
 	 */
 	public void sendPackagedNmeaCommand(final String command){
-		Log.d(LOG_TAG, "sending NMEA sentence: "+command);
-		if (isEnabled()){
-			notificationPool.execute( new Runnable() {			
-				@Override
-				public void run() {
-					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
-						Log.v(LOG_TAG, "writing thread is not ready");
-						SystemClock.sleep(500);
-					}
-					if (isEnabled() && (connectedGps != null)){
-						connectedGps.write(command);
-						Log.d(LOG_TAG, "sent NMEA sentence: "+command);
-					}
-				}
-			});
-		}
+		Log.e(LOG_TAG, "Disabled .... sending NMEA sentence: "+command);
+//		if (isEnabled()){
+//			notificationPool.execute( new Runnable() {			
+//				@Override
+//				public void run() {
+//					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
+//						Log.v(LOG_TAG, "writing thread is not ready");
+//						SystemClock.sleep(500);
+//					}
+//					if (isEnabled() && (connectedGps != null)){
+//						connectedGps.write(command);
+//						Log.d(LOG_TAG, "sent NMEA sentence: "+command);
+//					}
+//				}
+//			});
+//		}
 	}
 
 	/**
@@ -697,23 +705,23 @@ public class BlueetoothGpsManager {
 	 * (i.e. with the <em>Start Sequence</em>, <em>Payload Length</em>, <em>Payload</em>, <em>Message Checksum</em> and <em>End Sequence</em>).
 	 */
 	public void sendPackagedSirfCommand(final String commandHexa){
-		Log.d(LOG_TAG, "sending SIRF sentence: "+commandHexa);
-		if (isEnabled()){
-			final byte[] command = SirfUtils.genSirfCommand(commandHexa);
-			notificationPool.execute( new Runnable() {			
-				@Override
-				public void run() {
-					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
-						Log.v(LOG_TAG, "writing thread is not ready");
-						SystemClock.sleep(500);
-					}
-					if (isEnabled() && (connectedGps != null)){
-						connectedGps.write(command);
-						Log.d(LOG_TAG, "sent SIRF sentence: "+commandHexa);
-					}
-				}
-			});
-		}
+		Log.d(LOG_TAG, "Disabled sending SIRF sentence: "+commandHexa);
+//		if (isEnabled()){
+//			final byte[] command = SirfUtils.genSirfCommand(commandHexa);
+//			notificationPool.execute( new Runnable() {			
+//				@Override
+//				public void run() {
+//					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
+//						Log.v(LOG_TAG, "writing thread is not ready");
+//						SystemClock.sleep(500);
+//					}
+//					if (isEnabled() && (connectedGps != null)){
+//						connectedGps.write(command);
+//						Log.d(LOG_TAG, "sent SIRF sentence: "+commandHexa);
+//					}
+//				}
+//			});
+//		}
 	}
 
 	/**

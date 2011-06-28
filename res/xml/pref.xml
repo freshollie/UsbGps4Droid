@@ -21,10 +21,11 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:title="@string/app_name" >
-	<ListPreference 
+	<EditTextPreference
 		android:dialogTitle="@string/pref_bluetooth_device_title"
 		android:title="@string/pref_bluetooth_device_title" 
 		android:key="@string/pref_bluetooth_device_key" 	
+		android:defaultValue="@string/defaultGpsDevice"
 		android:summary="@string/pref_bluetooth_device_summary" />
 	<CheckBoxPreference 
 		android:dependency="@string/pref_bluetooth_device_key"
