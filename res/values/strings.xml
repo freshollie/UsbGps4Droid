@@ -19,7 +19,7 @@
 	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
 -->
 <resources>
-    <string name="app_name">BlueGps</string>
+    <string name="app_name">InternalGps</string>
     
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Bluetooth GPS is off</string>
@@ -93,7 +93,7 @@
     <string name="msg_two_many_connection_problems">Too many connection problems</string>
     <string name="msg_gps_provider_disabled">GPS is disabled</string>
     <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string>
-    <string name="msg_bluetooth_disabled">Bluetooth is disabled</string>
+<!--     <string name="msg_bluetooth_disabled">Bluetooth is disabled</string> -->
     <string name="msg_mock_location_disabled">Mock locations disabled</string>
     <string name="msg_bluetooth_gps_unavaible">Cannot connect to bluetooth GPS</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>

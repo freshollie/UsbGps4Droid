@@ -23,14 +23,17 @@ package org.broeuschmeul.android.gps.bluetooth.provider;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.broeuschmeul.android.gps.internal.provider.R;
+
 import android.app.AlertDialog;
-import backport.android.bluetooth.BluetoothAdapter;
-import backport.android.bluetooth.BluetoothDevice;
+//import android.bluetooth.BluetoothAdapter;
+//import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -55,7 +58,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	private static final String LOG_TAG = "BlueGPS";
 	
 	private SharedPreferences sharedPref ;
-	private BluetoothAdapter bluetoothAdapter = null;
+//	private BluetoothAdapter bluetoothAdapter = null;
 	
     /** Called when the activity is first created. */
     @Override
@@ -64,7 +67,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         addPreferencesFromResource(R.xml.pref);      
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Preference pref = findPreference(BluetoothGpsProviderService.PREF_ABOUT);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {		
 			@Override
@@ -86,12 +89,12 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 
 	private void updateDevicePreferenceSummary(){
         // update bluetooth device summary
-		String deviceName = "";
-        ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-        String deviceAddress = sharedPref.getString(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE, null);
-        if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
-        	deviceName = bluetoothAdapter.getRemoteDevice(deviceAddress).getName();
-        }
+//		String deviceName = "";
+        EditTextPreference prefDevices = (EditTextPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
+        String deviceName = sharedPref.getString(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE, getString(R.string.defaultGpsDevice));
+//        if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
+//        	deviceName = bluetoothAdapter.getRemoteDevice(deviceAddress).getName();
+//        }
         prefDevices.setSummary(getString(R.string.pref_bluetooth_device_summary, deviceName));
     }   
 
@@ -99,24 +102,24 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         // update bluetooth device summary
 		updateDevicePreferenceSummary();
 		// update bluetooth device list
-        ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-        Set<BluetoothDevice> pairedDevices = new HashSet<BluetoothDevice>();
-        if (bluetoothAdapter != null){
-        	pairedDevices = bluetoothAdapter.getBondedDevices();  
-        }
-        String[] entryValues = new String[pairedDevices.size()];
-        String[] entries = new String[pairedDevices.size()];
-        int i = 0;
-    	    // Loop through paired devices
-        for (BluetoothDevice device : pairedDevices) {
-        	// Add the name and address to the ListPreference enties and entyValues
-        	Log.v(LOG_TAG, "device: "+device.getName() + " -- " + device.getAddress());
-        	entryValues[i] = device.getAddress();
-            entries[i] = device.getName();
-            i++;
-        }
-        prefDevices.setEntryValues(entryValues);
-        prefDevices.setEntries(entries);
+//        ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
+//        Set<BluetoothDevice> pairedDevices = new HashSet<BluetoothDevice>();
+//        if (bluetoothAdapter != null){
+//        	pairedDevices = bluetoothAdapter.getBondedDevices();  
+//        }
+//        String[] entryValues = new String[pairedDevices.size()];
+//        String[] entries = new String[pairedDevices.size()];
+//        int i = 0;
+//    	    // Loop through paired devices
+//        for (BluetoothDevice device : pairedDevices) {
+//        	// Add the name and address to the ListPreference enties and entyValues
+//        	Log.v(LOG_TAG, "device: "+device.getName() + " -- " + device.getAddress());
+//        	entryValues[i] = device.getAddress();
+//            entries[i] = device.getName();
+//            i++;
+//        }
+//        prefDevices.setEntryValues(entryValues);
+//        prefDevices.setEntries(entries);
         Preference pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_TRACK_RECORDING);
         pref.setEnabled(sharedPref.getBoolean(BluetoothGpsProviderService.PREF_START_GPS_PROVIDER, false));
         pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME);
@@ -156,11 +159,6 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         int defaultColor = textView.getTextColors().getDefaultColor();
         textView.setTextColor(defaultColor);
         textView = (TextView) messageView.findViewById(R.id.about_sources);
-        textView.setTextColor(defaultColor);
-        textView = (TextView) messageView.findViewById(R.id.about_bluetooth_license);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
-        textView.setTextColor(defaultColor);
-        textView = (TextView) messageView.findViewById(R.id.about_bluetooth_sources);
         textView.setTextColor(defaultColor);
        
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
