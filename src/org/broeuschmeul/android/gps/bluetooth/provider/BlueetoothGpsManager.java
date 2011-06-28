@@ -132,7 +132,7 @@ public class BlueetoothGpsManager {
 				String s;
 				long now = SystemClock.uptimeMillis();
 				long lastRead = now;
-				while((enabled) && (now < lastRead+5000 )){
+				while((enabled) && (now < lastRead+30000 )){
 					if (reader.ready()){
 						s = reader.readLine();
 						Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
