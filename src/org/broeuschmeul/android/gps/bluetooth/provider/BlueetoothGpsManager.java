@@ -360,8 +360,11 @@ public class BlueetoothGpsManager {
 //											gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 											gpsDev = new File(gpsDeviceAddress);
 											// verify if we have enough rights..
-											if (gpsDev.isFile()){												
+											Log.v(LOG_TAG, "Will verify if device exists and is a file: "+gpsDev.getAbsolutePath());
+											if (gpsDev.exists()){		
+												Log.v(LOG_TAG, "Device exists and is a file: "+gpsDev.getAbsolutePath());
 												if (! gpsDev.canRead()){
+													Log.v(LOG_TAG, "Device is not readable, will try chmod 666 "+gpsDev.getAbsolutePath());
 													try {
 														// Try to get root privileges  
 														Process p = Runtime.getRuntime().exec("su");
@@ -391,8 +394,11 @@ public class BlueetoothGpsManager {
 														Log.e(LOG_TAG, "Error while establishing connection: ", e);
 														gpsDev = null;
 													}   
+												} else {
+													Log.v(LOG_TAG, "Device is readable: "+gpsDev.getAbsolutePath());
 												}
 											} else {
+												Log.e(LOG_TAG, "Device doesn't exist: "+gpsDev.getAbsolutePath());
 												gpsDev = null;
 											}
 //										} catch (IOException e) {
