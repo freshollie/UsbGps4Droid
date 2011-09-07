@@ -30,7 +30,7 @@
     <string name="pref_recording_key">trackRecording</string>
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
-    <string name="pref_bluetooth_device_key">bluetoothDevice</string>
+    <string name="pref_bluetooth_device_key">usbDevice</string>
     <string name="pref_about_key">about</string>
 
     <string name="pref_sirf_gps_key">sirfGps</string>
@@ -47,8 +47,8 @@
 
     <string name="defaultConnectionRetries">5</string>
     <string name="defaultTrackFileDirectory">/sdcard/nmea</string>
-    <string name="defaultTrackFilePrefix">btnmeatrack</string>
-    <string name="defaultMockGpsName">bluetooth_gps</string>
+    <string name="defaultTrackFilePrefix">usbnmeatrack</string>
+    <string name="defaultMockGpsName">usb_gps</string>
    <string name="defaultGpsDevice">/dev/ttyHS3</string>
 
     

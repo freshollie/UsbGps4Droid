@@ -31,8 +31,8 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.broeuschmeul.android.gps.internal.provider.R;
 import org.broeuschmeul.android.gps.nmea.util.NmeaListener;
+import org.broeuschmeul.android.gps.usb.provider.R;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -60,11 +60,11 @@ import android.widget.Toast;
  */
 public class BluetoothGpsProviderService extends Service implements NmeaListener, LocationListener {
 
-	public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.internal.tracker.nmea.intent.action.START_TRACK_RECORDING";
-	public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.internal.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
-	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.START_GPS_PROVIDER";
-	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.STOP_GPS_PROVIDER";
-	public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
+	public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING";
+	public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
+	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER";
+	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER";
+	public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
 	public static final String PREF_START_GPS_PROVIDER = "startGps";
 	public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
 	public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
@@ -74,13 +74,13 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_TRACK_RECORDING = "trackRecording";
 	public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
-	public static final String PREF_BLUETOOTH_DEVICE = "bluetoothDevice";
+	public static final String PREF_BLUETOOTH_DEVICE = "usbDevice";
 	public static final String PREF_ABOUT = "about";
 	
 	/**
 	 * Tag used for log messages
 	 */
-	private static final String LOG_TAG = "BlueGPS";
+	private static final String LOG_TAG = "UsbGPS";
 
 	public static final String PREF_SIRF_GPS = "sirfGps";
 	public static final String PREF_SIRF_ENABLE_GGA = "enableGGA";

@@ -19,7 +19,7 @@
 	along with BluetoothGPS4Droid. If not, see : http://www.gnu.org/licenses/.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.broeuschmeul.android.gps.internal.provider"
+      package="org.broeuschmeul.android.gps.usb.provider"
       android:versionCode="124"
       android:versionName="@string/versionName">
     <application android:icon="@drawable/ic_launcher_bluegps" android:label="@string/app_name" android:allowClearUserData="true">
@@ -37,19 +37,19 @@
 -->
 		<service android:name="org.broeuschmeul.android.gps.bluetooth.provider.BluetoothGpsProviderService" android:enabled="true" android:exported="true" >
 			<intent-filter>
-				<action android:name="org.broeuschmeul.android.gps.internal.tracker.nmea.intent.action.START_TRACK_RECORDING">
+				<action android:name="org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING">
 					<category android:name="android.intent.category.DEFAULT" />
 				</action>
-				<action android:name="org.broeuschmeul.android.gps.internal.tracker.nmea.intent.action.STOP_TRACK_RECORDING">
+				<action android:name="org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING">
 					<category android:name="android.intent.category.DEFAULT" />
 				</action>
-				<action android:name="org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.START_GPS_PROVIDER">
+				<action android:name="org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER">
 					<category android:name="android.intent.category.DEFAULT" />
 				</action>
-				<action android:name="org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.STOP_GPS_PROVIDER">
+				<action android:name="org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER">
 					<category android:name="android.intent.category.DEFAULT" />
 				</action>
-				<action android:name="org.broeuschmeul.android.gps.internal.provider.nmea.intent.action.CONFIGURE_SIRF_GPS">
+				<action android:name="org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.CONFIGURE_SIRF_GPS">
 					<category android:name="android.intent.category.DEFAULT" />
 				</action>
 			</intent-filter>			
@@ -121,8 +121,6 @@
 
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.BLUETOOTH" />
-	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 	<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
 	
 </manifest> 
