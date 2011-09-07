@@ -23,7 +23,7 @@ package org.broeuschmeul.android.gps.bluetooth.provider;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.broeuschmeul.android.gps.internal.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.R;
 
 import android.app.AlertDialog;
 //import android.bluetooth.BluetoothAdapter;
@@ -55,7 +55,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	/**
 	 * Tag used for log messages
 	 */
-	private static final String LOG_TAG = "BlueGPS";
+	private static final String LOG_TAG = "UsbGPS";
 	
 	private SharedPreferences sharedPref ;
 //	private BluetoothAdapter bluetoothAdapter = null;

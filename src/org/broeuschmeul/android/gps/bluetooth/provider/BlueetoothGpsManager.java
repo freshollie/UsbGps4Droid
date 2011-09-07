@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.broeuschmeul.android.gps.internal.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
 
@@ -72,7 +72,7 @@ public class BlueetoothGpsManager {
 	/**
 	 * Tag used for log messages
 	 */
-	private static final String LOG_TAG = "BlueGPS";
+	private static final String LOG_TAG = "UsbGPS";
 
 	/**
 	 * A utility class used to manage the communication with the bluetooth GPS whn the connection has been established.
@@ -410,26 +410,26 @@ public class BlueetoothGpsManager {
 								        	disable(R.string.msg_bluetooth_gps_unavaible);
 										} else {
 											// start GPS device
-											try {
-												File gpsControl = new File("/sys/devices/platform/gps_control/enable");
-												if (gpsControl.isFile()){												
-													if (gpsControl.canWrite()){
-														OutputStream os = new FileOutputStream(gpsControl);
-														os.write('1');
-														os.flush();
-														os.close();
-													}
-												}
-											} catch (FileNotFoundException e) {
-												// TODO update message
-												Log.e(LOG_TAG, "Error while starting GPS: ", e);
-											} catch (IOException e) {
-												// TODO update message
-												Log.e(LOG_TAG, "Error while starting GPS: ", e);
-											} catch (SecurityException e) {
-												// TODO update message
-												Log.e(LOG_TAG, "Error while starting GPS: ", e);
-											}
+//											try {
+//												File gpsControl = new File("/sys/devices/platform/gps_control/enable");
+//												if (gpsControl.isFile()){												
+//													if (gpsControl.canWrite()){
+//														OutputStream os = new FileOutputStream(gpsControl);
+//														os.write('1');
+//														os.flush();
+//														os.close();
+//													}
+//												}
+//											} catch (FileNotFoundException e) {
+//												// TODO update message
+//												Log.e(LOG_TAG, "Error while starting GPS: ", e);
+//											} catch (IOException e) {
+//												// TODO update message
+//												Log.e(LOG_TAG, "Error while starting GPS: ", e);
+//											} catch (SecurityException e) {
+//												// TODO update message
+//												Log.e(LOG_TAG, "Error while starting GPS: ", e);
+//											}
 											// Cancel discovery because it will slow down the connection
 //											bluetoothAdapter.cancelDiscovery();
 											// we increment the number of connection tries
@@ -555,26 +555,26 @@ public class BlueetoothGpsManager {
 			enabled = false;
 			connectionAndReadingPool.shutdown();
 			// stop GPS device
-			try {
-				File gpsControl = new File("/sys/devices/platform/gps_control/enable");
-				if (gpsControl.isFile()){												
-					if (gpsControl.canWrite()){
-						OutputStream os = new FileOutputStream(gpsControl);
-						os.write('0');
-						os.flush();
-						os.close();
-					}
-				}
-			} catch (FileNotFoundException e) {
-				// TODO update message
-				Log.e(LOG_TAG, "Error while stoping GPS: ", e);
-			} catch (IOException e) {
-				// TODO update message
-				Log.e(LOG_TAG, "Error while stoping GPS: ", e);
-			} catch (SecurityException e) {
-				// TODO update message
-				Log.e(LOG_TAG, "Error while stoping GPS: ", e);
-			}
+//			try {
+//				File gpsControl = new File("/sys/devices/platform/gps_control/enable");
+//				if (gpsControl.isFile()){												
+//					if (gpsControl.canWrite()){
+//						OutputStream os = new FileOutputStream(gpsControl);
+//						os.write('0');
+//						os.flush();
+//						os.close();
+//					}
+//				}
+//			} catch (FileNotFoundException e) {
+//				// TODO update message
+//				Log.e(LOG_TAG, "Error while stoping GPS: ", e);
+//			} catch (IOException e) {
+//				// TODO update message
+//				Log.e(LOG_TAG, "Error while stoping GPS: ", e);
+//			} catch (SecurityException e) {
+//				// TODO update message
+//				Log.e(LOG_TAG, "Error while stoping GPS: ", e);
+//			}
 			Runnable closeAndShutdown = new Runnable() {				
 				@Override
 				public void run(){

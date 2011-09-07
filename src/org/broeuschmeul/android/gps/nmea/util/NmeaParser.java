@@ -47,7 +47,7 @@ public class NmeaParser {
 	/**
 	 * Tag used for log messages
 	 */
-	private static final String LOG_TAG = "BlueGPS";
+	private static final String LOG_TAG = "UsbGPS";
 
 	private String fixTime = null;
 	private long fixTimestamp;
