@@ -52,7 +52,7 @@
 		<CheckBoxPreference
 			android:key="@string/pref_force_enable_provider_key"
 			android:persistent="true"
-			android:defaultValue="false"
+			android:defaultValue="true"
 			android:title="@string/pref_force_enable_provider_title"
 			android:summaryOn="@string/pref_force_enable_provider_summary_on"
 			android:summaryOff="@string/pref_force_enable_provider_summary_off" />

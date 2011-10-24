@@ -99,22 +99,22 @@
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
     <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
     <string name="msg_nmea_recording_already_started">GPS track recording... is already on</string>
-    <string name="foreground_service_started_notification_title">BlueGps</string>
-    <string name="foreground_gps_provider_started_notification">BlueGps service started</string>
-    <string name="foreground_nmea_recording_started_notification">BlueGps NMEA recording service started</string>
-    <string name="connection_problem_notification_title">BlueGps: connection problem</string>
+    <string name="foreground_service_started_notification_title">UsbGps</string>
+    <string name="foreground_gps_provider_started_notification">UsbGps service started</string>
+    <string name="foreground_nmea_recording_started_notification">UsbGps NMEA recording service started</string>
+    <string name="connection_problem_notification_title">UsbGps: connection problem</string>
     <plurals name="connection_problem_notification">
     	<item quantity="one">Will retry one more time before closing</item>
     	<item quantity="other">Will retry %d more times before closing</item>
     </plurals>
-    <string name="service_closed_because_connection_problem_notification_title">BlueGps stopped</string>
+    <string name="service_closed_because_connection_problem_notification_title">UsbGps stopped</string>
     <string name="service_closed_because_connection_problem_notification">"Reason: %s"</string>
     
     <string name="about_title">About</string>
     <string name="about_version">UsbGPS4Droid version</string>
     <string name="about_copyright_1">Copyright (C) 2010 Herbert von Broeuschmeul</string>
     <string name="about_copyright_2">Copyright (C) 2010 BluetoothGPS4Droid Project</string>
-    <string name="about_app_desc">Usb GPS for Android is an application 
+    <string name="about_app_desc">Bluetooth GPS for Android is an application 
     	for using an external usb GPS on Android devices.
     </string>
     <string name="about_license">It is open source software 

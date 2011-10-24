@@ -49,7 +49,7 @@
     <string name="defaultTrackFileDirectory">/sdcard/nmea</string>
     <string name="defaultTrackFilePrefix">usbnmeatrack</string>
     <string name="defaultMockGpsName">usb_gps</string>
-   <string name="defaultGpsDevice">/dev/ttyHS3</string>
+   <string name="defaultGpsDevice">/dev/ttyUSB0</string>
 
     
     <string name="sirf_nmea_gga_on">PSRF103,00,00,01,01</string>
