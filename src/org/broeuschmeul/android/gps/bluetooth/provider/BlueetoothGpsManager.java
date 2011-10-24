@@ -636,7 +636,7 @@ public class BlueetoothGpsManager {
 	public void enableMockLocationProvider(String gpsName){
 		if (parser != null){
 	       	Log.d(LOG_TAG, "enabling mock locations provider: "+gpsName);
-	    	boolean force = sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_FORCE_ENABLE_PROVIDER, false);
+	    	boolean force = sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_FORCE_ENABLE_PROVIDER, true);
 			parser.enableMockLocationProvider(gpsName, force);
 		}
 	}
