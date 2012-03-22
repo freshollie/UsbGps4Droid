@@ -27,6 +27,16 @@
 		android:key="@string/pref_bluetooth_device_key" 	
 		android:defaultValue="@string/defaultGpsDevice"
 		android:summary="@string/pref_bluetooth_device_summary" />
+	<ListPreference 
+		android:dialogTitle="@string/pref_gps_device_speed_title"
+		android:title="@string/pref_gps_device_speed_title" 
+		android:dependency="@string/pref_start_gps_key"
+		android:key="@string/pref_gps_device_speed_key"
+		android:persistent="true"
+		android:entries="@array/pref_gps_device_speed_values"
+		android:entryValues="@array/pref_gps_device_speed_values"
+		android:defaultValue="@string/defaultGpsDeviceSpeed"
+	/>
 	<CheckBoxPreference 
 		android:dependency="@string/pref_bluetooth_device_key"
 		android:key="@string/pref_start_gps_key"

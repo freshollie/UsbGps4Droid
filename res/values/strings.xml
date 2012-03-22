@@ -47,6 +47,8 @@
     <string name="pref_trackfile_directory_summary">Select the directory for the track files</string>
     <string name="pref_bluetooth_device_title">Choose Usb GPS</string>
     <string name="pref_bluetooth_device_summary">"Current device: %s"</string>    
+    <string name="pref_gps_device_speed_title">Choose GPS device speed</string>
+    <string name="pref_gps_device_speed_summary">"Current speed: %s"</string>    
     <string name="pref_about_title">About</string>
     <string name="pref_about_summary"></string>    
 
@@ -123,4 +125,13 @@
     <string name="about_sources">The source code is available from Git repository on the project website: 
 		http://sourceforge.net/p/bluegps4droid
     </string>
+    <string-array name="pref_gps_device_speed_values">
+        <item >auto</item>
+        <item >1200</item>
+        <item >2400</item>
+        <item >4800</item>
+        <item >9600</item>
+        <item >19200</item>
+        <item >38400</item>
+    </string-array>
 </resources>

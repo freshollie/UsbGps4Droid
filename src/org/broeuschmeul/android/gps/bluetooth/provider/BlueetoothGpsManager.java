@@ -240,6 +240,8 @@ public class BlueetoothGpsManager {
 	private int maxConnectionRetries;
 	private int nbRetriesRemaining;
 	private boolean connected = false;
+	private boolean setDeviceSpeed = false;
+	private String deviceSpeed = "auto";
 
 	/**
 	 * @param callingService
@@ -254,6 +256,8 @@ public class BlueetoothGpsManager {
 		this.appContext = callingService.getApplicationContext();
 		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
+		deviceSpeed = sharedPreferences.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED, callingService.getString(R.string.defaultGpsDeviceSpeed));
+		setDeviceSpeed = !deviceSpeed.equals(callingService.getString(R.string.defaultGpsDeviceSpeed));
 		notificationManager = (NotificationManager)callingService.getSystemService(Context.NOTIFICATION_SERVICE);
 		parser.setLocationManager(locationManager);	
 		
@@ -396,6 +400,40 @@ public class BlueetoothGpsManager {
 													}   
 												} else {
 													Log.v(LOG_TAG, "Device is readable: "+gpsDev.getAbsolutePath());
+												}
+												if (setDeviceSpeed){
+													Log.v(LOG_TAG, "will set devive spped: " + deviceSpeed);
+													try {
+														// Try to get root privileges  
+														Process p = Runtime.getRuntime().exec("su");
+														// change device speed
+														PrintStream os = new PrintStream(p.getOutputStream(),true);
+														os.println("stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
+														// exit
+														os.println("exit");
+														try {
+															p.waitFor();  
+//															if (p.exitValue() != 255) {  
+//															}  
+//															else {  
+//															}  
+														} catch (InterruptedException e) {  
+															// TODO update message
+															Log.e(LOG_TAG, "Error while changing device speed: ", e);
+														} finally {
+															p.destroy();
+														}
+													} catch (IOException e) {
+														// TODO update message
+														Log.e(LOG_TAG, "Error while while changing device speed: ", e);
+														// gpsDev = null;														
+													} catch (SecurityException e) {
+														// TODO update message
+														Log.e(LOG_TAG, "Error while changing device speed: ", e);
+														// gpsDev = null;
+													}   
+												} else {
+													Log.v(LOG_TAG, "Device speed: "+deviceSpeed);
 												}
 											} else {
 												Log.e(LOG_TAG, "Device doesn't exist: "+gpsDev.getAbsolutePath());
