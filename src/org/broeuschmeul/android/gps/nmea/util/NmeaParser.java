@@ -23,6 +23,7 @@ package org.broeuschmeul.android.gps.nmea.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -528,16 +529,17 @@ public class NmeaParser {
 	}
 	public long parseNmeaTime(String time){
 		long timestamp = 0;
-		SimpleDateFormat fmt = new SimpleDateFormat("HHmmss.S");
+		SimpleDateFormat fmt = new SimpleDateFormat("HHmmss.SSS");
 		fmt.setTimeZone(TimeZone.getTimeZone("GMT"));
 		try {
 			if (time != null && time != null){
 				long now = System.currentTimeMillis();
 				long today = now - (now %86400000L);
 				long temp1;
-				temp1 = fmt.parse(time).getTime();
+				// sometime we don't have millisecond in the time string, so we have to reformat it 
+				temp1 = fmt.parse(String.format((Locale)null,"%010.3f", Double.parseDouble(time))).getTime();
 				long temp2 = today+temp1;
-				// 
+				// if we're around midnight we could have a problem...
 				if (temp2 - now > 43200000L) {
 					timestamp  = temp2 - 86400000L;
 				} else if (now - temp2 > 43200000L){
