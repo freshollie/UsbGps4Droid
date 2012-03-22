@@ -75,6 +75,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
 	public static final String PREF_BLUETOOTH_DEVICE = "usbDevice";
+	public static final String PREF_GPS_DEVICE_SPEED = "gpsDeviceSpeed";
 	public static final String PREF_ABOUT = "about";
 	
 	/**
