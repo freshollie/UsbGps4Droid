@@ -1,8 +1,16 @@
+UsbGPS4Cupcake alpha4 (2012-03-24)
+	* UsbGps4Droid version adapted for Cupcake and Donuts - *Do not use with Eclair, Froyo or Gingerbread !!!*
+	* Based on BlueGps4Cupcake version 1.2.2 and UsbGPS4Droid version alpha4.
+
 UsbGPS4Droid alpha4 (2012-03-23)
 	* Add an option in order to change the connection speed. This requires a rooted device with busybox and superuser privileges.
 	* Bug fix: bug #9 Handle NMEA timestamps without fractional seconds(thanks to Jeffrey Hutzelman)
 	* Update copyright informations
 	
+UsbGPS4Cupcake alpha1 (2012-03-07)
+	* UsbGps4Droid version adapted for Cupcake and Donuts - *Do not use with Eclair, Froyo or Gingerbread !!!*
+	* Based on BlueGps4Cupcake version 1.2.2 and UsbGPS4Droid version alpha3.
+
 UsbGPS4Droid alpha3 (2011-10-24)
 	* Quick and dirty adapted version of BlueGPS4droid in order to read NMEA data from a file/device. 
 	
