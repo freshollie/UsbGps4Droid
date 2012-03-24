@@ -120,14 +120,14 @@
     <string name="about_copyright_1">Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul</string>
     <string name="about_copyright_2">Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project</string>
     <string name="about_copyright_3">Copyright (C) 2011, 2012 UsbGPS4Droid Project</string>
-    <string name="about_app_desc">Bluetooth GPS for Android is an application 
+    <string name="about_app_desc">Usb GPS for Android is an application 
     	for using an external usb GPS on Android devices.
     </string>
     <string name="about_license">It is open source software 
     	distributed free of charge under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html"><b>GNU General Public License</b></a>.
     </string>
     <string name="about_sources">The source code is available from Git repository on the project website: 
-		http://sourceforge.net/p/bluegps4droid
+        https://github.com/HvB/UsbGps4Droid
     </string>
     <string-array name="pref_gps_device_speed_values">
         <item >auto</item>
