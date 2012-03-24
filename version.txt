@@ -1,3 +1,11 @@
+UsbGPS4Droid alpha4 (2012-03-23)
+	* Add an option in order to change the connection speed. This requires a rooted device with busybox and superuser privileges.
+	* Bug fix: bug #9 Handle NMEA timestamps without fractional seconds(thanks to Jeffrey Hutzelman)
+	* Update copyright informations
+	
+UsbGPS4Droid alpha3 (2011-10-24)
+	* Quick and dirty adapted version of BlueGPS4droid in order to read NMEA data from a file/device. 
+	
 BlueGps4Cupcake 1.2.2 (2011-05-24)
 	* BlueGps4Droid version 1.2.2 for Cupcake and Donuts - Do not use with Eclair, Froyo or Gingerbread !!!
 	* Bluetooth support is provided using the backport-android-bluetooth package: http://code.google.com/p/backport-android-bluetooth.

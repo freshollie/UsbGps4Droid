@@ -1,8 +1,16 @@
-*"BlueGps4Cupcake 1.2.2":http://sourceforge.net/projects/bluegps4droid/files/Apk/BlueGPS4Droid_1.2.x/BlueGps4Cupcake_1.2.2.apk/download* (2011-05-24)
+*UsbGPS4Droid alpha4* (2012-03-24)
+* Add an option in order to change the connection speed. This requires a rooted device with busybox and superuser privileges.
+* Bug fix (Ticket #9: "Handle NMEA timestamps without fractional seconds":https://sourceforge.net/p/bluegps4droid/tickets/9/ ) (thanks to Jeffrey Hutzelman)
+* Update copyright informations
+
+UsbGPS4Droid alpha3 (2011-10-24)
+* Quick and dirty adapted version of BlueGPS4droid in order to read NMEA data from a file/device. 
+
+"BlueGps4Cupcake 1.2.2":http://sourceforge.net/projects/bluegps4droid/files/Apk/BlueGPS4Droid_1.2.x/BlueGps4Cupcake_1.2.2.apk/download (2011-05-24)
 * BlueGps4Droid version 1.2.2 for Cupcake and Donuts - *Do not use with Eclair, Froyo or Gingerbread !!!*
 * Bluetooth support is provided using the backport-android-bluetooth package:  "http://code.google.com/p/backport-android-bluetooth":http://code.google.com/p/backport-android-bluetooth.
 
-*BlueGps4Droid 1.2.2* (2011-05-14)
+BlueGps4Droid 1.2.2 (2011-05-14)
 * Add an option to force auto-activation of the chosen location provider (useful when the device defines a GPS provider but doesn't provide the preferences used to enable/disable it).
 * Update copyright infos.
 * Decrease the alleged power consumption of the bluetooth GPS (so now bluetooth GPS should consume less power than internal GPS).
@@ -25,7 +33,7 @@ BlueGps4Droid 1.2.0 (2010-12-10)
 BlueGps4Droid 1.2 alpha (2010-10-25)
 * SiRF configuration management (NMEA sentences - SBAS - Static Navigation)
 
-*BlueGps4Droid 1.1.2* (2010-11-04)
+BlueGps4Droid 1.1.2 (2010-11-04)
 * Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
 * Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
 * If device doesn't have an internal GPS, the bluetooth GPS provider will be enabled automatically
@@ -40,7 +48,7 @@ BlueGps4Droid 1.1 (2010-09-26) - does not work properly because of bug #4. Use e
 * Replace Android default internal GPS or use a new location provider 
 * Send status notifications when GPS loses fix or is disconnected.
     
-*BlueGps4Droid 1.0.1* (2010-10-25)
+BlueGps4Droid 1.0.1 (2010-10-25)
 * Add verifications: if bluetooth or mock locations are not enabled, the service is not started.
 * Add alert messages to explain why the service cannot be started if bluetooth or mock locations are not enabled 
 * If device doesn't have an internal GPS, the bluetooth GPS provider will be enabled automatically
