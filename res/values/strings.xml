@@ -48,8 +48,8 @@
     <string name="pref_trackfile_prefix_summary">Select the prefix for the track files</string>
     <string name="pref_trackfile_directory_title">Trackfiles directory</string>
     <string name="pref_trackfile_directory_summary">Select the directory for the track files</string>
-    <string name="pref_bluetooth_device_title">Choose Usb GPS</string>
-    <string name="pref_bluetooth_device_summary">"Current device: %s"</string>    
+    <string name="pref_gps_device_title">Choose Usb GPS</string>
+    <string name="pref_gps_device_summary">"Current device: %s"</string>    
     <string name="pref_gps_device_speed_title">Choose GPS device speed</string>
     <string name="pref_gps_device_speed_summary">"Current speed: %s"</string>    
     <string name="pref_about_title">About</string>
@@ -97,10 +97,10 @@
     <string name="msg_gps_provider_stopped_by_problem">"Cannot start: %s"</string>
     <string name="msg_two_many_connection_problems">Too many connection problems</string>
     <string name="msg_gps_provider_disabled">GPS is disabled</string>
-    <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string>
+<!--     <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string> -->
 <!--     <string name="msg_bluetooth_disabled">Bluetooth is disabled</string> -->
     <string name="msg_mock_location_disabled">Mock locations disabled</string>
-    <string name="msg_bluetooth_gps_unavaible">Cannot connect to bluetooth GPS</string>
+    <string name="msg_gps_unavaible">Cannot connect to USB GPS</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
     <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
     <string name="msg_nmea_recording_already_started">GPS track recording... is already on</string>

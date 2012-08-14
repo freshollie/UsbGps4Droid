@@ -73,7 +73,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 	public static final String PREF_TRACK_RECORDING = "trackRecording";
 	public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
 	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
-	public static final String PREF_BLUETOOTH_DEVICE = "usbDevice";
+	public static final String PREF_GPS_DEVICE = "usbDevice";
 	public static final String PREF_GPS_DEVICE_SPEED = "gpsDeviceSpeed";
 	public static final String PREF_ABOUT = "about";
 	
@@ -111,7 +111,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 //		super.onStart(intent, startId);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor edit = sharedPreferences.edit();
-		String deviceAddress = sharedPreferences.getString(PREF_BLUETOOTH_DEVICE, getString(R.string.defaultGpsDevice));
+		String deviceAddress = sharedPreferences.getString(PREF_GPS_DEVICE, getString(R.string.defaultGpsDevice));
 		int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
 		if (Config.LOGD){
 			Log.d(LOG_TAG, "prefs device addr: "+deviceAddress);
