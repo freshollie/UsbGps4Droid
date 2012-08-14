@@ -33,7 +33,7 @@
     <string name="pref_recording_key">trackRecording</string>
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
-    <string name="pref_bluetooth_device_key">usbDevice</string>
+    <string name="pref_gps_device_key">usbDevice</string>
     <string name="pref_gps_device_speed_key">gpsDeviceSpeed</string>
     <string name="pref_about_key">about</string>
 

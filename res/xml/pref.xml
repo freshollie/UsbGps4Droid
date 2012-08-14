@@ -25,11 +25,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:title="@string/app_name" >
 	<EditTextPreference
-		android:dialogTitle="@string/pref_bluetooth_device_title"
-		android:title="@string/pref_bluetooth_device_title" 
-		android:key="@string/pref_bluetooth_device_key" 	
+		android:dialogTitle="@string/pref_gps_device_title"
+		android:title="@string/pref_gps_device_title" 
+		android:key="@string/pref_gps_device_key" 	
 		android:defaultValue="@string/defaultGpsDevice"
-		android:summary="@string/pref_bluetooth_device_summary" />
+		android:summary="@string/pref_gps_device_summary" />
 	<ListPreference 
 		android:dialogTitle="@string/pref_gps_device_speed_title"
 		android:title="@string/pref_gps_device_speed_title" 
@@ -41,7 +41,7 @@
 		android:defaultValue="@string/defaultGpsDeviceSpeed"
 	/>
 	<CheckBoxPreference 
-		android:dependency="@string/pref_bluetooth_device_key"
+		android:dependency="@string/pref_gps_device_key"
 		android:key="@string/pref_start_gps_key"
 		android:persistent="true"
 		android:disableDependentsState="true"

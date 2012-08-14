@@ -91,12 +91,12 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	private void updateDevicePreferenceSummary(){
         // update bluetooth device summary
 //		String deviceName = "";
-        EditTextPreference prefDevices = (EditTextPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-        String deviceName = sharedPref.getString(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE, getString(R.string.defaultGpsDevice));
+        EditTextPreference prefDevices = (EditTextPreference)findPreference(BluetoothGpsProviderService.PREF_GPS_DEVICE);
+        String deviceName = sharedPref.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE, getString(R.string.defaultGpsDevice));
 //        if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
 //        	deviceName = bluetoothAdapter.getRemoteDevice(deviceAddress).getName();
 //        }
-        prefDevices.setSummary(getString(R.string.pref_bluetooth_device_summary, deviceName));
+        prefDevices.setSummary(getString(R.string.pref_gps_device_summary, deviceName));
         ListPreference prefDeviceSpeed = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED);
         prefDeviceSpeed.setSummary(getString(R.string.pref_gps_device_speed_summary, sharedPref.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED, getString(R.string.defaultGpsDeviceSpeed))));
     }   
@@ -199,7 +199,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 			} else {
 				startService(new Intent(BluetoothGpsProviderService.ACTION_STOP_TRACK_RECORDING));
 			}
-		} else if (BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE.equals(key)){
+		} else if (BluetoothGpsProviderService.PREF_GPS_DEVICE.equals(key)){
 			updateDevicePreferenceSummary();
 		} else if (BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED.equals(key)){
 			updateDevicePreferenceSummary();

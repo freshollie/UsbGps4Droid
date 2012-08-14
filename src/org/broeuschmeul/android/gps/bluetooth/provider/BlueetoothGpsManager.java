@@ -329,7 +329,7 @@ public class BlueetoothGpsManager {
 				final String gpsDevice = gpsDeviceAddress;
 				if (gpsDevice == null){
 					Log.e(LOG_TAG, "GPS device not found");       	    	
-		        	disable(R.string.msg_bluetooth_gps_unavaible);
+		        	disable(R.string.msg_gps_unavaible);
 				} else {
 	    			Log.e(LOG_TAG, "current device: "+gpsDevice );
 //					try {
@@ -341,7 +341,7 @@ public class BlueetoothGpsManager {
 //					}
 					if (gpsDev == null){
 	    				Log.e(LOG_TAG, "Error while establishing connection: no socket");
-			        	disable(R.string.msg_bluetooth_gps_unavaible);
+			        	disable(R.string.msg_gps_unavaible);
 					} else {
 						Runnable connectThread = new Runnable() {							
 							@Override
@@ -409,7 +409,8 @@ public class BlueetoothGpsManager {
 														Process p = Runtime.getRuntime().exec("su");
 														// change device speed
 														PrintStream os = new PrintStream(p.getOutputStream(),true);
-														os.println("stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
+//														os.println("stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
+														os.println("busybox stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
 														// exit
 														os.println("exit");
 														try {
@@ -446,7 +447,7 @@ public class BlueetoothGpsManager {
 //										}
 										if (gpsDev == null){
 											Log.e(LOG_TAG, "Error while establishing connection: no device");
-								        	disable(R.string.msg_bluetooth_gps_unavaible);
+								        	disable(R.string.msg_gps_unavaible);
 										} else {
 											// start GPS device
 //											try {
