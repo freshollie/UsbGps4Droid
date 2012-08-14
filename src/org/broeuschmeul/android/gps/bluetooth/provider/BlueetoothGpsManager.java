@@ -409,7 +409,8 @@ public class BlueetoothGpsManager {
 														Process p = Runtime.getRuntime().exec("su");
 														// change device speed
 														PrintStream os = new PrintStream(p.getOutputStream(),true);
-														os.println("stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
+//														os.println("stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
+														os.println("busybox stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
 														// exit
 														os.println("exit");
 														try {
