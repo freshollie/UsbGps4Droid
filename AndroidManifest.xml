@@ -26,7 +26,7 @@
       android:versionCode="126"
       android:versionName="@string/versionName">
       
-	<uses-sdk android:targetSdkVersion="4" android:minSdkVersion="3" />
+	<uses-sdk android:targetSdkVersion="4" android:minSdkVersion="3" android:maxSdkVersion="4"/>
     
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
