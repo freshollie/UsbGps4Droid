@@ -1,8 +1,17 @@
-*UsbGPS4Cupcake alpha4* (2012-03-24)
+*UsbGPS4Cupcake alpha5* (2012-08-26)
+* UsbGps4Droid version adapted for Cupcake and Donuts - *Do not use with Eclair, Froyo or Gingerbread !!!*
+* Based on BlueGps4Cupcake version 1.2.2 and UsbGPS4Droid version alpha5.
+
+*UsbGPS4Droid alpha5* (2012-08-26)
+* Change command used to define connection speed ("see gitub issue #1 comment #2":https://github.com/HvB/UsbGps4Droid/issues/1#issuecomment-5768439 )
+* Bug fix (see gitub issue #2: "Bluetooth error messages":https://github.com/HvB/UsbGps4Droid/issues/2 )
+* Disable SIRF options in settings since they are not working (actually) in UsbGPS
+
+UsbGPS4Cupcake alpha4 (2012-03-24)
 * UsbGps4Droid version adapted for Cupcake and Donuts - *Do not use with Eclair, Froyo or Gingerbread !!!*
 * Based on BlueGps4Cupcake version 1.2.2 and UsbGPS4Droid version alpha4.
 
-*UsbGPS4Droid alpha4* (2012-03-24)
+UsbGPS4Droid alpha4 (2012-03-24)
 * Add an option in order to change the connection speed. This requires a rooted device with busybox and superuser privileges.
 * Bug fix (Ticket #9: "Handle NMEA timestamps without fractional seconds":https://sourceforge.net/p/bluegps4droid/tickets/9/ ) (thanks to Jeffrey Hutzelman)
 * Update copyright informations
