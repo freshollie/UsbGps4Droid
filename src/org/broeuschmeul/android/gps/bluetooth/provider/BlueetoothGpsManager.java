@@ -147,6 +147,7 @@ public class BlueetoothGpsManager {
 						SystemClock.sleep(500);
 					}
 					now = SystemClock.uptimeMillis();
+					SystemClock.sleep(10);
 				}
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "error while getting data", e);
