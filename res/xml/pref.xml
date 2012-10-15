@@ -24,13 +24,13 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:title="@string/app_name" >
-	<EditTextPreference
+	<ListPreference 
 		android:dialogTitle="@string/pref_gps_device_title"
 		android:title="@string/pref_gps_device_title" 
 		android:key="@string/pref_gps_device_key" 	
-		android:defaultValue="@string/defaultGpsDevice"
 		android:summary="@string/pref_gps_device_summary" />
 	<ListPreference 
+		android:enabled="false"
 		android:dialogTitle="@string/pref_gps_device_speed_title"
 		android:title="@string/pref_gps_device_speed_title" 
 		android:dependency="@string/pref_start_gps_key"

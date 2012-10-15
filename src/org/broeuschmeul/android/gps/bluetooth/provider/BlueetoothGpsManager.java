@@ -31,7 +31,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +44,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
@@ -49,12 +53,20 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 //import android.bluetooth.BluetoothAdapter;
 //import android.bluetooth.BluetoothDevice;
 //import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.Intent;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
+import android.hardware.usb.UsbManager;
+import android.hardware.usb.UsbRequest;
 import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
 import android.preference.PreferenceManager;
@@ -74,6 +86,41 @@ public class BlueetoothGpsManager {
 	 * Tag used for log messages
 	 */
 	private static final String LOG_TAG = "UsbGPS";
+	private boolean debug = false;
+
+	private UsbManager usbManager = null;
+	private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+	private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if (ACTION_USB_PERMISSION.equals(action)) {
+				synchronized (this) {
+					final UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+
+					if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+						if(device != null){
+				            if (usbManager.hasPermission(device)){
+			        			Log.d(LOG_TAG, "We have permession, good!");
+				            	connected = true;
+								// reset eventual disabling cause
+								setDisableReason(0);
+								// connection obtained so reset the number of connection try
+								nbRetriesRemaining = 1+maxConnectionRetries ;
+								notificationManager.cancel(R.string.connection_problem_notification_title);
+			        			Log.v(LOG_TAG, "starting socket reading task");
+								connectedGps = new ConnectedGps(device);
+								connectionAndReadingPool.execute(connectedGps);
+					        	Log.v(LOG_TAG, "socket reading thread started");
+				            }
+						}
+					} else {
+						Log.d(LOG_TAG, "permission denied for device " + device);
+					}
+				}
+			}
+		}
+	};
 
 	/**
 	 * A utility class used to manage the communication with the bluetooth GPS whn the connection has been established.
@@ -88,6 +135,10 @@ public class BlueetoothGpsManager {
 		 * GPS bluetooth socket used for communication. 
 		 */
 		private final File gpsDev ;
+		private final UsbDevice gpsUsbDev ;
+		private final UsbInterface intf;
+		private final UsbEndpoint endpoint;
+		private final UsbDeviceConnection connection;
 		/**
 		 * GPS InputStream from which we read data. 
 		 */
@@ -108,6 +159,10 @@ public class BlueetoothGpsManager {
 
 		public ConnectedGps(File gpsDev) {
 			this.gpsDev = gpsDev;
+			this.gpsUsbDev = null;			
+			intf = null;
+			endpoint = null;
+			this.connection = null;			
 			InputStream tmpIn = null;
 			//OutputStream tmpOut = null;
 			//PrintStream tmpOut2 = null;
@@ -124,6 +179,176 @@ public class BlueetoothGpsManager {
 			//out = tmpOut;
 			//out2 = tmpOut2;
 		}
+
+		public ConnectedGps(UsbDevice device) {
+			this.gpsDev = null;
+			this.gpsUsbDev = device;			
+			intf = device.getInterface(0);
+			endpoint = intf.getEndpoint(2);
+//			final int TIMEOUT = 1000;
+			final int TIMEOUT = 0;
+			connection = usbManager.openDevice(device);
+			boolean resclaim = false;
+			Log.d(LOG_TAG, "claiming interface");
+			resclaim = connection.claimInterface(intf, true);
+			Log.d(LOG_TAG, "data claim"+ resclaim);
+			// Connection initialization: 4800 baud and 8N1 (0 bits no parity 1 stop bit) 
+			Log.d(LOG_TAG, "initializing connection:  4800 baud and 8N1 (0 bits no parity 1 stop bit");
+			int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
+			int res2 = connection.controlTransfer(0x21, 32, 0, 0, new byte[] { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 }, 7, 0);
+//			connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
+//			connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
+//			connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
+//			connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);	//flow control none
+//			connection.controlTransfer(0x40, 0x03, 0x0271, 0, null, 0, 0);	//baudrate 4800 see http://stackoverflow.com/questions/8546099/setting-parity-with-controltransfer-method
+//			connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);	//data bit 8, parity none, stop bit 1, tx off
+
+			Log.d(LOG_TAG, "data init "+ res1 + " " + res2);
+			
+			InputStream tmpIn = new InputStream() {
+				private byte[] buffer = new byte[128];
+				private byte[] usbBuffer = new byte[64];
+				private byte[] oneByteBuffer = new byte[1];
+				private ByteBuffer bufferWrite = ByteBuffer.wrap(buffer);
+				private ByteBuffer bufferRead = (ByteBuffer)ByteBuffer.wrap(buffer).limit(0);
+				
+				@Override
+				public int read() throws IOException {
+					int b = 0;
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "trying to read data");
+					int nb = 0;
+					while (nb == 0){
+						nb = this.read(oneByteBuffer,0,1);
+					}
+					if (nb > 0){
+						b = oneByteBuffer[0];
+					} else {
+						b = nb;
+						Log.e(LOG_TAG, "data read() error code: " + nb );
+					}
+					if (b <= 0){
+						Log.e(LOG_TAG, "data read() error: char " + b );
+					}
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data: " + b + " char: " + (char)b);
+					return b;
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#available()
+				 */
+				@Override
+				public int available() throws IOException {
+					// TODO Auto-generated method stub
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data available "+bufferRead.remaining());
+					return bufferRead.remaining();
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#mark(int)
+				 */
+				@Override
+				public void mark(int readlimit) {
+					// TODO Auto-generated method stub
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data mark");
+					super.mark(readlimit);
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#markSupported()
+				 */
+				@Override
+				public boolean markSupported() {
+					// TODO Auto-generated method stub
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data markSupported");
+					return super.markSupported();
+				}
+
+				
+				private Integer i = 0;
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#read(byte[], int, int)
+				 */
+				@Override
+				public int read(byte[] buffer, int offset, int length)
+						throws IOException {
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read buffer - offset: " + offset + " length: " + length);
+					int nb = 0;
+					ByteBuffer out = ByteBuffer.wrap(buffer, offset, length);
+					if (! bufferRead.hasRemaining()){
+						if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
+						int n = connection.bulkTransfer(endpoint, usbBuffer, 64, TIMEOUT);
+						if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
+						if (n > 0){
+							if (n > bufferWrite.remaining()){
+								bufferRead.rewind();
+								bufferWrite.clear();
+							} 
+							bufferWrite.put(usbBuffer, 0, n);
+							bufferRead.limit(bufferWrite.position());
+//							if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read: nb: " + n + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+						} else {
+							Log.e(LOG_TAG, "data read(buffer...) error: " + nb );
+						}
+					}
+					if (bufferRead.hasRemaining()){
+//						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : asked: " + length + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+						nb =  Math.min(bufferRead.remaining(), length);
+						out.put(bufferRead.array(), bufferRead.position()+bufferRead.arrayOffset(), nb);
+						bufferRead.position(bufferRead.position()+nb);
+//						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+//						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " offset: " + offset + " " + Arrays.toString(buffer));
+					}
+					return nb;
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#read(byte[])
+				 */
+				@Override
+				public int read(byte[] buffer) throws IOException {
+					// TODO Auto-generated method stub
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read buffer");
+					return super.read(buffer);
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#reset()
+				 */
+				@Override
+				public synchronized void reset() throws IOException {
+					// TODO Auto-generated method stub
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data reset");
+					super.reset();
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#skip(long)
+				 */
+				@Override
+				public long skip(long byteCount) throws IOException {
+					// TODO Auto-generated method stub
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data skip");
+					return super.skip(byteCount);
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.InputStream#close()
+				 */
+				@Override
+				public void close() throws IOException {
+					super.close();
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "closing usb connection: " + connection);
+					connection.releaseInterface(intf);
+					connection.close();
+				}
+			};
+			
+			//OutputStream tmpOut = null;
+			//PrintStream tmpOut2 = null;
+			in = tmpIn;
+			//out = tmpOut;
+			//out2 = tmpOut2;
+		}
 	
 		public boolean isReady(){
 			return ready;
@@ -131,23 +356,34 @@ public class BlueetoothGpsManager {
 		
 		public void run() {
 			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(in,"US-ASCII"));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in,"US-ASCII"),128);
+//				InputStreamReader reader = new InputStreamReader(in,"US-ASCII");
 				String s;
 				long now = SystemClock.uptimeMillis();
 				long lastRead = now;
-				while((enabled) && (now < lastRead+30000 )){
-					if (reader.ready()){
+				while((enabled) && (now < lastRead+3000 )){
+//					if (true || reader.ready())
+					{
 						s = reader.readLine();
+//						StringBuilder sentence = new StringBuilder(50);
+//						for (char c = (char)in.read() ; c != '\r' && c != '\n'; c = (char)in.read()){
+////						for (char c = (char)reader.read() ; c != '\r' && c != '\n'; c = (char)reader.read()){
+//							Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+sentence+ " "+c);
+//							sentence.append(c);
+//						}
+//						s = sentence.toString();
+						if (s != null){
 						Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
 						notifyNmeaSentence(s+"\r\n");
 						ready = true;
 						lastRead = SystemClock.uptimeMillis();
-					} else {
-						Log.d(LOG_TAG, "data: not ready "+System.currentTimeMillis());
-						SystemClock.sleep(500);
+						} else {
+							Log.d(LOG_TAG, "data: not ready "+System.currentTimeMillis());
+							SystemClock.sleep(500);
+						}
 					}
 					now = SystemClock.uptimeMillis();
-					SystemClock.sleep(10);
+//					SystemClock.sleep(10);
 				}
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "error while getting data", e);
@@ -224,7 +460,8 @@ public class BlueetoothGpsManager {
 
 	private Service callingService;
 //	private BluetoothSocket gpsSocket;
-	private File gpsDev ;
+//	private File gpsDev ;
+	private UsbDevice gpsDev ;
 	private String gpsDeviceAddress;
 	private NmeaParser parser = new NmeaParser(10f);
 	private boolean enabled = false;
@@ -278,6 +515,9 @@ public class BlueetoothGpsManager {
 				appContext.getString(R.string.service_closed_because_connection_problem_notification_title), 
 				appContext.getString(R.string.service_closed_because_connection_problem_notification), 
 				restartPendingIntent);
+
+        usbManager = (UsbManager) callingService.getSystemService(callingService.USB_SERVICE);
+
 	}
 
 	private void setDisableReason(int reasonId){
@@ -303,6 +543,7 @@ public class BlueetoothGpsManager {
 	 * @return
 	 */
 	public synchronized boolean enable() {
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
 		notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
 		if (! enabled){
         	Log.d(LOG_TAG, "enabling Bluetooth GPS manager");
@@ -328,20 +569,21 @@ public class BlueetoothGpsManager {
 	        } else {
 //				final BluetoothDevice gpsDevice = bluetoothAdapter.getRemoteDevice(gpsDeviceAddress);
 				final String gpsDevice = gpsDeviceAddress;
-				if (gpsDevice == null){
+				if (gpsDevice == null || "".equals(gpsDevice)){
 					Log.e(LOG_TAG, "GPS device not found");       	    	
 		        	disable(R.string.msg_gps_unavaible);
 				} else {
 	    			Log.e(LOG_TAG, "current device: "+gpsDevice );
 //					try {
 //						gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-						gpsDev = new File(gpsDeviceAddress);
+//						gpsDev = new File(gpsDeviceAddress);
+						gpsDev = usbManager.getDeviceList().get(gpsDevice);
 //					} catch (IOException e) {
 //	    				Log.e(LOG_TAG, "Error during connection", e);
 //	    				gpsDev = null;
 //					}
 					if (gpsDev == null){
-	    				Log.e(LOG_TAG, "Error while establishing connection: no socket");
+	    				Log.e(LOG_TAG, "Error while establishing connection: no device");
 			        	disable(R.string.msg_gps_unavaible);
 					} else {
 						Runnable connectThread = new Runnable() {							
@@ -355,6 +597,31 @@ public class BlueetoothGpsManager {
 											if (connectedGps != null){
 												connectedGps.close();
 											}
+								            PendingIntent permissionIntent = PendingIntent.getBroadcast(callingService, 0, new Intent(ACTION_USB_PERMISSION), 0);
+//								            HashMap<String, UsbDevice> connectedUsbDevices = usbManager.getDeviceList();
+//								            UsbDevice device = connectedUsbDevices.values().iterator().next();
+											gpsDev = usbManager.getDeviceList().get(gpsDevice);
+								            UsbDevice device = gpsDev;
+								            if (device != null && usbManager.hasPermission(device)){
+							        			Log.d(LOG_TAG, "We have permession, good!");
+								            	connected = true;
+												// reset eventual disabling cause
+												setDisableReason(0);
+												// connection obtained so reset the number of connection try
+												nbRetriesRemaining = 1+maxConnectionRetries ;
+												notificationManager.cancel(R.string.connection_problem_notification_title);
+							        			Log.v(LOG_TAG, "starting socket reading task");
+												connectedGps = new ConnectedGps(device);
+												connectionAndReadingPool.execute(connectedGps);
+									        	Log.v(LOG_TAG, "socket reading thread started");
+								            } else if (device != null) {
+							        			Log.d(LOG_TAG, "We don't have permession, so resquesting...");
+								            	usbManager.requestPermission(device, permissionIntent);								            	
+								            } else {
+												Log.e(LOG_TAG, "Error while establishing connection: no device - " + gpsDevice);
+									        	disable(R.string.msg_gps_unavaible);
+								            }
+
 //											if ((gpsDev != null) && ((connectedGps == null) || (connectedGps.gpsDev != gpsDev))){
 //												Log.d(LOG_TAG, "trying to close old socket");
 //												gpsSocket.close();
@@ -362,135 +629,135 @@ public class BlueetoothGpsManager {
 //										} catch (IOException e) {
 //											Log.e(LOG_TAG, "Error during disconnection", e);
 //										}
-//										try {
-//											gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-											gpsDev = new File(gpsDeviceAddress);
-											// verify if we have enough rights..
-											Log.v(LOG_TAG, "Will verify if device exists and is a file: "+gpsDev.getAbsolutePath());
-											if (gpsDev.exists()){		
-												Log.v(LOG_TAG, "Device exists and is a file: "+gpsDev.getAbsolutePath());
-												if (! gpsDev.canRead()){
-													Log.v(LOG_TAG, "Device is not readable, will try chmod 666 "+gpsDev.getAbsolutePath());
-													try {
-														// Try to get root privileges  
-														Process p = Runtime.getRuntime().exec("su");
-														// change device rights
-														PrintStream os = new PrintStream(p.getOutputStream(),true);
-														os.println("chmod 666 "+ gpsDev.getAbsolutePath());
-														// exit
-														os.println("exit");
-														try {
-															p.waitFor();  
-//															if (p.exitValue() != 255) {  
-//															}  
-//															else {  
-//															}  
-														} catch (InterruptedException e) {  
-															// TODO update message
-															Log.e(LOG_TAG, "Error while establishing connection: ", e);
-														} finally {
-															p.destroy();
-														}
-													} catch (IOException e) {
-														// TODO update message
-														Log.e(LOG_TAG, "Error while establishing connection: ", e);
-														gpsDev = null;														
-													} catch (SecurityException e) {
-														// TODO update message
-														Log.e(LOG_TAG, "Error while establishing connection: ", e);
-														gpsDev = null;
-													}   
-												} else {
-													Log.v(LOG_TAG, "Device is readable: "+gpsDev.getAbsolutePath());
-												}
-												if (setDeviceSpeed){
-													Log.v(LOG_TAG, "will set devive spped: " + deviceSpeed);
-													try {
-														// Try to get root privileges  
-														Process p = Runtime.getRuntime().exec("su");
-														// change device speed
-														PrintStream os = new PrintStream(p.getOutputStream(),true);
-//														os.println("stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
-														os.println("busybox stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
-														// exit
-														os.println("exit");
-														try {
-															p.waitFor();  
-//															if (p.exitValue() != 255) {  
-//															}  
-//															else {  
-//															}  
-														} catch (InterruptedException e) {  
-															// TODO update message
-															Log.e(LOG_TAG, "Error while changing device speed: ", e);
-														} finally {
-															p.destroy();
-														}
-													} catch (IOException e) {
-														// TODO update message
-														Log.e(LOG_TAG, "Error while while changing device speed: ", e);
-														// gpsDev = null;														
-													} catch (SecurityException e) {
-														// TODO update message
-														Log.e(LOG_TAG, "Error while changing device speed: ", e);
-														// gpsDev = null;
-													}   
-												} else {
-													Log.v(LOG_TAG, "Device speed: "+deviceSpeed);
-												}
-											} else {
-												Log.e(LOG_TAG, "Device doesn't exist: "+gpsDev.getAbsolutePath());
-												gpsDev = null;
-											}
-//										} catch (IOException e) {
-//											Log.e(LOG_TAG, "Error during connection", e);
-//						    				gpsDev = null;
-//										}
-										if (gpsDev == null){
-											Log.e(LOG_TAG, "Error while establishing connection: no device");
-								        	disable(R.string.msg_gps_unavaible);
-										} else {
-											// start GPS device
-//											try {
-//												File gpsControl = new File("/sys/devices/platform/gps_control/enable");
-//												if (gpsControl.isFile()){												
-//													if (gpsControl.canWrite()){
-//														OutputStream os = new FileOutputStream(gpsControl);
-//														os.write('1');
-//														os.flush();
-//														os.close();
-//													}
+////										try {
+////											gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+//											gpsDev = new File(gpsDeviceAddress);
+//											// verify if we have enough rights..
+//											Log.v(LOG_TAG, "Will verify if device exists and is a file: "+gpsDev.getAbsolutePath());
+//											if (gpsDev.exists()){		
+//												Log.v(LOG_TAG, "Device exists and is a file: "+gpsDev.getAbsolutePath());
+//												if (! gpsDev.canRead()){
+//													Log.v(LOG_TAG, "Device is not readable, will try chmod 666 "+gpsDev.getAbsolutePath());
+//													try {
+//														// Try to get root privileges  
+//														Process p = Runtime.getRuntime().exec("su");
+//														// change device rights
+//														PrintStream os = new PrintStream(p.getOutputStream(),true);
+//														os.println("chmod 666 "+ gpsDev.getAbsolutePath());
+//														// exit
+//														os.println("exit");
+//														try {
+//															p.waitFor();  
+////															if (p.exitValue() != 255) {  
+////															}  
+////															else {  
+////															}  
+//														} catch (InterruptedException e) {  
+//															// TODO update message
+//															Log.e(LOG_TAG, "Error while establishing connection: ", e);
+//														} finally {
+//															p.destroy();
+//														}
+//													} catch (IOException e) {
+//														// TODO update message
+//														Log.e(LOG_TAG, "Error while establishing connection: ", e);
+//														gpsDev = null;														
+//													} catch (SecurityException e) {
+//														// TODO update message
+//														Log.e(LOG_TAG, "Error while establishing connection: ", e);
+//														gpsDev = null;
+//													}   
+//												} else {
+//													Log.v(LOG_TAG, "Device is readable: "+gpsDev.getAbsolutePath());
 //												}
-//											} catch (FileNotFoundException e) {
-//												// TODO update message
-//												Log.e(LOG_TAG, "Error while starting GPS: ", e);
-//											} catch (IOException e) {
-//												// TODO update message
-//												Log.e(LOG_TAG, "Error while starting GPS: ", e);
-//											} catch (SecurityException e) {
-//												// TODO update message
-//												Log.e(LOG_TAG, "Error while starting GPS: ", e);
+//												if (setDeviceSpeed){
+//													Log.v(LOG_TAG, "will set devive spped: " + deviceSpeed);
+//													try {
+//														// Try to get root privileges  
+//														Process p = Runtime.getRuntime().exec("su");
+//														// change device speed
+//														PrintStream os = new PrintStream(p.getOutputStream(),true);
+////														os.println("stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
+//														os.println("busybox stty -F "+ gpsDev.getAbsolutePath() + " ispeed "+deviceSpeed);
+//														// exit
+//														os.println("exit");
+//														try {
+//															p.waitFor();  
+////															if (p.exitValue() != 255) {  
+////															}  
+////															else {  
+////															}  
+//														} catch (InterruptedException e) {  
+//															// TODO update message
+//															Log.e(LOG_TAG, "Error while changing device speed: ", e);
+//														} finally {
+//															p.destroy();
+//														}
+//													} catch (IOException e) {
+//														// TODO update message
+//														Log.e(LOG_TAG, "Error while while changing device speed: ", e);
+//														// gpsDev = null;														
+//													} catch (SecurityException e) {
+//														// TODO update message
+//														Log.e(LOG_TAG, "Error while changing device speed: ", e);
+//														// gpsDev = null;
+//													}   
+//												} else {
+//													Log.v(LOG_TAG, "Device speed: "+deviceSpeed);
+//												}
+//											} else {
+//												Log.e(LOG_TAG, "Device doesn't exist: "+gpsDev.getAbsolutePath());
+//												gpsDev = null;
 //											}
-											// Cancel discovery because it will slow down the connection
-//											bluetoothAdapter.cancelDiscovery();
-											// we increment the number of connection tries
-											// Connect the device through the socket. This will block
-											// until it succeeds or throws an exception
-											Log.v(LOG_TAG, "connecting to socket");
-//											gpsDev.connect();
-						        			Log.d(LOG_TAG, "connected to socket");
-											connected = true;
-											// reset eventual disabling cause
-//											setDisableReason(0);
-											// connection obtained so reset the number of connection try
-											nbRetriesRemaining = 1+maxConnectionRetries ;
-											notificationManager.cancel(R.string.connection_problem_notification_title);
-						        			Log.v(LOG_TAG, "starting socket reading task");
-											connectedGps = new ConnectedGps(gpsDev);
-											connectionAndReadingPool.execute(connectedGps);
-								        	Log.v(LOG_TAG, "socket reading thread started");
-										}
-//									} else if (! bluetoothAdapter.isEnabled()) {
+////										} catch (IOException e) {
+////											Log.e(LOG_TAG, "Error during connection", e);
+////						    				gpsDev = null;
+////										}
+//										if (gpsDev == null){
+//											Log.e(LOG_TAG, "Error while establishing connection: no device");
+//								        	disable(R.string.msg_gps_unavaible);
+//										} else {
+//											// start GPS device
+////											try {
+////												File gpsControl = new File("/sys/devices/platform/gps_control/enable");
+////												if (gpsControl.isFile()){												
+////													if (gpsControl.canWrite()){
+////														OutputStream os = new FileOutputStream(gpsControl);
+////														os.write('1');
+////														os.flush();
+////														os.close();
+////													}
+////												}
+////											} catch (FileNotFoundException e) {
+////												// TODO update message
+////												Log.e(LOG_TAG, "Error while starting GPS: ", e);
+////											} catch (IOException e) {
+////												// TODO update message
+////												Log.e(LOG_TAG, "Error while starting GPS: ", e);
+////											} catch (SecurityException e) {
+////												// TODO update message
+////												Log.e(LOG_TAG, "Error while starting GPS: ", e);
+////											}
+//											// Cancel discovery because it will slow down the connection
+////											bluetoothAdapter.cancelDiscovery();
+//											// we increment the number of connection tries
+//											// Connect the device through the socket. This will block
+//											// until it succeeds or throws an exception
+//											Log.v(LOG_TAG, "connecting to socket");
+////											gpsDev.connect();
+//						        			Log.d(LOG_TAG, "connected to socket");
+//											connected = true;
+//											// reset eventual disabling cause
+////											setDisableReason(0);
+//											// connection obtained so reset the number of connection try
+//											nbRetriesRemaining = 1+maxConnectionRetries ;
+//											notificationManager.cancel(R.string.connection_problem_notification_title);
+//						        			Log.v(LOG_TAG, "starting socket reading task");
+//											connectedGps = new ConnectedGps(gpsDev);
+//											connectionAndReadingPool.execute(connectedGps);
+//								        	Log.v(LOG_TAG, "socket reading thread started");
+//										}
+////									} else if (! bluetoothAdapter.isEnabled()) {
 //										setDisableReason(R.string.msg_bluetooth_disabled);
 									}
 //								} catch (IOException connectException) {
@@ -506,6 +773,7 @@ public class BlueetoothGpsManager {
 							}
 						};
 						this.enabled = true;
+				        callingService.registerReceiver(mUsbReceiver, filter);
 			        	Log.d(LOG_TAG, "Bluetooth GPS manager enabled");
 			        	Log.v(LOG_TAG, "starting notification thread");
 						notificationPool = Executors.newSingleThreadExecutor();
@@ -593,6 +861,7 @@ public class BlueetoothGpsManager {
 		}
 		if (enabled){
         	Log.d(LOG_TAG, "disabling Bluetooth GPS manager");
+            callingService.unregisterReceiver(mUsbReceiver);
 			enabled = false;
 			connectionAndReadingPool.shutdown();
 			// stop GPS device

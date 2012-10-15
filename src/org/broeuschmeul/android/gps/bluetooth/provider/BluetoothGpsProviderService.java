@@ -111,7 +111,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 //		super.onStart(intent, startId);
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor edit = sharedPreferences.edit();
-		String deviceAddress = sharedPreferences.getString(PREF_GPS_DEVICE, getString(R.string.defaultGpsDevice));
+		String deviceAddress = sharedPreferences.getString(PREF_GPS_DEVICE, "");
 		int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
 		if (Config.LOGD){
 			Log.d(LOG_TAG, "prefs device addr: "+deviceAddress);

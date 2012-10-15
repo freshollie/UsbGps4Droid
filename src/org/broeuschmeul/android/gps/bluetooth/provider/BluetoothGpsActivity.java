@@ -21,17 +21,35 @@
 
 package org.broeuschmeul.android.gps.bluetooth.provider;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.broeuschmeul.android.gps.usb.provider.R;
 
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 //import android.bluetooth.BluetoothAdapter;
 //import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
+import android.hardware.usb.UsbManager;
+import android.hardware.usb.UsbRequest;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -60,15 +78,17 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 	
 	private SharedPreferences sharedPref ;
 //	private BluetoothAdapter bluetoothAdapter = null;
-	
-    /** Called when the activity is first created. */
+	private UsbManager usbManager = null;
+	private String deviceName = "";
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref);      
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPref.registerOnSharedPreferenceChangeListener(this);
-//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        usbManager = (UsbManager) getSystemService(this.USB_SERVICE);
         Preference pref = findPreference(BluetoothGpsProviderService.PREF_ABOUT);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {		
 			@Override
@@ -90,13 +110,21 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 
 	private void updateDevicePreferenceSummary(){
         // update bluetooth device summary
-//		String deviceName = "";
-        EditTextPreference prefDevices = (EditTextPreference)findPreference(BluetoothGpsProviderService.PREF_GPS_DEVICE);
-        String deviceName = sharedPref.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE, getString(R.string.defaultGpsDevice));
-//        if (BluetoothAdapter.checkBluetoothAddress(deviceAddress)){
-//        	deviceName = bluetoothAdapter.getRemoteDevice(deviceAddress).getName();
-//        }
-        prefDevices.setSummary(getString(R.string.pref_gps_device_summary, deviceName));
+		String defaultDeviceName = "";
+		ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_GPS_DEVICE);
+		if (! usbManager.getDeviceList().isEmpty()){
+			defaultDeviceName = usbManager.getDeviceList().keySet().iterator().next();
+		}
+		deviceName = sharedPref.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE, defaultDeviceName);
+		String deviceDisplayedName = "";
+        if (! usbManager.getDeviceList().isEmpty() && usbManager.getDeviceList().get(deviceName) != null){
+        	deviceDisplayedName = usbManager.getDeviceList().get(deviceName).getDeviceName();
+        } else if ((usbManager.getDeviceList().size() == 1) && usbManager.getDeviceList().get(defaultDeviceName) != null){
+    		deviceDisplayedName = usbManager.getDeviceList().get(defaultDeviceName).getDeviceName();
+    		deviceName = defaultDeviceName;
+    		prefDevices.setValue(defaultDeviceName);
+    	}
+		prefDevices.setSummary(getString(R.string.pref_gps_device_summary, deviceDisplayedName));
         ListPreference prefDeviceSpeed = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED);
         prefDeviceSpeed.setSummary(getString(R.string.pref_gps_device_speed_summary, sharedPref.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED, getString(R.string.defaultGpsDeviceSpeed))));
     }   
@@ -105,24 +133,35 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
         // update bluetooth device summary
 		updateDevicePreferenceSummary();
 		// update bluetooth device list
-//        ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_BLUETOOTH_DEVICE);
-//        Set<BluetoothDevice> pairedDevices = new HashSet<BluetoothDevice>();
-//        if (bluetoothAdapter != null){
-//        	pairedDevices = bluetoothAdapter.getBondedDevices();  
-//        }
-//        String[] entryValues = new String[pairedDevices.size()];
-//        String[] entries = new String[pairedDevices.size()];
-//        int i = 0;
-//    	    // Loop through paired devices
-//        for (BluetoothDevice device : pairedDevices) {
-//        	// Add the name and address to the ListPreference enties and entyValues
-//        	Log.v(LOG_TAG, "device: "+device.getName() + " -- " + device.getAddress());
-//        	entryValues[i] = device.getAddress();
-//            entries[i] = device.getName();
-//            i++;
-//        }
-//        prefDevices.setEntryValues(entryValues);
-//        prefDevices.setEntries(entries);
+        ListPreference prefDevices = (ListPreference)findPreference(BluetoothGpsProviderService.PREF_GPS_DEVICE);
+        HashMap<String, UsbDevice> connectedUsbDevices = usbManager.getDeviceList();
+        String[] entryValues = new String[connectedUsbDevices.size()];
+        String[] entries = new String[connectedUsbDevices.size()];
+        int i = 0;
+        // Loop through usb devices
+        for (String name : connectedUsbDevices.keySet()) {
+        	// Add the name and address to the ListPreference enties and entyValues
+        	UsbDevice device = connectedUsbDevices.get(name);
+        	Log.v(LOG_TAG, "device: "+name + " -- " + device.getDeviceName()+ " -- "+device);
+        	Log.v(LOG_TAG, "device prot: "+device.getDeviceProtocol() + " class: " + device.getDeviceClass()+ " sub class: " + device.getDeviceSubclass());
+        	Log.v(LOG_TAG, "device dev id: "+device.getDeviceId() + " prod id: " + device.getProductId()+ " sub vend id: " + device.getVendorId());
+        	Log.v(LOG_TAG, "device int nb: "+device.getInterfaceCount());
+        	for (int k=0; k < device.getInterfaceCount(); k++){
+        		UsbInterface usbIntf = device.getInterface(k);
+            	Log.v(LOG_TAG, "intf id: : "+ usbIntf.getId() + " -- "+usbIntf);
+            	Log.v(LOG_TAG, "intf prot: "+usbIntf.getInterfaceProtocol() + " class: " + usbIntf.getInterfaceClass()+ " sub class: " +usbIntf.getInterfaceSubclass());
+            	Log.v(LOG_TAG, "intf int nb: "+usbIntf.getEndpointCount());
+            	for (int j=0; j < usbIntf.getEndpointCount(); j++){
+            		UsbEndpoint endPt = usbIntf.getEndpoint(j);
+                	Log.v(LOG_TAG, "endPt: : "+endPt + " type: "+endPt.getType()+ " dir: "+endPt.getDirection() );
+            	}
+        	}
+        	entryValues[i] = device.getDeviceName();
+            entries[i] = name;
+            i++;
+        }
+        prefDevices.setEntryValues(entryValues);
+        prefDevices.setEntries(entries);
         Preference pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_TRACK_RECORDING);
         pref.setEnabled(sharedPref.getBoolean(BluetoothGpsProviderService.PREF_START_GPS_PROVIDER, false));
         pref = (Preference)findPreference(BluetoothGpsProviderService.PREF_MOCK_GPS_NAME);
@@ -185,6 +224,10 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 			if (pref.isChecked() != val){
 				pref.setChecked(val);
 			} else if (val){
+				String device = sharedPreferences.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE, "");
+				if (! device.equals(deviceName) && deviceName != null && deviceName.length() > 0){
+					sharedPreferences.edit().putString(BluetoothGpsProviderService.PREF_GPS_DEVICE,deviceName).commit();
+				}
 		        startService(new Intent(BluetoothGpsProviderService.ACTION_START_GPS_PROVIDER));
 			} else {
 				startService(new Intent(BluetoothGpsProviderService.ACTION_STOP_GPS_PROVIDER));
