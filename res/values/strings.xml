@@ -130,12 +130,15 @@
         https://github.com/HvB/UsbGps4Droid
     </string>
     <string-array name="pref_gps_device_speed_values">
-        <item >auto</item>
+<!--         <item >auto</item> -->
         <item >1200</item>
         <item >2400</item>
         <item >4800</item>
         <item >9600</item>
         <item >19200</item>
         <item >38400</item>
+        <item >38400</item>
+        <item >57600</item>
+        <item >115200</item>
     </string-array>
 </resources>

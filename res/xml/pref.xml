@@ -30,7 +30,7 @@
 		android:key="@string/pref_gps_device_key" 	
 		android:summary="@string/pref_gps_device_summary" />
 	<ListPreference 
-		android:enabled="false"
+		android:enabled="true"
 		android:dialogTitle="@string/pref_gps_device_speed_title"
 		android:title="@string/pref_gps_device_speed_title" 
 		android:dependency="@string/pref_start_gps_key"

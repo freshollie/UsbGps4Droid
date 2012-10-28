@@ -103,13 +103,19 @@ public class BlueetoothGpsManager {
 				            if (usbManager.hasPermission(device)){
 			        			Log.d(LOG_TAG, "We have permession, good!");
 				            	connected = true;
-								// reset eventual disabling cause
-								setDisableReason(0);
-								// connection obtained so reset the number of connection try
-								nbRetriesRemaining = 1+maxConnectionRetries ;
-								notificationManager.cancel(R.string.connection_problem_notification_title);
+				            	if (setDeviceSpeed){
+				            		Log.v(LOG_TAG, "will set devive speed: " + deviceSpeed);
+				            	} else {
+				            		Log.v(LOG_TAG, "will use default device speed: " + defaultDeviceSpeed);
+				            		deviceSpeed = defaultDeviceSpeed;
+				            	}
+//								// reset eventual disabling cause
+//								// setDisableReason(0);
+//								// connection obtained so reset the number of connection try
+//								nbRetriesRemaining = 1+maxConnectionRetries ;
+//								notificationManager.cancel(R.string.connection_problem_notification_title);
 			        			Log.v(LOG_TAG, "starting socket reading task");
-								connectedGps = new ConnectedGps(device);
+								connectedGps = new ConnectedGps(device, deviceSpeed);
 								connectionAndReadingPool.execute(connectedGps);
 					        	Log.v(LOG_TAG, "socket reading thread started");
 				            }
@@ -181,12 +187,16 @@ public class BlueetoothGpsManager {
 		}
 
 		public ConnectedGps(UsbDevice device) {
+			this(device, defaultDeviceSpeed);			
+		}
+
+		public ConnectedGps(UsbDevice device, String deviceSpeed) {
 			this.gpsDev = null;
 			this.gpsUsbDev = device;			
 			intf = device.getInterface(0);
 			endpoint = intf.getEndpoint(2);
-//			final int TIMEOUT = 1000;
-			final int TIMEOUT = 0;
+			final int TIMEOUT = 1000;
+//			final int TIMEOUT = 0;
 			connection = usbManager.openDevice(device);
 			boolean resclaim = false;
 			Log.d(LOG_TAG, "claiming interface");
@@ -194,8 +204,13 @@ public class BlueetoothGpsManager {
 			Log.d(LOG_TAG, "data claim"+ resclaim);
 			// Connection initialization: 4800 baud and 8N1 (0 bits no parity 1 stop bit) 
 			Log.d(LOG_TAG, "initializing connection:  4800 baud and 8N1 (0 bits no parity 1 stop bit");
+			final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
+			final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+			connectionSpeedBuffer.putInt(Integer.parseInt(deviceSpeed));
 			int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
-			int res2 = connection.controlTransfer(0x21, 32, 0, 0, new byte[] { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 }, 7, 0);
+			int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
+			Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
+			
 //			connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
 //			connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
 //			connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
@@ -203,9 +218,9 @@ public class BlueetoothGpsManager {
 //			connection.controlTransfer(0x40, 0x03, 0x0271, 0, null, 0, 0);	//baudrate 4800 see http://stackoverflow.com/questions/8546099/setting-parity-with-controltransfer-method
 //			connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);	//data bit 8, parity none, stop bit 1, tx off
 
-			Log.d(LOG_TAG, "data init "+ res1 + " " + res2);
-			
 			InputStream tmpIn = new InputStream() {
+				int speed = 0;
+				final int[] speedList = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
 				private byte[] buffer = new byte[128];
 				private byte[] usbBuffer = new byte[64];
 				private byte[] oneByteBuffer = new byte[1];
@@ -277,6 +292,16 @@ public class BlueetoothGpsManager {
 					if (! bufferRead.hasRemaining()){
 						if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
 						int n = connection.bulkTransfer(endpoint, usbBuffer, 64, TIMEOUT);
+//						int n = -1, k = 0;
+//						while ( (n = connection.bulkTransfer(endpoint, usbBuffer, 64, TIMEOUT)) == -1 && speed == 0 && k < 8){
+//							connectionSpeedBuffer.putInt(0,speedList[k++]);
+//							int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
+//							int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
+//							Log.e(LOG_TAG, "data init "+ res1 + " " + res2 + "speed: "+speedList[k-1]);
+//						}
+//						if ((n != -1) && (speed == 0) && (k > 0)){
+//							speed = speedList[k-1];
+//						}
 						if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
 						if (n > 0){
 							if (n > bufferWrite.remaining()){
@@ -373,10 +398,18 @@ public class BlueetoothGpsManager {
 //						}
 //						s = sentence.toString();
 						if (s != null){
-						Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
-						notifyNmeaSentence(s+"\r\n");
-						ready = true;
-						lastRead = SystemClock.uptimeMillis();
+							Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
+							if (notifyNmeaSentence(s+"\r\n")){
+								ready = true;
+								lastRead = SystemClock.uptimeMillis();
+								if (nbRetriesRemaining < maxConnectionRetries){
+									// reset eventual disabling cause
+									// setDisableReason(0);
+									// connection is good so reseting the number of connection try
+									nbRetriesRemaining = maxConnectionRetries ;
+									notificationManager.cancel(R.string.connection_problem_notification_title);
+								}
+							}
 						} else {
 							Log.d(LOG_TAG, "data: not ready "+System.currentTimeMillis());
 							SystemClock.sleep(500);
@@ -481,6 +514,7 @@ public class BlueetoothGpsManager {
 	private boolean connected = false;
 	private boolean setDeviceSpeed = false;
 	private String deviceSpeed = "auto";
+	private String defaultDeviceSpeed = "4800";
 
 	/**
 	 * @param callingService
@@ -496,7 +530,8 @@ public class BlueetoothGpsManager {
 		locationManager = (LocationManager)callingService.getSystemService(Context.LOCATION_SERVICE);
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
 		deviceSpeed = sharedPreferences.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED, callingService.getString(R.string.defaultGpsDeviceSpeed));
-		setDeviceSpeed = !deviceSpeed.equals(callingService.getString(R.string.defaultGpsDeviceSpeed));
+		defaultDeviceSpeed = callingService.getString(R.string.defaultGpsDeviceSpeed);
+		setDeviceSpeed = !deviceSpeed.equals(callingService.getString(R.string.autoGpsDeviceSpeed));
 		notificationManager = (NotificationManager)callingService.getSystemService(Context.NOTIFICATION_SERVICE);
 		parser.setLocationManager(locationManager);	
 		
@@ -605,13 +640,19 @@ public class BlueetoothGpsManager {
 								            if (device != null && usbManager.hasPermission(device)){
 							        			Log.d(LOG_TAG, "We have permession, good!");
 								            	connected = true;
-												// reset eventual disabling cause
-												setDisableReason(0);
-												// connection obtained so reset the number of connection try
-												nbRetriesRemaining = 1+maxConnectionRetries ;
-												notificationManager.cancel(R.string.connection_problem_notification_title);
+								            	if (setDeviceSpeed){
+								            		Log.v(LOG_TAG, "will set devive speed: " + deviceSpeed);
+								            	} else {
+								            		Log.v(LOG_TAG, "will use default device speed: " + defaultDeviceSpeed);
+								            		deviceSpeed = defaultDeviceSpeed;
+								            	}
+//												// reset eventual disabling cause
+//												// setDisableReason(0);
+//												// connection obtained so reset the number of connection try
+//												nbRetriesRemaining = 1+maxConnectionRetries ;
+//												notificationManager.cancel(R.string.connection_problem_notification_title);
 							        			Log.v(LOG_TAG, "starting socket reading task");
-												connectedGps = new ConnectedGps(device);
+												connectedGps = new ConnectedGps(device, deviceSpeed);
 												connectionAndReadingPool.execute(connectedGps);
 									        	Log.v(LOG_TAG, "socket reading thread started");
 								            } else if (device != null) {
@@ -1039,8 +1080,10 @@ public class BlueetoothGpsManager {
 	 * Notifies the reception of a NMEA sentence from the bluetooth GPS to registered NMEA listeners.
 	 * 
 	 * @param nmeaSentence	the complete NMEA sentence received from the bluetooth GPS (i.e. $....*XY where XY is the checksum)
+	 * @return true if the input string is a valid NMEA sentence, false otherwise.
 	 */
-	private void notifyNmeaSentence(final String nmeaSentence){
+	private boolean notifyNmeaSentence(final String nmeaSentence){
+		boolean res = false;
 		if (enabled){
 	       	Log.v(LOG_TAG, "parsing and notifying NMEA sentence: "+nmeaSentence);
 			String sentence = null;
@@ -1055,6 +1098,7 @@ public class BlueetoothGpsManager {
 			final String recognizedSentence = sentence;
 			final long timestamp = System.currentTimeMillis();
 			if (recognizedSentence != null){
+				res = true;
 				Log.v(LOG_TAG, "notifying NMEA sentence: "+recognizedSentence);
 				synchronized(nmeaListeners) {
 					for(final NmeaListener listener : nmeaListeners){
@@ -1068,6 +1112,7 @@ public class BlueetoothGpsManager {
 				}
 			}
 		}
+		return res;
 	}	
 
 	/**

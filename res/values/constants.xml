@@ -55,6 +55,7 @@
     <string name="defaultMockGpsName">usb_gps</string>
     <string name="defaultGpsDevice">/dev/ttyUSB0</string>
     <string name="defaultGpsDeviceSpeed">4800</string>
+    <string name="autoGpsDeviceSpeed">auto</string>
     
     
     <string name="sirf_nmea_gga_on">PSRF103,00,00,01,01</string>
