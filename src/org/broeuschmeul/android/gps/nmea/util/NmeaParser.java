@@ -221,7 +221,7 @@ public class NmeaParser {
 			nmeaSentence = m.group(0);
 			String sentence = m.group(1);
 			String checkSum = m.group(2);
-			Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+sentence+" cheksum; "+checkSum +" control: "+String.format("%X",computeChecksum(sentence)));
+			Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+sentence+" cheksum; "+checkSum +" control: "+String.format("%02X",computeChecksum(sentence)));
 			SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
 			splitter.setString(sentence);
 			String command = splitter.next();

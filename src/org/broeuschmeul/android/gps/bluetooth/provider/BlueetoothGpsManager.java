@@ -856,7 +856,7 @@ public class BlueetoothGpsManager {
 	 * @param sentence	the NMEA sentence without the first "$", the last "*" and the checksum.
 	 */
 	public void sendNmeaCommand(String sentence){
-		String command = String.format((Locale)null,"$%s*%X\r\n", sentence, parser.computeChecksum(sentence));
+		String command = String.format((Locale)null,"$%s*%02X\r\n", sentence, parser.computeChecksum(sentence));
 		sendPackagedNmeaCommand(command);
 	}
 
