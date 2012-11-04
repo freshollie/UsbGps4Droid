@@ -83,7 +83,7 @@
 			android:summary="@string/pref_connection_retries_summary" />
 	</PreferenceScreen>
 	<CheckBoxPreference 
-		android:enabled="false"
+		android:enabled="true"
 		android:key="@string/pref_sirf_gps_key"
 		android:persistent="true"
 		android:defaultValue="false"

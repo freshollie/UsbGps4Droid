@@ -347,21 +347,28 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
 
 	private void enableNMEA(boolean enable){
 		if (gpsManager != null){
+			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+			String deviceSpeed = sharedPreferences.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED, this.getString(R.string.defaultGpsDeviceSpeed));
+			if (deviceSpeed.equals(this.getString(R.string.autoGpsDeviceSpeed))){
+				deviceSpeed = this.getString(R.string.defaultGpsDeviceSpeed);
+			}
 			if (enable){
-				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-				int gll = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GLL, false)) ? 1 : 0 ;
-				int vtg = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_VTG, false)) ? 1 : 0 ;
-				int gsa = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GSA, false)) ? 5 : 0 ;
-				int gsv = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GSV, false)) ? 5 : 0 ;
-				int zda = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_ZDA, false)) ? 1 : 0 ;
-				int mss = 0;
-				int epe = 0;
-				int gga = 1;
-				int rmc = 1;
-				String command = getString(R.string.sirf_bin_to_nmea_38400_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda);
+//				int gll = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GLL, false)) ? 1 : 0 ;
+//				int vtg = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_VTG, false)) ? 1 : 0 ;
+//				int gsa = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GSA, false)) ? 5 : 0 ;
+//				int gsv = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_GSV, false)) ? 5 : 0 ;
+//				int zda = (sharedPreferences.getBoolean(PREF_SIRF_ENABLE_ZDA, false)) ? 1 : 0 ;
+//				int mss = 0;
+//				int epe = 0;
+//				int gga = 1;
+//				int rmc = 1;
+//				String command = getString(R.string.sirf_bin_to_nmea_38400_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda);
+//				String command = getString(R.string.sirf_bin_to_nmea_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda, Integer.parseInt(deviceSpeed));
+				String command = getString(R.string.sirf_bin_to_nmea);
 				gpsManager.sendSirfCommand(command);
 			} else {
-				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_to_binary));
+//				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_to_binary));
+				gpsManager.sendNmeaCommand(getString(R.string.sirf_nmea_to_binary_alt, Integer.parseInt(deviceSpeed)));
 			}
 		}
 	}

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,6 +62,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.Intent;
+import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
@@ -143,7 +145,8 @@ public class BlueetoothGpsManager {
 		private final File gpsDev ;
 		private final UsbDevice gpsUsbDev ;
 		private final UsbInterface intf;
-		private final UsbEndpoint endpoint;
+		private UsbEndpoint endpointIn = null;
+		private UsbEndpoint endpointOut = null;
 		private final UsbDeviceConnection connection;
 		/**
 		 * GPS InputStream from which we read data. 
@@ -152,39 +155,16 @@ public class BlueetoothGpsManager {
 		/**
 		 * GPS output stream to which we send data (SIRF III binary commands). 
 		 */
-		//private final OutputStream out;
+		private final OutputStream out;
 		/**
 		 * GPS output stream to which we send data (SIRF III NMEA commands). 
 		 */
-		//private final PrintStream out2;
+		private final PrintStream out2;
 		/**
 		 * A boolean which indicates if the GPS is ready to receive data. 
 		 * In fact we consider that the GPS is ready when it begins to sends data...
 		 */
 		private boolean ready = false;
-
-		public ConnectedGps(File gpsDev) {
-			this.gpsDev = gpsDev;
-			this.gpsUsbDev = null;			
-			intf = null;
-			endpoint = null;
-			this.connection = null;			
-			InputStream tmpIn = null;
-			//OutputStream tmpOut = null;
-			//PrintStream tmpOut2 = null;
-			try {
-				tmpIn = new FileInputStream(gpsDev);
-				//tmpOut = new FileOutputStream(gpsDev);
-				//if (tmpOut != null){
-				//	tmpOut2 = new PrintStream(tmpOut, false, "US-ASCII");
-				//}
-			} catch (IOException e) {
-				Log.e(LOG_TAG, "error while getting socket streams", e);
-			}	
-			in = tmpIn;
-			//out = tmpOut;
-			//out2 = tmpOut2;
-		}
 
 		public ConnectedGps(UsbDevice device) {
 			this(device, defaultDeviceSpeed);			
@@ -194,7 +174,21 @@ public class BlueetoothGpsManager {
 			this.gpsDev = null;
 			this.gpsUsbDev = device;			
 			intf = device.getInterface(0);
-			endpoint = intf.getEndpoint(2);
+			int i = intf.getEndpointCount();
+			endpointIn = null;
+			while (i > 1){
+				UsbEndpoint curEndpoint = intf.getEndpoint(--i);
+				if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_IN) && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)){
+					endpointIn = curEndpoint;
+				}
+				if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)){
+					endpointOut = curEndpoint;
+				}
+				if ((endpointIn != null) && (endpointOut != null)){
+					i = 0;
+				}
+			}
+//			endpointIn = intf.getEndpoint(2);
 			final int TIMEOUT = 1000;
 //			final int TIMEOUT = 0;
 			connection = usbManager.openDevice(device);
@@ -202,25 +196,12 @@ public class BlueetoothGpsManager {
 			Log.d(LOG_TAG, "claiming interface");
 			resclaim = connection.claimInterface(intf, true);
 			Log.d(LOG_TAG, "data claim"+ resclaim);
-			// Connection initialization: 4800 baud and 8N1 (0 bits no parity 1 stop bit) 
-			Log.d(LOG_TAG, "initializing connection:  4800 baud and 8N1 (0 bits no parity 1 stop bit");
-			final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
-			final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-			connectionSpeedBuffer.putInt(Integer.parseInt(deviceSpeed));
-			int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
-			int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
-			Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
 			
-//			connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
-//			connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
-//			connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
-//			connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);	//flow control none
-//			connection.controlTransfer(0x40, 0x03, 0x0271, 0, null, 0, 0);	//baudrate 4800 see http://stackoverflow.com/questions/8546099/setting-parity-with-controltransfer-method
-//			connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);	//data bit 8, parity none, stop bit 1, tx off
+			InputStream tmpIn = null;
+			OutputStream tmpOut = null;
+			PrintStream tmpOut2 = null;
 
-			InputStream tmpIn = new InputStream() {
-				int speed = 0;
-				final int[] speedList = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+			tmpIn = new InputStream() {
 				private byte[] buffer = new byte[128];
 				private byte[] usbBuffer = new byte[64];
 				private byte[] oneByteBuffer = new byte[1];
@@ -278,8 +259,6 @@ public class BlueetoothGpsManager {
 					return super.markSupported();
 				}
 
-				
-				private Integer i = 0;
 				/* (non-Javadoc)
 				 * @see java.io.InputStream#read(byte[], int, int)
 				 */
@@ -291,17 +270,7 @@ public class BlueetoothGpsManager {
 					ByteBuffer out = ByteBuffer.wrap(buffer, offset, length);
 					if (! bufferRead.hasRemaining()){
 						if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
-						int n = connection.bulkTransfer(endpoint, usbBuffer, 64, TIMEOUT);
-//						int n = -1, k = 0;
-//						while ( (n = connection.bulkTransfer(endpoint, usbBuffer, 64, TIMEOUT)) == -1 && speed == 0 && k < 8){
-//							connectionSpeedBuffer.putInt(0,speedList[k++]);
-//							int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
-//							int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
-//							Log.e(LOG_TAG, "data init "+ res1 + " " + res2 + "speed: "+speedList[k-1]);
-//						}
-//						if ((n != -1) && (speed == 0) && (k > 0)){
-//							speed = speedList[k-1];
-//						}
+						int n = connection.bulkTransfer(endpointIn, usbBuffer, 64, TIMEOUT);
 						if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
 						if (n > 0){
 							if (n > bufferWrite.remaining()){
@@ -368,11 +337,104 @@ public class BlueetoothGpsManager {
 				}
 			};
 			
-			//OutputStream tmpOut = null;
-			//PrintStream tmpOut2 = null;
+			tmpOut = new OutputStream() {
+				int speed = 0;
+				final int[] speedList = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+				private byte[] buffer = new byte[128];
+				private byte[] usbBuffer = new byte[64];
+				private byte[] oneByteBuffer = new byte[1];
+				private ByteBuffer bufferWrite = ByteBuffer.wrap(buffer);
+				private ByteBuffer bufferRead = (ByteBuffer)ByteBuffer.wrap(buffer).limit(0);
+				
+				@Override
+				public void write(int oneByte) throws IOException {
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "trying to write data (one byte): " + oneByte + " char: " + (char)oneByte);
+					oneByteBuffer[0] = (byte)oneByte;
+					this.write(oneByteBuffer,0,1);
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "writen data (one byte): " + oneByte + " char: " + (char)oneByte);
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.OutputStream#write(byte[], int, int)
+				 */
+				@Override
+				public void write(byte[] buffer, int offset, int count)
+						throws IOException {
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "trying to write data : " + Arrays.toString(buffer) + " offset " + offset + " count: " + count);
+					bufferWrite.clear();
+					bufferWrite.put(buffer, offset, count);
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "trying to write data : " + Arrays.toString(this.buffer));
+					int n = connection.bulkTransfer(endpointOut, this.buffer, count, TIMEOUT);	
+					if (n != count){
+						Log.e(LOG_TAG, "error while trying to write data : " + Arrays.toString(this.buffer));
+						Log.e(LOG_TAG, "error while trying to write data : " + n + " bytes writen when expecting " + count);
+						throw new IOException("error while trying to write data : " + Arrays.toString(this.buffer));
+					}
+					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "writen data (one byte): " + Arrays.toString(this.buffer));
+				}
+				/* (non-Javadoc)
+				 * @see java.io.OutputStream#close()
+				 */
+				@Override
+				public void close() throws IOException {
+					// TODO Auto-generated method stub
+					super.close();
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.OutputStream#flush()
+				 */
+				@Override
+				public void flush() throws IOException {
+					// TODO Auto-generated method stub
+					super.flush();
+				}
+
+				/* (non-Javadoc)
+				 * @see java.io.OutputStream#write(byte[])
+				 */
+				@Override
+				public void write(byte[] buffer) throws IOException {
+					// TODO Auto-generated method stub
+					super.write(buffer);
+				}
+				
+			};
+			
+			try {
+				if (tmpOut != null){
+					tmpOut2 = new PrintStream(tmpOut, false, "US-ASCII");
+				}
+			} catch (UnsupportedEncodingException e) {
+				Log.e(LOG_TAG, "error while getting usb output streams", e);
+			}
+
 			in = tmpIn;
-			//out = tmpOut;
-			//out2 = tmpOut2;
+			out = tmpOut;
+			out2 = tmpOut2;
+			final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
+			ready = false;
+//			connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
+//			connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
+//			connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
+//			connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);	//flow control none
+//			connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0);	//baudrate 9600
+//			connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);	//data bit 8, parity none, stop bit 1, tx off
+
+//			final byte[] datax = new byte[7];
+//			final ByteBuffer connectionSpeedBufferx = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+//			int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0); 
+//			Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
+			// Connection initialization: 4800 baud and 8N1 (0 bits no parity 1 stop bit) 
+			Log.d(LOG_TAG, "initializing connection:  4800 baud and 8N1 (0 bits no parity 1 stop bit");
+			final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
+			final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+			connectionSpeedBuffer.putInt(Integer.parseInt(deviceSpeed));
+//			int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
+			int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
+			Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
+
+			ready =  ((endpointOut != null) && (out != null) && (out2 != null));
 		}
 	
 		public boolean isReady(){
@@ -390,13 +452,6 @@ public class BlueetoothGpsManager {
 //					if (true || reader.ready())
 					{
 						s = reader.readLine();
-//						StringBuilder sentence = new StringBuilder(50);
-//						for (char c = (char)in.read() ; c != '\r' && c != '\n'; c = (char)in.read()){
-////						for (char c = (char)reader.read() ; c != '\r' && c != '\n'; c = (char)reader.read()){
-//							Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+sentence+ " "+c);
-//							sentence.append(c);
-//						}
-//						s = sentence.toString();
 						if (s != null){
 							Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
 							if (notifyNmeaSentence(s+"\r\n")){
@@ -406,6 +461,7 @@ public class BlueetoothGpsManager {
 									// reset eventual disabling cause
 									// setDisableReason(0);
 									// connection is good so reseting the number of connection try
+									Log.v(LOG_TAG, "connection is good so reseting the number of connection try");
 									nbRetriesRemaining = maxConnectionRetries ;
 									notificationManager.cancel(R.string.connection_problem_notification_title);
 								}
@@ -415,8 +471,8 @@ public class BlueetoothGpsManager {
 							SystemClock.sleep(500);
 						}
 					}
-					now = SystemClock.uptimeMillis();
 //					SystemClock.sleep(10);
+					now = SystemClock.uptimeMillis();
 				}
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "error while getting data", e);
@@ -432,38 +488,38 @@ public class BlueetoothGpsManager {
 		 * Write to the connected OutStream.
 		 * @param buffer  The bytes to write
 		 */
-//		public void write(byte[] buffer) {
-//			try {
-//				do {
-//					Thread.sleep(100);
-//				} while ((enabled) && (! ready));
-//				if ((enabled) && (ready)){
-//					out.write(buffer);
-//					out.flush();
-//				}
-//			} catch (IOException e) {
-//				Log.e(LOG_TAG, "Exception during write", e);
-//			} catch (InterruptedException e) {
-//				Log.e(LOG_TAG, "Exception during write", e);
-//			}
-//		}
+		public void write(byte[] buffer) {
+			try {
+				do {
+					Thread.sleep(100);
+				} while ((enabled) && (! ready));
+				if ((enabled) && (ready)){
+					out.write(buffer);
+					out.flush();
+				}
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "Exception during write", e);
+			} catch (InterruptedException e) {
+				Log.e(LOG_TAG, "Exception during write", e);
+			}
+		}
 		/**
 		 * Write to the connected OutStream.
 		 * @param buffer  The data to write
 		 */
-//		public void write(String buffer) {
-//			try {
-//				do {
-//					Thread.sleep(100);
-//				} while ((enabled) && (! ready));
-//				if ((enabled) && (ready)){
-//					out2.print(buffer);
-//					out2.flush();
-//				}
-//			} catch (InterruptedException e) {
-//				Log.e(LOG_TAG, "Exception during write", e);
-//			}
-//		}
+		public void write(String buffer) {
+			try {
+				do {
+					Thread.sleep(100);
+				} while ((enabled) && (! ready));
+				if ((enabled) && (ready)){
+					out2.print(buffer);
+					out2.flush();
+				}
+			} catch (InterruptedException e) {
+				Log.e(LOG_TAG, "Exception during write", e);
+			}
+		}
 		
 		public void close(){
 			ready = false;
@@ -473,20 +529,20 @@ public class BlueetoothGpsManager {
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "error while closing GPS NMEA output stream", e);
 			} finally {
-//				try {
-//		        	Log.d(LOG_TAG, "closing Bluetooth GPS input streams");
-//					out2.close();
-//					out.close();
-//				} catch (IOException e) {
-//					Log.e(LOG_TAG, "error while closing GPS input streams", e);
-//				} finally {
+				try {
+		        	Log.d(LOG_TAG, "closing Bluetooth GPS input streams");
+					out2.close();
+					out.close();
+				} catch (IOException e) {
+					Log.e(LOG_TAG, "error while closing GPS input streams", e);
+				} finally {
 //					try {
 //			        	Log.d(LOG_TAG, "closing Bluetooth GPS socket");
 //						socket.close();
 //					} catch (IOException e) {
 //						Log.e(LOG_TAG, "error while closing GPS socket", e);
 //					}
-//				}
+				}
 			}
 		}
 	}
@@ -1121,22 +1177,23 @@ public class BlueetoothGpsManager {
 	 * @param command	the complete NMEA sentence (i.e. $....*XY where XY is the checksum).
 	 */
 	public void sendPackagedNmeaCommand(final String command){
-		Log.e(LOG_TAG, "Disabled .... sending NMEA sentence: "+command);
-//		if (isEnabled()){
-//			notificationPool.execute( new Runnable() {			
-//				@Override
-//				public void run() {
-//					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
-//						Log.v(LOG_TAG, "writing thread is not ready");
-//						SystemClock.sleep(500);
-//					}
-//					if (isEnabled() && (connectedGps != null)){
-//						connectedGps.write(command);
-//						Log.d(LOG_TAG, "sent NMEA sentence: "+command);
-//					}
-//				}
-//			});
-//		}
+		Log.e(LOG_TAG, "spooling NMEA sentence: "+command);
+		if (isEnabled()){
+			notificationPool.execute( new Runnable() {			
+				@Override
+				public void run() {
+					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
+						Log.v(LOG_TAG, "writing thread is not ready");
+						SystemClock.sleep(500);
+					}
+					if (isEnabled() && (connectedGps != null)){
+						Log.e(LOG_TAG, "sending NMEA sentence: "+command);
+						connectedGps.write(command);
+						Log.e(LOG_TAG, "sent NMEA sentence: "+command);
+					}
+				}
+			});
+		}
 	}
 
 	/**
@@ -1146,23 +1203,24 @@ public class BlueetoothGpsManager {
 	 * (i.e. with the <em>Start Sequence</em>, <em>Payload Length</em>, <em>Payload</em>, <em>Message Checksum</em> and <em>End Sequence</em>).
 	 */
 	public void sendPackagedSirfCommand(final String commandHexa){
-		Log.d(LOG_TAG, "Disabled sending SIRF sentence: "+commandHexa);
-//		if (isEnabled()){
-//			final byte[] command = SirfUtils.genSirfCommand(commandHexa);
-//			notificationPool.execute( new Runnable() {			
-//				@Override
-//				public void run() {
-//					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
-//						Log.v(LOG_TAG, "writing thread is not ready");
-//						SystemClock.sleep(500);
-//					}
-//					if (isEnabled() && (connectedGps != null)){
-//						connectedGps.write(command);
-//						Log.d(LOG_TAG, "sent SIRF sentence: "+commandHexa);
-//					}
-//				}
-//			});
-//		}
+		Log.e(LOG_TAG, "spooling SIRF sentence: "+commandHexa);
+		if (isEnabled()){
+			final byte[] command = SirfUtils.genSirfCommand(commandHexa);
+			notificationPool.execute( new Runnable() {			
+				@Override
+				public void run() {
+					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
+						Log.v(LOG_TAG, "writing thread is not ready");
+						SystemClock.sleep(500);
+					}
+					if (isEnabled() && (connectedGps != null)){
+						Log.e(LOG_TAG, "sendind SIRF sentence: "+commandHexa);
+						connectedGps.write(command);
+						Log.e(LOG_TAG, "sent SIRF sentence: "+commandHexa);
+					}
+				}
+			});
+		}
 	}
 
 	/**
