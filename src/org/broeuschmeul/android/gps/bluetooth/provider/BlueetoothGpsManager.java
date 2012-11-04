@@ -200,7 +200,7 @@ public class BlueetoothGpsManager {
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
 			PrintStream tmpOut2 = null;
-
+			
 			tmpIn = new InputStream() {
 				private byte[] buffer = new byte[128];
 				private byte[] usbBuffer = new byte[64];
@@ -414,6 +414,7 @@ public class BlueetoothGpsManager {
 			out2 = tmpOut2;
 			final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
 			ready = false;
+			if (setDeviceSpeed && false){
 //			connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
 //			connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
 //			connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
@@ -435,19 +436,71 @@ public class BlueetoothGpsManager {
 			Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
 
 			ready =  ((endpointOut != null) && (out != null) && (out2 != null));
+			} else {
+				Thread autoConf = new Thread(){
+
+					/* (non-Javadoc)
+					 * @see java.lang.Thread#run()
+					 */
+					@Override
+					public void run() {
+						Log.d(LOG_TAG, "initializing connection:  4800 baud and 8N1 (0 bits no parity 1 stop bit");
+						final int[] speedList = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+						final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
+						final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+						final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
+						try {
+							Thread.sleep(1000);
+							for (int speed : speedList){
+								if (!ready){
+									connectionSpeedBuffer.putInt(0, speed);
+									Log.e(LOG_TAG, "trying to use speed " + speed);
+									int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
+									if (sirfGps){
+										Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
+										connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+									}
+									Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
+									Thread.sleep(3000);
+								}
+							}
+							final byte[] datax = new byte[7];
+							final ByteBuffer connectionSpeedBufferx = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+							int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0); 
+							Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
+							Log.e(LOG_TAG, "info connection speed: " + connectionSpeedBufferx.getInt(0));
+							Thread.sleep(10000);
+						} catch (InterruptedException e) {
+							Log.e(LOG_TAG, "autoconf thread interupted", e);
+						} finally {
+							if ((!ready ) || (lastRead + 3000 < SystemClock.uptimeMillis())){
+								setMockLocationProviderOutOfService();
+								// cleanly closing everything...
+								ConnectedGps.this.close();
+								BlueetoothGpsManager.this.disableIfNeeded();
+							}
+						}
+					}
+
+				};
+				Log.e(LOG_TAG, "trying to find speed ");
+				autoConf.start();
+			}
 		}
 	
 		public boolean isReady(){
 			return ready;
 		}
 		
+		private long lastRead = 0;
 		public void run() {
 			try {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(in,"US-ASCII"),128);
 //				InputStreamReader reader = new InputStreamReader(in,"US-ASCII");
 				String s;
 				long now = SystemClock.uptimeMillis();
-				long lastRead = now;
+				// we will wait more at the beginning of the connection
+				lastRead = now+45000;
 				while((enabled) && (now < lastRead+3000 )){
 //					if (true || reader.ready())
 					{
@@ -569,6 +622,7 @@ public class BlueetoothGpsManager {
 	private int nbRetriesRemaining;
 	private boolean connected = false;
 	private boolean setDeviceSpeed = false;
+	private boolean sirfGps = false;
 	private String deviceSpeed = "auto";
 	private String defaultDeviceSpeed = "4800";
 
@@ -588,6 +642,7 @@ public class BlueetoothGpsManager {
 		deviceSpeed = sharedPreferences.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED, callingService.getString(R.string.defaultGpsDeviceSpeed));
 		defaultDeviceSpeed = callingService.getString(R.string.defaultGpsDeviceSpeed);
 		setDeviceSpeed = !deviceSpeed.equals(callingService.getString(R.string.autoGpsDeviceSpeed));
+		sirfGps = sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_SIRF_GPS, false);
 		notificationManager = (NotificationManager)callingService.getSystemService(Context.NOTIFICATION_SERVICE);
 		parser.setLocationManager(locationManager);	
 		
