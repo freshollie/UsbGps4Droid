@@ -119,7 +119,7 @@ public class BluetoothGpsActivity extends PreferenceActivity implements OnPrefer
 		String deviceDisplayedName = "";
         if (! usbManager.getDeviceList().isEmpty() && usbManager.getDeviceList().get(deviceName) != null){
         	deviceDisplayedName = usbManager.getDeviceList().get(deviceName).getDeviceName();
-        } else if ((usbManager.getDeviceList().size() == 1) && usbManager.getDeviceList().get(defaultDeviceName) != null){
+        } else if ((usbManager.getDeviceList().size() == 1) && (usbManager.getDeviceList().get(defaultDeviceName) != null)){
     		deviceDisplayedName = usbManager.getDeviceList().get(defaultDeviceName).getDeviceName();
     		deviceName = defaultDeviceName;
     		prefDevices.setValue(defaultDeviceName);
