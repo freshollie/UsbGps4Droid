@@ -74,6 +74,7 @@
     <string name="sirf_nmea_zda_off">PSRF103,08,00,00,01</string>
 
     <string name="sirf_nmea_to_binary">PSRF100,0,38400,8,1,0</string>
+    <string name="sirf_nmea_to_binary_alt" formatted="false">PSRF100,0,%d,8,1,0</string>
     
     <string name="sirf_nmea_sbas_on">PSRF151,01</string>
     <string name="sirf_nmea_sbas_off">PSRF151,00</string>
@@ -83,6 +84,7 @@
     <string name="sirf_bin_to_nmea">8702</string>
     <string name="sirf_bin_to_nmea_38400">810201010001050105010001000100010001000100019600</string>
     <string name="sirf_bin_to_nmea_38400_alt" formatted="false">8102%02X01%02X01%02X01%02X01%02X01%02X01%02X01%02X01%02X0100019600</string>
+    <string name="sirf_bin_to_nmea_alt" formatted="false">8102%02X01%02X01%02X01%02X01%02X01%02X01%02X01%02X01%02X010001%04X</string>
     <string name="sirf_bin_dgps_ext_on">85020000000000</string>
     <string name="sirf_bin_dgps_sbas_on">85010000000000</string>
     <string name="sirf_software_version">8400</string>   
