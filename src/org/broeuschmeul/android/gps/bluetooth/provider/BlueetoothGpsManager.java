@@ -73,6 +73,7 @@ import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -116,10 +117,10 @@ public class BlueetoothGpsManager {
 //								// connection obtained so reset the number of connection try
 //								nbRetriesRemaining = 1+maxConnectionRetries ;
 //								notificationManager.cancel(R.string.connection_problem_notification_title);
-			        			Log.v(LOG_TAG, "starting socket reading task");
+			        			Log.v(LOG_TAG, "starting usb reading task");
 								connectedGps = new ConnectedGps(device, deviceSpeed);
 								connectionAndReadingPool.execute(connectedGps);
-					        	Log.v(LOG_TAG, "socket reading thread started");
+					        	Log.v(LOG_TAG, "usb reading thread started");
 				            }
 						}
 					} else {
@@ -148,6 +149,7 @@ public class BlueetoothGpsManager {
 		private UsbEndpoint endpointIn = null;
 		private UsbEndpoint endpointOut = null;
 		private final UsbDeviceConnection connection;
+		private boolean closed = false;
 		/**
 		 * GPS InputStream from which we read data. 
 		 */
@@ -207,19 +209,21 @@ public class BlueetoothGpsManager {
 				private byte[] oneByteBuffer = new byte[1];
 				private ByteBuffer bufferWrite = ByteBuffer.wrap(buffer);
 				private ByteBuffer bufferRead = (ByteBuffer)ByteBuffer.wrap(buffer).limit(0);
+				private boolean closed = false;
 				
 				@Override
 				public int read() throws IOException {
 					int b = 0;
 					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "trying to read data");
 					int nb = 0;
-					while (nb == 0){
+					while ((nb == 0) && (!closed)){
 						nb = this.read(oneByteBuffer,0,1);
 					}
 					if (nb > 0){
 						b = oneByteBuffer[0];
 					} else {
-						b = nb;
+						// TODO : if nb = 0 then we have a pb 
+						b = -1;
 						Log.e(LOG_TAG, "data read() error code: " + nb );
 					}
 					if (b <= 0){
@@ -268,7 +272,7 @@ public class BlueetoothGpsManager {
 					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read buffer - offset: " + offset + " length: " + length);
 					int nb = 0;
 					ByteBuffer out = ByteBuffer.wrap(buffer, offset, length);
-					if (! bufferRead.hasRemaining()){
+					if ((! bufferRead.hasRemaining()) && (! closed)){
 						if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
 						int n = connection.bulkTransfer(endpointIn, usbBuffer, 64, TIMEOUT);
 						if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
@@ -331,20 +335,17 @@ public class BlueetoothGpsManager {
 				@Override
 				public void close() throws IOException {
 					super.close();
-					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "closing usb connection: " + connection);
-					connection.releaseInterface(intf);
-					connection.close();
+					closed = true;
 				}
 			};
 			
 			tmpOut = new OutputStream() {
-				int speed = 0;
-				final int[] speedList = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
 				private byte[] buffer = new byte[128];
 				private byte[] usbBuffer = new byte[64];
 				private byte[] oneByteBuffer = new byte[1];
 				private ByteBuffer bufferWrite = ByteBuffer.wrap(buffer);
 				private ByteBuffer bufferRead = (ByteBuffer)ByteBuffer.wrap(buffer).limit(0);
+				private boolean closed = false;
 				
 				@Override
 				public void write(int oneByte) throws IOException {
@@ -364,11 +365,16 @@ public class BlueetoothGpsManager {
 					bufferWrite.clear();
 					bufferWrite.put(buffer, offset, count);
 					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "trying to write data : " + Arrays.toString(this.buffer));
-					int n = connection.bulkTransfer(endpointOut, this.buffer, count, TIMEOUT);	
+					int n = 0;
+					if (! closed){
+						n = connection.bulkTransfer(endpointOut, this.buffer, count, TIMEOUT);	
+					} else {
+						Log.e(LOG_TAG, "error while trying to write data: outputStream closed");
+					}
 					if (n != count){
-						Log.e(LOG_TAG, "error while trying to write data : " + Arrays.toString(this.buffer));
-						Log.e(LOG_TAG, "error while trying to write data : " + n + " bytes writen when expecting " + count);
-						throw new IOException("error while trying to write data : " + Arrays.toString(this.buffer));
+						Log.e(LOG_TAG, "error while trying to write data: " + Arrays.toString(this.buffer));
+						Log.e(LOG_TAG, "error while trying to write data: " + n + " bytes writen when expecting " + count);
+						throw new IOException("error while trying to write data: " + Arrays.toString(this.buffer));
 					}
 					if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "writen data (one byte): " + Arrays.toString(this.buffer));
 				}
@@ -379,6 +385,7 @@ public class BlueetoothGpsManager {
 				public void close() throws IOException {
 					// TODO Auto-generated method stub
 					super.close();
+					closed = true;
 				}
 
 				/* (non-Javadoc)
@@ -412,80 +419,82 @@ public class BlueetoothGpsManager {
 			in = tmpIn;
 			out = tmpOut;
 			out2 = tmpOut2;
-			final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
-			ready = false;
-			if (setDeviceSpeed && false){
-//			connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
-//			connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
-//			connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
-//			connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);	//flow control none
-//			connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0);	//baudrate 9600
-//			connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);	//data bit 8, parity none, stop bit 1, tx off
-
-//			final byte[] datax = new byte[7];
-//			final ByteBuffer connectionSpeedBufferx = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-//			int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0); 
-//			Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
-			// Connection initialization: 4800 baud and 8N1 (0 bits no parity 1 stop bit) 
-			Log.d(LOG_TAG, "initializing connection:  4800 baud and 8N1 (0 bits no parity 1 stop bit");
+			final int[] speedList = {Integer.parseInt(deviceSpeed), 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+//			final List<String> speedList = Arrays.asList(new String[]{"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"});
 			final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
 			final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-			connectionSpeedBuffer.putInt(Integer.parseInt(deviceSpeed));
-//			int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
-			int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
-			Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
+			final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
+			final byte[] datax = new byte[7];
+			final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+			final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
+			if (setDeviceSpeed){
+////				connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
+////				connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
+////				connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
+////				connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);	//flow control none
+////				connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0);	//baudrate 9600
+////				connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);	//data bit 8, parity none, stop bit 1, tx off
+			}
+			if (sirfGps){
+				Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
+				connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+			}
+			Thread autoConf = new Thread(){
 
-			ready =  ((endpointOut != null) && (out != null) && (out2 != null));
-			} else {
-				Thread autoConf = new Thread(){
-
-					/* (non-Javadoc)
-					 * @see java.lang.Thread#run()
-					 */
-					@Override
-					public void run() {
-						Log.d(LOG_TAG, "initializing connection:  4800 baud and 8N1 (0 bits no parity 1 stop bit");
-						final int[] speedList = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
-						final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
-						final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-						final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
-						try {
-							Thread.sleep(1000);
-							for (int speed : speedList){
-								if (!ready){
-									connectionSpeedBuffer.putInt(0, speed);
-									Log.e(LOG_TAG, "trying to use speed " + speed);
-									int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
-									if (sirfGps){
-										Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
-										connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
-									}
-									Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
-									Thread.sleep(3000);
+				/* (non-Javadoc)
+				 * @see java.lang.Thread#run()
+				 */
+				@Override
+				public void run() {
+//					final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
+//					final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+//					final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
+//					final byte[] datax = new byte[7];
+//					final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+					try {
+						int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0); 
+						BlueetoothGpsManager.this.deviceSpeed = Integer.toString(connectionSpeedInfoBuffer.getInt(0));
+						Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
+						Log.e(LOG_TAG, "info connection speed: " + BlueetoothGpsManager.this.deviceSpeed);
+						Thread.sleep(4000);
+						Log.e(LOG_TAG, "trying to use speed in range: " + Arrays.toString(speedList));
+						for (int speed : speedList){
+							if (!ready && !closed){
+								BlueetoothGpsManager.this.deviceSpeed = Integer.toString(speed);
+								Log.e(LOG_TAG, "trying to use speed " + speed);
+								Log.d(LOG_TAG, "initializing connection:  " + speed + " baud and 8N1 (0 bits no parity 1 stop bit");
+								connectionSpeedBuffer.putInt(0, speed);
+								int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); 
+								if (sirfGps){
+									Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
+									connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
 								}
-							}
-							final byte[] datax = new byte[7];
-							final ByteBuffer connectionSpeedBufferx = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-							int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0); 
-							Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
-							Log.e(LOG_TAG, "info connection speed: " + connectionSpeedBufferx.getInt(0));
-							Thread.sleep(10000);
-						} catch (InterruptedException e) {
-							Log.e(LOG_TAG, "autoconf thread interupted", e);
-						} finally {
-							if ((!ready ) || (lastRead + 3000 < SystemClock.uptimeMillis())){
-								setMockLocationProviderOutOfService();
-								// cleanly closing everything...
-								ConnectedGps.this.close();
-								BlueetoothGpsManager.this.disableIfNeeded();
+								Log.e(LOG_TAG, "data init "+ res1 + " " + res2);
+								Thread.sleep(4000);
 							}
 						}
+						res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0); 
+						Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
+						Log.e(LOG_TAG, "info connection speed: " + connectionSpeedInfoBuffer.getInt(0));
+						if (! closed) {
+							Thread.sleep(10000);
+						}
+					} catch (InterruptedException e) {
+						Log.e(LOG_TAG, "autoconf thread interupted", e);
+					} finally {
+						if ( (! closed) && (!ready ) || (lastRead + 4000 < SystemClock.uptimeMillis())){
+							setMockLocationProviderOutOfService();
+							// cleanly closing everything...
+							ConnectedGps.this.close();
+							BlueetoothGpsManager.this.disableIfNeeded();
+						}
 					}
+				}
 
-				};
-				Log.e(LOG_TAG, "trying to find speed ");
-				autoConf.start();
-			}
+			};
+			Log.e(LOG_TAG, "trying to find speed ");
+			ready = false;
+			autoConf.start();
 		}
 	
 		public boolean isReady(){
@@ -501,7 +510,7 @@ public class BlueetoothGpsManager {
 				long now = SystemClock.uptimeMillis();
 				// we will wait more at the beginning of the connection
 				lastRead = now+45000;
-				while((enabled) && (now < lastRead+3000 )){
+				while((enabled) && (now < lastRead+4000 ) && (! closed)){
 //					if (true || reader.ready())
 					{
 						s = reader.readLine();
@@ -509,6 +518,7 @@ public class BlueetoothGpsManager {
 							Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
 							if (notifyNmeaSentence(s+"\r\n")){
 								ready = true;
+//								lastRead = Math.max(SystemClock.uptimeMillis(), lastRead);
 								lastRead = SystemClock.uptimeMillis();
 								if (nbRetriesRemaining < maxConnectionRetries){
 									// reset eventual disabling cause
@@ -545,8 +555,8 @@ public class BlueetoothGpsManager {
 			try {
 				do {
 					Thread.sleep(100);
-				} while ((enabled) && (! ready));
-				if ((enabled) && (ready)){
+				} while ((enabled) && (! ready) && (!closed));
+				if ((enabled) && (ready) && (!closed)){
 					out.write(buffer);
 					out.flush();
 				}
@@ -564,8 +574,8 @@ public class BlueetoothGpsManager {
 			try {
 				do {
 					Thread.sleep(100);
-				} while ((enabled) && (! ready));
-				if ((enabled) && (ready)){
+				} while ((enabled) && (! ready) && (!closed));
+				if ((enabled) && (ready) && (!closed)){
 					out2.print(buffer);
 					out2.flush();
 				}
@@ -576,19 +586,29 @@ public class BlueetoothGpsManager {
 		
 		public void close(){
 			ready = false;
+			closed = true;
 			try {
-	        	Log.d(LOG_TAG, "closing Bluetooth GPS output sream");
+	        	Log.d(LOG_TAG, "closing USB GPS output sream");
 				in.close();
 			} catch (IOException e) {
 				Log.e(LOG_TAG, "error while closing GPS NMEA output stream", e);
 			} finally {
 				try {
-		        	Log.d(LOG_TAG, "closing Bluetooth GPS input streams");
+		        	Log.d(LOG_TAG, "closing USB GPS input streams");
 					out2.close();
 					out.close();
 				} catch (IOException e) {
 					Log.e(LOG_TAG, "error while closing GPS input streams", e);
 				} finally {
+					if (BuildConfig.DEBUG || debug) Log.e(LOG_TAG, "releasing usb interface for connection: " + connection);
+					boolean released = connection.releaseInterface(intf);
+					if (released){
+						if (BuildConfig.DEBUG || debug) Log.e(LOG_TAG, "usb interface released for connection: " + connection);
+					} else {
+						if (BuildConfig.DEBUG || debug) Log.e(LOG_TAG, "unable to release usb interface for connection: " + connection);
+					}
+					if (BuildConfig.DEBUG || debug) Log.e(LOG_TAG, "closing usb connection: " + connection);
+					connection.close();
 //					try {
 //			        	Log.d(LOG_TAG, "closing Bluetooth GPS socket");
 //						socket.close();
@@ -762,10 +782,10 @@ public class BlueetoothGpsManager {
 //												// connection obtained so reset the number of connection try
 //												nbRetriesRemaining = 1+maxConnectionRetries ;
 //												notificationManager.cancel(R.string.connection_problem_notification_title);
-							        			Log.v(LOG_TAG, "starting socket reading task");
+							        			Log.v(LOG_TAG, "starting usb reading task");
 												connectedGps = new ConnectedGps(device, deviceSpeed);
 												connectionAndReadingPool.execute(connectedGps);
-									        	Log.v(LOG_TAG, "socket reading thread started");
+									        	Log.v(LOG_TAG, "usb reading thread started");
 								            } else if (device != null) {
 							        			Log.d(LOG_TAG, "We don't have permession, so resquesting...");
 								            	usbManager.requestPermission(device, permissionIntent);								            	
@@ -933,6 +953,9 @@ public class BlueetoothGpsManager {
 						connectionAndReadingPool = Executors.newSingleThreadScheduledExecutor();
 			        	Log.v(LOG_TAG, "starting connection to socket task");
 						connectionAndReadingPool.scheduleWithFixedDelay(connectThread, 5000, 60000, TimeUnit.MILLISECONDS);
+						if (sirfGps){
+							enableSirfConfig(sharedPreferences);
+						}
 					}
 				}
 			}
@@ -1232,23 +1255,9 @@ public class BlueetoothGpsManager {
 	 * @param command	the complete NMEA sentence (i.e. $....*XY where XY is the checksum).
 	 */
 	public void sendPackagedNmeaCommand(final String command){
-		Log.e(LOG_TAG, "spooling NMEA sentence: "+command);
-		if (isEnabled()){
-			notificationPool.execute( new Runnable() {			
-				@Override
-				public void run() {
-					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
-						Log.v(LOG_TAG, "writing thread is not ready");
-						SystemClock.sleep(500);
-					}
-					if (isEnabled() && (connectedGps != null)){
-						Log.e(LOG_TAG, "sending NMEA sentence: "+command);
-						connectedGps.write(command);
-						Log.e(LOG_TAG, "sent NMEA sentence: "+command);
-					}
-				}
-			});
-		}
+		Log.e(LOG_TAG, "sending NMEA sentence: "+command);
+		connectedGps.write(command);
+		Log.e(LOG_TAG, "sent NMEA sentence: "+command);
 	}
 
 	/**
@@ -1258,24 +1267,10 @@ public class BlueetoothGpsManager {
 	 * (i.e. with the <em>Start Sequence</em>, <em>Payload Length</em>, <em>Payload</em>, <em>Message Checksum</em> and <em>End Sequence</em>).
 	 */
 	public void sendPackagedSirfCommand(final String commandHexa){
-		Log.e(LOG_TAG, "spooling SIRF sentence: "+commandHexa);
-		if (isEnabled()){
-			final byte[] command = SirfUtils.genSirfCommand(commandHexa);
-			notificationPool.execute( new Runnable() {			
-				@Override
-				public void run() {
-					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
-						Log.v(LOG_TAG, "writing thread is not ready");
-						SystemClock.sleep(500);
-					}
-					if (isEnabled() && (connectedGps != null)){
-						Log.e(LOG_TAG, "sendind SIRF sentence: "+commandHexa);
-						connectedGps.write(command);
-						Log.e(LOG_TAG, "sent SIRF sentence: "+commandHexa);
-					}
-				}
-			});
-		}
+		final byte[] command = SirfUtils.genSirfCommand(commandHexa);
+		Log.e(LOG_TAG, "sendind SIRF sentence: "+commandHexa);
+		connectedGps.write(command);
+		Log.e(LOG_TAG, "sent SIRF sentence: "+commandHexa);
 	}
 
 	/**
@@ -1298,4 +1293,210 @@ public class BlueetoothGpsManager {
 		String command = SirfUtils.createSirfCommandFromPayload(payload);
 		sendPackagedSirfCommand(command);
 	}
+
+	private void enableNMEA(boolean enable){
+//			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
+//			String deviceSpeed = sharedPreferences.getString(BluetoothGpsProviderService.PREF_GPS_DEVICE_SPEED, callingService.getString(R.string.defaultGpsDeviceSpeed));
+			if (deviceSpeed.equals(callingService.getString(R.string.autoGpsDeviceSpeed))){
+				deviceSpeed = callingService.getString(R.string.defaultGpsDeviceSpeed);
+			}
+			SystemClock.sleep(400);
+			if (enable){
+//				int gll = (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL, false)) ? 1 : 0 ;
+//				int vtg = (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_VTG, false)) ? 1 : 0 ;
+//				int gsa = (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSA, false)) ? 5 : 0 ;
+//				int gsv = (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSV, false)) ? 5 : 0 ;
+//				int zda = (sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_ZDA, false)) ? 1 : 0 ;
+//				int mss = 0;
+//				int epe = 0;
+//				int gga = 1;
+//				int rmc = 1;
+//				String command = getString(R.string.sirf_bin_to_nmea_38400_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda);
+//				String command = getString(R.string.sirf_bin_to_nmea_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda, Integer.parseInt(deviceSpeed));
+				String command = callingService.getString(R.string.sirf_bin_to_nmea);
+				this.sendSirfCommand(command);
+			} else {
+//				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_to_binary));
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_to_binary_alt, Integer.parseInt(deviceSpeed)));
+			}
+			SystemClock.sleep(400);
+		}
+
+	private void enableNmeaGGA(boolean enable){
+		if (enable){
+			this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gga_on));
+		} else {
+			this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gga_off));
+		}
+	}
+
+	private void enableNmeaGLL(boolean enable){
+		if (enable){
+			this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gll_on));
+		} else {
+			this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gll_off));
+		}
+	}
+
+	private void enableNmeaGSA(boolean enable){
+		if (enable){
+			this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gsa_on));
+		} else {
+			this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gsa_off));
+		}
+	}
+
+	private void enableNmeaGSV(boolean enable){
+			if (enable){
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gsv_on));
+			} else {
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gsv_off));
+			}
+		}
+
+	private void enableNmeaRMC(boolean enable){
+			if (enable){
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_rmc_on));
+			} else {
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_rmc_off));
+			}
+	}
+
+	private void enableNmeaVTG(boolean enable){
+			if (enable){
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_vtg_on));
+			} else {
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_vtg_off));
+			}
+		}
+
+	private void enableNmeaZDA(boolean enable){
+			if (enable){
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_zda_on));
+			} else {
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_zda_off));
+			}
+	}
+
+	private void enableSBAS(boolean enable){
+			if (enable){
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_sbas_on));
+			} else {
+				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_sbas_off));
+			}
+	}
+
+	public void enableSirfConfig(final Bundle extra){
+		Log.e(LOG_TAG, "spooling SiRF config: "+ extra);
+		if (isEnabled()){
+			notificationPool.execute( new Runnable() {			
+				@Override
+				public void run() {
+					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
+						Log.v(LOG_TAG, "writing thread is not ready");
+						SystemClock.sleep(500);
+					}
+					if (isEnabled() && (connected) && (connectedGps != null) && (connectedGps.isReady())){
+						Log.e(LOG_TAG, "init SiRF config: "+extra);
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GGA)){
+							enableNmeaGGA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GGA, true));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_RMC)){
+							enableNmeaRMC(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_RMC, true));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL)){
+							enableNmeaGLL(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL, false));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_VTG)){
+							enableNmeaVTG(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_VTG, false));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSA)){
+							enableNmeaGSA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSA, false));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSV)){
+							enableNmeaGSV(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSV, false));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_ZDA)){
+							enableNmeaZDA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_ZDA, false));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION)){
+							enableStaticNavigation(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION, false));
+						} else if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_NMEA)){
+							enableNMEA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_NMEA, true));
+						}
+						if (extra.containsKey(BluetoothGpsProviderService.PREF_SIRF_ENABLE_SBAS)){
+							enableSBAS(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_SBAS, true));
+						}
+						Log.e(LOG_TAG, "initialized SiRF config: "+extra);
+					}
+				}
+			});
+		}
+	}
+
+	public void enableSirfConfig(final SharedPreferences extra){
+		Log.e(LOG_TAG, "spooling SiRF config: "+ extra);
+		if (isEnabled()){
+			notificationPool.execute( new Runnable() {			
+				@Override
+				public void run() {
+					while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))){
+						Log.v(LOG_TAG, "writing thread is not ready");
+						SystemClock.sleep(500);
+					}
+					if (isEnabled() && (connected) && (connectedGps != null) && (connectedGps.isReady())){
+						Log.e(LOG_TAG, "init SiRF config: "+extra);
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL)){
+							enableNmeaGLL(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GLL, false));
+						}
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_VTG)){
+							enableNmeaVTG(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_VTG, false));
+						}
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSA)){
+							enableNmeaGSA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSA, false));
+						}
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSV)){
+							enableNmeaGSV(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GSV, false));
+						}
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_ZDA)){
+							enableNmeaZDA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_ZDA, false));
+						}
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION)){
+							enableStaticNavigation(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION, false));
+						} else if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_NMEA)){
+							enableNMEA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_NMEA, true));
+						}
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_SBAS)){
+							enableSBAS(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_SBAS, true));
+						}
+						sendNmeaCommand(callingService.getString(R.string.sirf_nmea_gga_on));
+						sendNmeaCommand(callingService.getString(R.string.sirf_nmea_rmc_on));
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GGA)){
+							enableNmeaGGA(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_GGA, true));
+						}
+						if (extra.contains(BluetoothGpsProviderService.PREF_SIRF_ENABLE_RMC)){
+							enableNmeaRMC(extra.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_RMC, true));
+						}
+					}
+				}
+			});
+		}
+	}
+
+	private void enableStaticNavigation(boolean enable){
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
+		boolean isInNmeaMode = sharedPreferences.getBoolean(BluetoothGpsProviderService.PREF_SIRF_ENABLE_NMEA, true);
+		if (isInNmeaMode){
+			enableNMEA(false);
+		}
+		if (enable){
+			this.sendSirfCommand(callingService.getString(R.string.sirf_bin_static_nav_on));
+		} else {
+			this.sendSirfCommand(callingService.getString(R.string.sirf_bin_static_nav_off));
+		}
+		if (isInNmeaMode){
+			enableNMEA(true);
+		}
+	}
+
 }
