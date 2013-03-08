@@ -23,7 +23,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.broeuschmeul.android.gps.usb.provider"
-      android:versionCode="126"
+      android:versionCode="127"
       android:versionName="@string/versionName">
       
     <uses-feature android:name="android.hardware.usb.host" />
