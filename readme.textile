@@ -1,3 +1,12 @@
+*UsbGPS4DHoneycomb_MR1 beta1* (2013-03-09): recommended for Android version greater or equal than Honeycomb MR1 (Android SDK version 12)
+* New version which uses Android SDK USB Host API
+* Add auto-conf option for gps baud rate
+* Re-enable SiRF options
+* Bug fix : correction in SiRF options summary description
+* Bug fix : correction in NMEA checksum calcul
+* Bug fix : NMEA sentences without checksum weren't correctly parsed
+* Update copyright info in source and about app message
+
 *UsbGPS4Droid alpha5* (2012-08-26)
 * Change command used to define connection speed ("see gitub issue #1 comment #2":https://github.com/HvB/UsbGps4Droid/issues/1#issuecomment-5768439 )
 * Bug fix (see gitub issue #2: "Bluetooth error messages":https://github.com/HvB/UsbGps4Droid/issues/2 )
