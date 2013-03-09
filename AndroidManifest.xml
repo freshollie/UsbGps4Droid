@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-	Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
-	Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
-	Copyright (C) 2011, 2012 UsbGPS4Droid Project
+	Copyright (C) 2010, 2011, 2012, 2013 Herbert von Broeuschmeul
+	Copyright (C) 2010, 2011, 2012, 2013 BluetoothGPS4Droid Project
+	Copyright (C) 2011, 2012, 2013 UsbGPS4Droid Project
 	  
 	This file is part of UsbGPS4Droid.
 	
@@ -23,10 +23,11 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.broeuschmeul.android.gps.usb.provider"
-      android:versionCode="126"
+      android:versionCode="127"
       android:versionName="@string/versionName">
       
-	<uses-sdk android:targetSdkVersion="5" android:minSdkVersion="5" />
+    <uses-feature android:name="android.hardware.usb.host" />
+	<uses-sdk android:targetSdkVersion="16" android:minSdkVersion="12" />
     
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -40,6 +41,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" android:resource="@xml/device_filter" />
         </activity>
 
 <!--  
