@@ -1,3 +1,3 @@
 #APKs
 
-Download and install the aligned APK and make sure android mock location is enabled in settings.
+Download and install app-debug.apk and make sure android mock location is enabled in settings.
