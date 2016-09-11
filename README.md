@@ -2,7 +2,7 @@
 
 Builds
 ------
-Download the latest APKs from /app/build/outputs/apk/
+Download the latest APKs from [here](/app/build/outputs/apk/)
 
 
 Usb GPS for Android, this is my own implimentation of USB GPS, updated to work properly on android 5.0.
