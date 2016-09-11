@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
+	Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
+	Copyright (C) 2011, 2012 UsbGPS4Droid Project
+	  
+	This file is part of UsbGPS4Droid.
+	
+    UsbGPS4Droid is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UsbGPS4Droid is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UsbGPS4Droid.  If not, see http://www.gnu.org/licenses/
+    
+-->
+
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	>
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:orientation="vertical"
+	>
+		<LinearLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+		>
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				style="@style/about_text"
+				android:text="@string/about_version"
+			/>
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				style="@style/about_text"
+				android:text="@string/versionName"
+			/>
+		</LinearLayout>
+<!-- 		
+		<TextView
+			style="@style/about_text"
+			android:text="@string/about_copyright_1"
+		/>
+		<TextView
+			style="@style/about_text"
+			android:text="@string/about_copyright_2"
+		/>
+-->
+		<TextView
+			style="@style/about_text"
+			android:text="@string/about_app_desc"
+		/>
+		<TextView
+			android:id="@+id/about_license"
+			style="@style/about_text"
+ 			android:text="@string/about_license"
+ 			android:autoLink="none"
+		/>
+		<TextView
+			android:id="@+id/about_sources"
+			style="@style/about_text"
+			android:text="@string/about_sources"
+		/>
+	</LinearLayout>
+</ScrollView>
