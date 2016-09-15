@@ -117,7 +117,7 @@ public class NmeaParser {
 				}
 			}
 		} catch (SecurityException e){
-			Log.e(LOG_TAG, "Error while enabling Mock Mocations Provider", e);
+			Log.e(LOG_TAG, "Error while enabling Mock Locations Provider", e);
 			disableMockLocationProvider();
 		}
 	}
@@ -186,6 +186,7 @@ public class NmeaParser {
 		fixTime = null;
 		hasGGA = false;
 		hasRMC=false;
+		hasRMC=false;
 		if (fix != null){
 			Log.v(LOG_TAG, "New Fix: "+System.currentTimeMillis()+" "+fix);
 			if (lm != null && mockGpsEnabled){
@@ -223,7 +224,7 @@ public class NmeaParser {
 	public String parseNmeaSentence(String gpsSentence) throws SecurityException {
 		String nmeaSentence = null;
 		Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+gpsSentence);
-		Pattern xx = Pattern.compile("\\$([^*$]*)(?:\\*([0-9A-F][0-9A-F]))?\r\n");
+		Pattern xx = Pattern.compile("\\$([^*$]*)(?:\\*([0-9A-F][0-9A-F]))?\r\n"); // Check that status is in a readable format
 		Matcher m = xx.matcher(gpsSentence);
 		if (m.matches()){
 			nmeaSentence = m.group(0);
@@ -559,6 +560,7 @@ public class NmeaParser {
 		} catch (ParseException e) {
 			Log.e(LOG_TAG, "Error while parsing NMEA time", e);
 		}
+		Log.d(LOG_TAG, "Timestamp from gps = " + String.valueOf(timestamp) + " System clock says "+ SystemClock.currentThreadTimeMillis());
 		return timestamp;
 	}
 	public byte computeChecksum(String s){
