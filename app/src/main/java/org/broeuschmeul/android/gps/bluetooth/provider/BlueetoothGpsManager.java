@@ -766,7 +766,7 @@ public class BlueetoothGpsManager {
 					Log.e(LOG_TAG, "current device: " + testDevice.getProductId() + " " + testDevice.getVendorId());
 
 					if(testDevice.getVendorId() == GPSVendorId & testDevice.getProductId() == GPSProductId){
-						Log.e(LOG_TAG, "Found correct device");
+						Log.v(LOG_TAG, "Found correct device");
 						//					try {
 						//						gpsSocket = gpsDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 						//						gpsDev = new File(gpsDeviceAddress);

@@ -4,29 +4,29 @@
     api-level="22"
     density="xhdpi"
     format="7"
-    timestamp="535339065634878"
-    token="8452390095812907794" >
+    timestamp="374674068898491"
+    token="-571144461590802846" >
 
     <task
         name="javac"
-        duration="468" />
+        duration="667" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="63" />
+        duration="111" />
     <task
         name="verifier"
-        duration="18" />
+        duration="26" />
 
     <artifact
-        location="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid1\app\build\outputs\apk\app-debug.apk"
+        location="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\outputs\apk\app-debug.apk"
         type="MAIN" />
 
-    <build timestamp="535339065634878" >
+    <build timestamp="374674068898491" >
         <artifact
-            location="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid1\app\build\outputs\apk\app-debug.apk"
+            location="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\outputs\apk\app-debug.apk"
             type="MAIN" />
     </build>
 
