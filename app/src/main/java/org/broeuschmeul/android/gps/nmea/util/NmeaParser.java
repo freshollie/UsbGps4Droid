@@ -560,7 +560,7 @@ public class NmeaParser {
 		} catch (ParseException e) {
 			Log.e(LOG_TAG, "Error while parsing NMEA time", e);
 		}
-		Log.d(LOG_TAG, "Timestamp from gps = " + String.valueOf(timestamp) + " System clock says "+ SystemClock.currentThreadTimeMillis());
+		Log.d(LOG_TAG, "Timestamp from gps = " + String.valueOf(timestamp) + " System clock says "+ System.currentTimeMillis());
 		return timestamp;
 	}
 	public byte computeChecksum(String s){
