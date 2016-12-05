@@ -96,9 +96,9 @@
     <string name="msg_gps_provider_stopped_by_problem">"Cannot start: %s"</string>
     <string name="msg_two_many_connection_problems">Too many connection problems</string>
     <string name="msg_gps_provider_disabled">GPS is disabled</string>
-    <!--     <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string> -->
-    <!--     <string name="msg_bluetooth_disabled">Bluetooth is disabled</string> -->
-    <string name="msg_mock_location_disabled">Mock locations disabled</string>
+
+    <string name="msg_mock_location_disabled">Mock locations disabled in settings</string>
+    <string name="msg_mock_location_disabled_full">Mock locations disabled in settings\nClick here to enable mock locations</string>
     <string name="msg_gps_unavaible">Cannot connect to USB GPS</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
     <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
@@ -119,8 +119,8 @@
     <string name="about_copyright_1">Copyright (C) 2010-2013 Herbert von Broeuschmeul</string>
     <string name="about_copyright_2">Copyright (C) 2010-2013 BluetoothGPS4Droid Project</string>
     <string name="about_copyright_3">Copyright (C) 2011-2013 UsbGPS4Droid Project</string>
-    <string name="about_app_desc">Usb GPS for Android is an application 
-    	for using an external usb GPS on Android devices.
+    <string name="about_app_desc">Usb GPS for Android is an application for using an external usb GPS on Android devices. Originally written by Herbert, and updated by
+        Oliver Bell to work on devices up to Marshmallow
     </string>
     <string name="about_license">It is open source software 
     	distributed free of charge under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html"><b>GNU General Public License</b></a>.

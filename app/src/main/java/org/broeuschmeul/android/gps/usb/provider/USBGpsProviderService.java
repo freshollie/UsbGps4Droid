@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2016 Oliver Bell
  * Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
  * Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
  * Copyright (C) 2011, 2012 UsbGPS4Droid Project
@@ -22,7 +23,7 @@
 /**
  *
  */
-package org.broeuschmeul.android.gps.bluetooth.provider;
+package org.broeuschmeul.android.gps.usb.provider;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,13 +33,10 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
-import org.broeuschmeul.android.gps.usb.provider.R;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-//import android.bluetooth.BluetoothAdapter;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -133,7 +131,7 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
                 if (enabled) {
                     gpsManager.enableMockLocationProvider(mockProvider);
 
-                    PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, USBGpsSettingsFragment.class), PendingIntent.FLAG_CANCEL_CURRENT);
+                    PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, USBGpsActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
                     Notification notification = new NotificationCompat.Builder(this)
                             .setContentIntent(myPendingIntent)

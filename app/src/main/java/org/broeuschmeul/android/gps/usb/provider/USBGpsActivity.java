@@ -1,8 +1,17 @@
-package org.broeuschmeul.android.gps.bluetooth.provider;
+package org.broeuschmeul.android.gps.usb.provider;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+/**
+ * Preferences activity was deprecated and so now we make a preferences
+ * fragment and make an activity to display that fragment.
+ *
+ * All this activity does is display the fragment, the fragment handles
+ * everything else.
+ *
+ * Created by Oliver Bell 5/12/15
+ */
 
 public class USBGpsActivity extends Activity {
     @Override
