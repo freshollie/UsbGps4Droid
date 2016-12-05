@@ -1,6 +1,6 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:21:1-78:12
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:21:1-73:12
 	package
 		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:22:5-56
 		INJECTED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml
@@ -15,8 +15,92 @@ ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\U
 		INJECTED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml
 	xmlns:android
 		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:21:11-69
+uses-feature#android.hardware.usb.host
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:26:5-62
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:26:19-59
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:28:5-79
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:28:22-76
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:29:5-81
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:29:22-78
+uses-permission#android.permission.ACCESS_MOCK_LOCATION
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:30:5-79
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:30:22-76
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:32:5-75
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:32:22-72
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:33:5-80
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:33:22-77
+application
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:35:5-71:19
+MERGED from [com.android.support:appcompat-v7:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.4.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:animated-vector-drawable:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\23.4.0\AndroidManifest.xml:7:5-20
+MERGED from [com.android.support:support-vector-drawable:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\23.4.0\AndroidManifest.xml:7:5-20
+MERGED from [com.android.support:support-v4:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.4.0\AndroidManifest.xml:22:5-20
+	android:label
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:38:9-41
+	android:allowClearUserData
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:36:9-42
+	android:icon
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:37:9-53
+activity#org.broeuschmeul.android.gps.usb.provider.USBGpsActivity
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:39:9-48:20
+	android:label
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:41:13-45
+	android:launchMode
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:42:13-44
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:40:13-43
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:43:13-47:29
+action#android.intent.action.MAIN
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:44:17-69
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:44:25-66
+category#android.intent.category.LAUNCHER
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:46:17-77
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:46:27-74
+service#org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:51:9-69:19
+	android:enabled
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:53:13-35
+	android:exported
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:54:13-36
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:52:13-50
+intent-filter#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER+org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER+org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING+org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:55:13-68:29
+action#org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:56:17-58:26
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:56:25-121
+category#android.intent.category.DEFAULT
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:57:21-80
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:57:31-77
+action#org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:59:17-61:26
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:59:25-120
+action#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:62:17-64:26
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:62:25-119
+action#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER
+ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:65:17-67:26
+	android:name
+		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:65:25-118
 uses-sdk
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:26:5-28:41
+INJECTED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 MERGED from [com.android.support:appcompat-v7:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.4.0\AndroidManifest.xml:21:5-23:78
 MERGED from [com.android.support:animated-vector-drawable:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\23.4.0\AndroidManifest.xml:5:5-44
 MERGED from [com.android.support:support-vector-drawable:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\23.4.0\AndroidManifest.xml:5:5-43
@@ -24,98 +108,8 @@ MERGED from [com.android.support:support-v4:23.4.0] C:\Users\Freshollie\Google D
 	tools:overrideLibrary
 		ADDED from [com.android.support:appcompat-v7:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.4.0\AndroidManifest.xml:23:9-75
 	android:targetSdkVersion
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:28:9-38
 		INJECTED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml
 		INJECTED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:27:9-35
 		INJECTED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml
 		INJECTED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml
-uses-feature#android.hardware.usb.host
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:30:5-62
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:30:19-59
-uses-permission#android.permission.ACCESS_FINE_LOCATION
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:32:5-79
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:32:22-76
-uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:33:5-81
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:33:22-78
-uses-permission#android.permission.ACCESS_MOCK_LOCATION
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:34:5-79
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:34:22-76
-android:uses-permission#android.permission.READ_PHONE_STATE
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:36:5-83
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:36:30-80
-android:uses-permission#android.permission.READ_EXTERNAL_STORAGE
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:37:5-88
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:37:30-85
-application
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:39:5-76:19
-MERGED from [com.android.support:appcompat-v7:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.4.0\AndroidManifest.xml:25:5-20
-MERGED from [com.android.support:animated-vector-drawable:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\23.4.0\AndroidManifest.xml:7:5-20
-MERGED from [com.android.support:support-vector-drawable:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\23.4.0\AndroidManifest.xml:7:5-20
-MERGED from [com.android.support:support-v4:23.4.0] C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.4.0\AndroidManifest.xml:22:5-20
-	android:label
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:42:9-41
-	android:allowClearUserData
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:40:9-42
-	android:icon
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:41:9-53
-activity#org.broeuschmeul.android.gps.bluetooth.provider.USBGpsSettingsFragment
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:43:9-52:20
-	android:label
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:45:13-45
-	android:launchMode
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:46:13-44
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:44:13-98
-intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:47:13-51:29
-action#android.intent.action.MAIN
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:48:17-69
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:48:25-66
-category#android.intent.category.LAUNCHER
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:50:17-77
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:50:27-74
-service#org.broeuschmeul.android.gps.bluetooth.provider.BluetoothGpsProviderService
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:55:9-73:19
-	android:enabled
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:57:13-35
-	android:exported
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:58:13-36
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:56:13-103
-intent-filter#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER+org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER+org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING+org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:59:13-72:29
-action#org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:60:17-62:26
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:60:25-121
-category#android.intent.category.DEFAULT
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:61:21-80
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:61:31-77
-action#org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:63:17-65:26
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:63:25-120
-action#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:66:17-68:26
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:66:25-119
-action#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:69:17-71:26
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:69:25-118
-activity#org.broeuschmeul.android.gps.bluetooth.provider.USBGpsActivity
-ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:75:9-108
-	android:name
-		ADDED from C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\src\main\AndroidManifest.xml:75:19-96

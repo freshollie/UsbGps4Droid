@@ -8,6 +8,6 @@ public final class BuildConfig {
   public static final String APPLICATION_ID = "org.broeuschmeul.android.gps.usb.provider";
   public static final String BUILD_TYPE = "debug";
   public static final String FLAVOR = "";
-  public static final int VERSION_CODE = 127;
+  public static final int VERSION_CODE = 150;
   public static final String VERSION_NAME = "@string/versionName";
 }
