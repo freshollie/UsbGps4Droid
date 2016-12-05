@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 	Copyright (C) 2010, 2011, 2012, 2013 Herbert von Broeuschmeul
 	Copyright (C) 2010, 2011, 2012, 2013 BluetoothGPS4Droid Project
 	Copyright (C) 2011, 2012, 2013 UsbGPS4Droid Project
@@ -23,7 +22,7 @@
 
 <resources>
     <string name="app_name">UsbGps</string>
-    
+
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Usb GPS is off</string>
     <string name="pref_start_gps_summary_on">Usb GPS is on</string>
@@ -49,11 +48,11 @@
     <string name="pref_trackfile_directory_title">Trackfiles directory</string>
     <string name="pref_trackfile_directory_summary">Select the directory for the track files</string>
     <string name="pref_gps_device_title">Choose Usb GPS</string>
-    <string name="pref_gps_device_summary">"Current device: %s"</string>    
+    <string name="pref_gps_device_summary">"Current device: %s"</string>
     <string name="pref_gps_device_speed_title">Choose GPS device speed</string>
-    <string name="pref_gps_device_speed_summary">"Current speed: %s"</string>    
+    <string name="pref_gps_device_speed_summary">"Current speed: %s"</string>
     <string name="pref_about_title">About</string>
-    <string name="pref_about_summary"></string>    
+    <string name="pref_about_summary"></string>
 
     <string name="pref_sirf_gps_title">SiRF GPS</string>
     <string name="pref_sirf_gps_summary_on">"Use SiRF Options"</string>
@@ -97,8 +96,8 @@
     <string name="msg_gps_provider_stopped_by_problem">"Cannot start: %s"</string>
     <string name="msg_two_many_connection_problems">Too many connection problems</string>
     <string name="msg_gps_provider_disabled">GPS is disabled</string>
-<!--     <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string> -->
-<!--     <string name="msg_bluetooth_disabled">Bluetooth is disabled</string> -->
+    <!--     <string name="msg_bluetooth_unsupported">Bluetooth is not supported</string> -->
+    <!--     <string name="msg_bluetooth_disabled">Bluetooth is disabled</string> -->
     <string name="msg_mock_location_disabled">Mock locations disabled</string>
     <string name="msg_gps_unavaible">Cannot connect to USB GPS</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
@@ -109,12 +108,12 @@
     <string name="foreground_nmea_recording_started_notification">UsbGps NMEA recording service started</string>
     <string name="connection_problem_notification_title">UsbGps: connection problem</string>
     <plurals name="connection_problem_notification">
-    	<item quantity="one">Will retry one more time before closing</item>
-    	<item quantity="other">Will retry %d more times before closing</item>
+        <item quantity="one">Will retry one more time before closing</item>
+        <item quantity="other">Will retry %d more times before closing</item>
     </plurals>
     <string name="service_closed_because_connection_problem_notification_title">UsbGps stopped</string>
     <string name="service_closed_because_connection_problem_notification">"Reason: %s"</string>
-    
+
     <string name="about_title">About</string>
     <string name="about_version">UsbGPS4Droid version</string>
     <string name="about_copyright_1">Copyright (C) 2010-2013 Herbert von Broeuschmeul</string>
@@ -127,17 +126,17 @@
     	distributed free of charge under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html"><b>GNU General Public License</b></a>.
     </string>
     <string name="about_sources">The source code is available from Git repository on the project website: 
-        https://github.com/HvB/UsbGps4Droid
+        https://github.com/freshollie/UsbGps4Droid
     </string>
     <string-array name="pref_gps_device_speed_values">
-        <item >auto</item>
-        <item >1200</item>
-        <item >2400</item>
-        <item >4800</item>
-        <item >9600</item>
-        <item >19200</item>
-        <item >38400</item>
-        <item >57600</item>
-        <item >115200</item>
+        <item>auto</item>
+        <item>1200</item>
+        <item>2400</item>
+        <item>4800</item>
+        <item>9600</item>
+        <item>19200</item>
+        <item>38400</item>
+        <item>57600</item>
+        <item>115200</item>
     </string-array>
 </resources>

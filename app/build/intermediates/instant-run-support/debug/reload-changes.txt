@@ -1,3 +1,0 @@
-CHANGED,C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\org\broeuschmeul\android\gps\bluetooth\provider\BlueetoothGpsManager$override.class
-CHANGED,C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\org\broeuschmeul\android\gps\nmea\util\NmeaParser$override.class
-CHANGED,C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\transforms\instantRun\debug\folders\4000\5\enhanced\com\android\tools\fd\runtime\AppPatchesLoaderImpl.class

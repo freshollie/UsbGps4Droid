@@ -1,3 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
 
+    <item
+        is-multidex="false"
+        jar="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.0\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.0"
+        sha1="8413c27b45b7fe61dca4a98159f65e2cee215f5a">
+        <dex dex="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\pre-dexed\debug\com.android.support-support-v4-23.0.0_2fbb88862d01a68999d83c6ec48b05b6f6a02e08.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Freshollie\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.0.0\support-annotations-23.0.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.0"
+        sha1="990e7f98a7bad86a40b1f0bcfeb039023afd0839">
+        <dex dex="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\pre-dexed\debug\support-annotations-23.0.0_ac11f88ae6ef0303fcc72126ccfea4ad00af0950.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.0\jars\libs\internal_impl-23.0.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.0"
+        sha1="8bd336eeae661e8311330284897ee07f8ebaa297">
+        <dex dex="C:\Users\Freshollie\Google Drive\Personal\Programming\In car tablet\UsbGps4Droid\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.0_b489073d1b5d74c9746ad824bd7a4e10553dae87.jar" />
+    </item>
+
+</items>
