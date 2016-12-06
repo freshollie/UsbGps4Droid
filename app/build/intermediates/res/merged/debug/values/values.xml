@@ -12,8 +12,8 @@
         <item>115200</item>
     </string-array>
     <plurals name="connection_problem_notification">
-    	<item quantity="one">Will retry one more time before closing</item>
-    	<item quantity="other">Will retry %d more times before closing</item>
+        <item quantity="one">Will retry one more time before closing</item>
+        <item quantity="other">Will retry %d more times before closing</item>
     </plurals>
     <string name="about_app_desc">Usb GPS for Android is an application 
     	for using an external usb GPS on Android devices.
@@ -171,10 +171,10 @@
     <string name="sirf_software_version">8400</string>
     <string name="versionName">beta 1</string>
     <style name="about_text">
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:padding">4sp</item>
-		<item name="android:textAppearance">?android:attr/textAppearance</item>
-		<item name="android:autoLink">web</item>
-	</style>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">4sp</item>
+        <item name="android:textAppearance">?android:attr/textAppearance</item>
+        <item name="android:autoLink">web</item>
+    </style>
 </resources>
