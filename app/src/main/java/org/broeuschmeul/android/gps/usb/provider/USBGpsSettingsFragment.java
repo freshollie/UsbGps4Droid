@@ -262,12 +262,12 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         if (pref.isChecked() != sharedPref.getBoolean(key, false)) {
             pref.setChecked(sharedPref.getBoolean(key, false));
         } else {
-  
+
             Intent configIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
             configIntent.setAction(USBGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
             configIntent.putExtra(key, pref.isChecked());
             getActivity().startService(configIntent);
-            
+
         }
     }
 }
