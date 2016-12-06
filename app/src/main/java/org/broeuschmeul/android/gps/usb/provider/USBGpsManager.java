@@ -686,7 +686,6 @@ public class USBGpsManager {
         parser.setLocationManager(locationManager);
 
 
-
         Intent stopIntent = new Intent(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
 
         PendingIntent stopPendingIntent = PendingIntent.getService(appContext, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);

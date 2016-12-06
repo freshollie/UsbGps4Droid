@@ -6,10 +6,10 @@ import android.os.Bundle;
 /**
  * Preferences activity was deprecated and so now we make a preferences
  * fragment and make an activity to display that fragment.
- *
+ * <p>
  * All this activity does is display the fragment, the fragment handles
  * everything else.
- *
+ * <p>
  * Created by Oliver Bell 5/12/15
  */
 

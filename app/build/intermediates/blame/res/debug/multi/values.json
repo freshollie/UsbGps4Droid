@@ -2524,14 +2524,7 @@
                     "endOffset": 31657
                 },
                 "from": {
-                    "file": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\values\\strings.xml",
-                    "position": {
-                        "startLine": 99,
-                        "startColumn": 4,
-                        "startOffset": 6696,
-                        "endColumn": 90,
-                        "endOffset": 6782
-                    }
+                    "file": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\values\\strings.xml"
                 }
             },
             {
@@ -2543,14 +2536,7 @@
                     "endOffset": 31790
                 },
                 "from": {
-                    "file": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\values\\strings.xml",
-                    "position": {
-                        "startLine": 100,
-                        "startColumn": 4,
-                        "startOffset": 6788,
-                        "endColumn": 132,
-                        "endOffset": 6916
-                    }
+                    "file": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\values\\strings.xml"
                 }
             },
             {
@@ -7836,11 +7822,19 @@
                     "startColumn": 4,
                     "startOffset": 126923,
                     "endLine": 1687,
-                    "endColumn": 9,
-                    "endOffset": 127229
+                    "endColumn": 12,
+                    "endOffset": 127262
                 },
                 "from": {
-                    "file": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\values\\about_style.xml"
+                    "file": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\values\\about_style.xml",
+                    "position": {
+                        "startLine": 24,
+                        "startColumn": 4,
+                        "startOffset": 1007,
+                        "endLine": 30,
+                        "endColumn": 12,
+                        "endOffset": 1352
+                    }
                 }
             }
         ]

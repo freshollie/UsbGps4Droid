@@ -1680,10 +1680,10 @@
     <style name="Widget.AppCompat.Toolbar" parent="Base.Widget.AppCompat.Toolbar"/>
     <style name="Widget.AppCompat.Toolbar.Button.Navigation" parent="Base.Widget.AppCompat.Toolbar.Button.Navigation"/>
     <style name="about_text">
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:padding">4sp</item>
-		<item name="android:textAppearance">?android:attr/textAppearance</item>
-		<item name="android:autoLink">web</item>
-	</style>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">4sp</item>
+        <item name="android:textAppearance">?android:attr/textAppearance</item>
+        <item name="android:autoLink">web</item>
+    </style>
 </resources>
