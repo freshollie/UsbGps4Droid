@@ -4,20 +4,20 @@
         "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.4.0\\res\\layout\\notification_template_media.xml"
     },
     {
-        "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_screen_toolbar.xml",
-        "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.4.0\\res\\layout\\abc_screen_toolbar.xml"
-    },
-    {
         "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_bar_title_item.xml",
         "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.4.0\\res\\layout\\abc_action_bar_title_item.xml"
     },
     {
-        "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_mode_bar.xml",
-        "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.4.0\\res\\layout\\abc_action_mode_bar.xml"
+        "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_screen_toolbar.xml",
+        "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.4.0\\res\\layout\\abc_screen_toolbar.xml"
     },
     {
         "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_popup_menu_item_layout.xml",
         "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.4.0\\res\\layout\\abc_popup_menu_item_layout.xml"
+    },
+    {
+        "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_mode_bar.xml",
+        "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\23.4.0\\res\\layout\\abc_action_mode_bar.xml"
     },
     {
         "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_activity_chooser_view.xml",

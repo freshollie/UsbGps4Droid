@@ -1,4 +1,4 @@
-#Tue Dec 06 01:48:41 GMT 2016
+#Tue Dec 06 02:24:16 GMT 2016
 base.0=C\:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\1f\\main
 renamed.0=classes.dex
 file.0=C\:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\1f\\main\\classes.dex
