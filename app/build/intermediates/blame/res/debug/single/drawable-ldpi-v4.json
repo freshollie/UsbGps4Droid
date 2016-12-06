@@ -1,11 +1,11 @@
 [
     {
-        "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\drawable-ldpi-v4\\ic_stat_notify.png",
-        "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\drawable-ldpi\\ic_stat_notify.png"
-    },
-    {
         "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\drawable-ldpi-v4\\ic_launcher_bluegps.png",
         "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\drawable-ldpi\\ic_launcher_bluegps.png"
+    },
+    {
+        "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\drawable-ldpi-v4\\ic_stat_notify.png",
+        "source": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\src\\main\\res\\drawable-ldpi\\ic_stat_notify.png"
     },
     {
         "merged": "C:\\Users\\Freshollie\\Google Drive\\Personal\\Programming\\In car tablet\\UsbGps4Droid\\app\\build\\intermediates\\res\\merged\\debug\\drawable-ldpi-v4\\gplv3_icon.png",
