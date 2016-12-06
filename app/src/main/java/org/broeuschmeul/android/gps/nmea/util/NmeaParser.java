@@ -186,7 +186,10 @@ public class NmeaParser {
         fixTime = null;
         hasGGA = false;
         hasRMC = false;
+<<<<<<< HEAD
         hasRMC = false;
+=======
+>>>>>>> marshmallow-development
         if (fix != null) {
             Log.v(LOG_TAG, "New Fix: " + System.currentTimeMillis() + " " + fix);
             if (lm != null && mockGpsEnabled) {
@@ -195,9 +198,17 @@ public class NmeaParser {
                     lm.setTestProviderLocation(mockLocationProvider, fix);
                 } catch (IllegalArgumentException e) {
                     Log.d(LOG_TAG, "Tried to notify a fix that was incomplete");
+<<<<<<< HEAD
                     Log.d(LOG_TAG, "Acccuracy = " + Float.toString(fix.getAccuracy()));
                 }
                 Log.v(LOG_TAG, "New Fix notified to Location Manager: " + mockLocationProvider);
+=======
+                    Log.d(LOG_TAG, "Accuracy = " + Float.toString(fix.getAccuracy()));
+                }
+                Log.v(LOG_TAG, "New Fix notified to Location Manager: " + mockLocationProvider);
+            } else {
+                Log.v(LOG_TAG, "Fix could not be notified, no locationManager");
+>>>>>>> marshmallow-development
             }
             this.fix = null;
         }
