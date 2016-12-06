@@ -20,7 +20,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.broeuschmeul.android.gps.bluetooth.provider;
 
@@ -53,262 +53,264 @@ import android.widget.Toast;
 
 /**
  * A Service used to replace Android internal GPS with a bluetooth GPS and/or write GPS NMEA data in a File.
- * 
- * @author Herbert von Broeuschmeul
  *
+ * @author Herbert von Broeuschmeul
  */
 public class BluetoothGpsProviderService extends Service implements NmeaListener, LocationListener {
 
-	public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING";
-	public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
-	public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER";
-	public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER";
-	public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
-	public static final String PREF_START_GPS_PROVIDER = "startGps";
-	public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
-	public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
-	public static final String PREF_FORCE_ENABLE_PROVIDER = "forceEnableProvider";
-	public static final String PREF_MOCK_GPS_NAME = "mockGpsName";
-	public static final String PREF_CONNECTION_RETRIES = "connectionRetries";
-	public static final String PREF_TRACK_RECORDING = "trackRecording";
-	public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
-	public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
-	public static final String PREF_GPS_DEVICE = "usbDevice";
-	public static final String PREF_GPS_DEVICE_SPEED = "gpsDeviceSpeed";
-	public static final String PREF_ABOUT = "about";
-	
-	/**
-	 * Tag used for log messages
-	 */
-	private static final String LOG_TAG = "UsbGPS";
+    public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING";
+    public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
+    public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER";
+    public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER";
+    public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
+    public static final String PREF_START_GPS_PROVIDER = "startGps";
+    public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
+    public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
+    public static final String PREF_FORCE_ENABLE_PROVIDER = "forceEnableProvider";
+    public static final String PREF_MOCK_GPS_NAME = "mockGpsName";
+    public static final String PREF_CONNECTION_RETRIES = "connectionRetries";
+    public static final String PREF_TRACK_RECORDING = "trackRecording";
+    public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
+    public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
+    public static final String PREF_GPS_DEVICE = "usbDevice";
+    public static final String PREF_GPS_DEVICE_SPEED = "gpsDeviceSpeed";
+    public static final String PREF_ABOUT = "about";
 
-	public static final String PREF_SIRF_GPS = "sirfGps";
-	public static final String PREF_SIRF_ENABLE_GGA = "enableGGA";
-	public static final String PREF_SIRF_ENABLE_RMC = "enableRMC";
-	public static final String PREF_SIRF_ENABLE_GLL = "enableGLL";
-	public static final String PREF_SIRF_ENABLE_VTG = "enableVTG";
-	public static final String PREF_SIRF_ENABLE_GSA = "enableGSA";
-	public static final String PREF_SIRF_ENABLE_GSV = "enableGSV";
-	public static final String PREF_SIRF_ENABLE_ZDA = "enableZDA";
-	public static final String PREF_SIRF_ENABLE_SBAS = "enableSBAS";
-	public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
-	public static final String PREF_SIRF_ENABLE_STATIC_NAVIGATION = "enableStaticNavigation";
+    /**
+     * Tag used for log messages
+     */
+    private static final String LOG_TAG = "UsbGPS";
 
-	private BlueetoothGpsManager gpsManager = null;
-	private PrintWriter writer;
-	private File trackFile;
-	private boolean preludeWritten = false;
-	private Toast toast ;
+    public static final String PREF_SIRF_GPS = "sirfGps";
+    public static final String PREF_SIRF_ENABLE_GGA = "enableGGA";
+    public static final String PREF_SIRF_ENABLE_RMC = "enableRMC";
+    public static final String PREF_SIRF_ENABLE_GLL = "enableGLL";
+    public static final String PREF_SIRF_ENABLE_VTG = "enableVTG";
+    public static final String PREF_SIRF_ENABLE_GSA = "enableGSA";
+    public static final String PREF_SIRF_ENABLE_GSV = "enableGSV";
+    public static final String PREF_SIRF_ENABLE_ZDA = "enableZDA";
+    public static final String PREF_SIRF_ENABLE_SBAS = "enableSBAS";
+    public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
+    public static final String PREF_SIRF_ENABLE_STATIC_NAVIGATION = "enableStaticNavigation";
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-	    toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);		
-	}
+    private BlueetoothGpsManager gpsManager = null;
+    private PrintWriter writer;
+    private File trackFile;
+    private boolean preludeWritten = false;
+    private Toast toast;
 
-	@Override
-	public void onStart(Intent intent, int startId) {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
 //		super.onStart(intent, startId);
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		SharedPreferences.Editor edit = sharedPreferences.edit();
-		String deviceAddress = sharedPreferences.getString(PREF_GPS_DEVICE, "");
-		int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
-		if (Config.LOGD){
-			Log.d(LOG_TAG, "prefs device addr: "+deviceAddress);
-		}
-		if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())){
-			if (gpsManager == null){
-				if (true /*|| BluetoothAdapter.checkBluetoothAddress(deviceAddress)*/){
-					String mockProvider = LocationManager.GPS_PROVIDER;
-					if (! sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)){
-						mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
-					}
-					gpsManager = new BlueetoothGpsManager(this, deviceAddress, maxConRetries);
-					boolean enabled = gpsManager.enable();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        String deviceAddress = sharedPreferences.getString(PREF_GPS_DEVICE, "");
+        int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
+        if (Config.LOGD) {
+            Log.d(LOG_TAG, "prefs device addr: " + deviceAddress);
+        }
+        if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())) {
+            if (gpsManager == null) {
+                if (true /*|| BluetoothAdapter.checkBluetoothAddress(deviceAddress)*/) {
+                    String mockProvider = LocationManager.GPS_PROVIDER;
+                    if (!sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)) {
+                        mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+                    }
+                    gpsManager = new BlueetoothGpsManager(this, deviceAddress, maxConRetries);
+                    boolean enabled = gpsManager.enable();
 //					Bundle extras = intent.getExtras();
-					if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled){
-						edit.putBoolean(PREF_START_GPS_PROVIDER,enabled);
-						edit.commit();
-					}
-					if (enabled) {
-						gpsManager.enableMockLocationProvider(mockProvider);
-						Notification notification = new Notification(R.drawable.ic_stat_notify, this.getString(R.string.foreground_gps_provider_started_notification),  System.currentTimeMillis());
-						Intent myIntent = new Intent(this, BluetoothGpsActivity.class);
-						PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-						notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_gps_provider_started_notification), myPendingIntent);
-						startForeground(R.string.foreground_gps_provider_started_notification, notification);
+                    if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled) {
+                        edit.putBoolean(PREF_START_GPS_PROVIDER, enabled);
+                        edit.commit();
+                    }
+                    if (enabled) {
+                        gpsManager.enableMockLocationProvider(mockProvider);
+                        Notification notification = new Notification(R.drawable.ic_stat_notify, this.getString(R.string.foreground_gps_provider_started_notification), System.currentTimeMillis());
+                        Intent myIntent = new Intent(this, BluetoothGpsActivity.class);
+                        PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                        notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_gps_provider_started_notification), myPendingIntent);
+                        startForeground(R.string.foreground_gps_provider_started_notification, notification);
 //						if (sharedPreferences.getBoolean(PREF_SIRF_GPS, false)){
 //							gpsManager.enableSirfConfig(sharedPreferences);
 //						}					
-						toast.setText(this.getString(R.string.msg_gps_provider_started));
-						//toast.show();
-					} else {
-						stopSelf();
-					}
-				} else {
-					stopSelf();
-				}
-			} else {
-				toast.setText(this.getString(R.string.msg_gps_provider_already_started));
-				//toast.show();
-			}
-		} else if (ACTION_START_TRACK_RECORDING.equals(intent.getAction())){
-			if (trackFile == null){
-				if (gpsManager != null){
-					beginTrack();
-					gpsManager.addNmeaListener(this);
-					if (! sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)){
-						edit.putBoolean(PREF_TRACK_RECORDING,true);
-						edit.commit();
-					}
-					toast.setText(this.getString(R.string.msg_nmea_recording_started));
-					//toast.show();
-				} else {
-					endTrack();
-					if ( sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)){
-						edit.putBoolean(PREF_TRACK_RECORDING,false);
-						edit.commit();
-					}
-				}
-			} else {
-				toast.setText(this.getString(R.string.msg_nmea_recording_already_started));
-				//toast.show();
-			}
-		} else if (ACTION_STOP_TRACK_RECORDING.equals(intent.getAction())){
-			if (gpsManager != null){
-				gpsManager.removeNmeaListener(this);
-				endTrack();
-				toast.setText(this.getString(R.string.msg_nmea_recording_stopped));
-				//toast.show();
-			}
-			if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)){
-				edit.putBoolean(PREF_TRACK_RECORDING,false);
-				edit.commit();
-			}
-		} else if (ACTION_STOP_GPS_PROVIDER.equals(intent.getAction())){
-			if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)){
-				edit.putBoolean(PREF_START_GPS_PROVIDER,false);
-				edit.commit();
-			}
-			stopSelf();
-		} else if (ACTION_CONFIGURE_SIRF_GPS.equals(intent.getAction())){
-			if (gpsManager != null){
-				Bundle extras = intent.getExtras();
-				gpsManager.enableSirfConfig(extras);
-			}
-		}
-	}
+                        toast.setText(this.getString(R.string.msg_gps_provider_started));
+                        //toast.show();
+                    } else {
+                        stopSelf();
+                    }
+                } else {
+                    stopSelf();
+                }
+            } else {
+                toast.setText(this.getString(R.string.msg_gps_provider_already_started));
+                //toast.show();
+            }
+        } else if (ACTION_START_TRACK_RECORDING.equals(intent.getAction())) {
+            if (trackFile == null) {
+                if (gpsManager != null) {
+                    beginTrack();
+                    gpsManager.addNmeaListener(this);
+                    if (!sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)) {
+                        edit.putBoolean(PREF_TRACK_RECORDING, true);
+                        edit.commit();
+                    }
+                    toast.setText(this.getString(R.string.msg_nmea_recording_started));
+                    //toast.show();
+                } else {
+                    endTrack();
+                    if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
+                        edit.putBoolean(PREF_TRACK_RECORDING, false);
+                        edit.commit();
+                    }
+                }
+            } else {
+                toast.setText(this.getString(R.string.msg_nmea_recording_already_started));
+                //toast.show();
+            }
+        } else if (ACTION_STOP_TRACK_RECORDING.equals(intent.getAction())) {
+            if (gpsManager != null) {
+                gpsManager.removeNmeaListener(this);
+                endTrack();
+                toast.setText(this.getString(R.string.msg_nmea_recording_stopped));
+                //toast.show();
+            }
+            if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
+                edit.putBoolean(PREF_TRACK_RECORDING, false);
+                edit.commit();
+            }
+        } else if (ACTION_STOP_GPS_PROVIDER.equals(intent.getAction())) {
+            if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)) {
+                edit.putBoolean(PREF_START_GPS_PROVIDER, false);
+                edit.commit();
+            }
+            stopSelf();
+        } else if (ACTION_CONFIGURE_SIRF_GPS.equals(intent.getAction())) {
+            if (gpsManager != null) {
+                Bundle extras = intent.getExtras();
+                gpsManager.enableSirfConfig(extras);
+            }
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
-	 */
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		onStart(intent, startId);
-		return Service.START_NOT_STICKY;
-	}
+    /* (non-Javadoc)
+     * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
+     */
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        onStart(intent, startId);
+        return Service.START_NOT_STICKY;
+    }
 
-	@Override
-	public void onDestroy() {
-		BlueetoothGpsManager manager = gpsManager;
-		gpsManager  = null;
-		if (manager != null){
-			if (manager.getDisableReason() != 0){
-				//toast.setText(getString(R.string.msg_gps_provider_stopped_by_problem, getString(manager.getDisableReason())));
-				//toast.show();
-			} else {
-				toast.setText(R.string.msg_gps_provider_stopped);
-				//toast.show();
-			}
-			manager.removeNmeaListener(this);
-			manager.disableMockLocationProvider();
-			manager.disable();
-		}
-		endTrack();
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		SharedPreferences.Editor edit = sharedPreferences.edit();
-		if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)){
-			edit.putBoolean(PREF_TRACK_RECORDING,false);
-			edit.commit();
-		}
-		if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)){
-			edit.putBoolean(PREF_START_GPS_PROVIDER,false);
-			edit.commit();
-		}
-		super.onDestroy();
-	}
+    @Override
+    public void onDestroy() {
+        BlueetoothGpsManager manager = gpsManager;
+        gpsManager = null;
+        if (manager != null) {
+            if (manager.getDisableReason() != 0) {
+                //toast.setText(getString(R.string.msg_gps_provider_stopped_by_problem, getString(manager.getDisableReason())));
+                //toast.show();
+            } else {
+                toast.setText(R.string.msg_gps_provider_stopped);
+                //toast.show();
+            }
+            manager.removeNmeaListener(this);
+            manager.disableMockLocationProvider();
+            manager.disable();
+        }
+        endTrack();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
+            edit.putBoolean(PREF_TRACK_RECORDING, false);
+            edit.commit();
+        }
+        if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)) {
+            edit.putBoolean(PREF_START_GPS_PROVIDER, false);
+            edit.commit();
+        }
+        super.onDestroy();
+    }
 
-	private void beginTrack(){
-		SimpleDateFormat fmt = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss'.nmea'");
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		String trackDirName = sharedPreferences.getString(PREF_TRACK_FILE_DIR, this.getString(R.string.defaultTrackFileDirectory));
-		String trackFilePrefix = sharedPreferences.getString(PREF_TRACK_FILE_PREFIX, this.getString(R.string.defaultTrackFilePrefix));
-		trackFile = new File(trackDirName,trackFilePrefix+fmt.format(new Date()));
-		Log.d(LOG_TAG, "Writing the prelude of the NMEA file: "+trackFile.getAbsolutePath());
-		File trackDir = trackFile.getParentFile();
-		try {
-			if ((! trackDir.mkdirs()) && (! trackDir.isDirectory())){
-				Log.e(LOG_TAG, "Error while creating parent dir of NMEA file: "+trackDir.getAbsolutePath());
-			}
-			writer = new PrintWriter(new BufferedWriter(new FileWriter(trackFile)));
-			preludeWritten = true;
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "Error while writing the prelude of the NMEA file: "+trackFile.getAbsolutePath(), e);
-			// there was an error while writing the prelude of the NMEA file, stopping the service...
-			stopSelf();
-		}
-	}
-	private void endTrack(){
-		if (trackFile != null && writer != null){
-			Log.d(LOG_TAG, "Ending the NMEA file: "+trackFile.getAbsolutePath());
-			preludeWritten = false;
-			writer.close();
-			trackFile = null;
-		}
-	}
-	private void addNMEAString(String data){
-		if (! preludeWritten){
-			beginTrack();
-		}
-		Log.v(LOG_TAG, "Adding data in the NMEA file: "+ data);
-		if (trackFile != null && writer != null){
-			writer.print(data);
-		}
-	}
-	/* (non-Javadoc)
-	 * @see android.app.Service#onBind(android.content.Intent)
-	 */
-	@Override
-	public IBinder onBind(Intent intent) {
-		if (Config.LOGD){
-			Log.d(LOG_TAG, "trying access IBinder");
-		}				
-		return null;
-	}
+    private void beginTrack() {
+        SimpleDateFormat fmt = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss'.nmea'");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String trackDirName = sharedPreferences.getString(PREF_TRACK_FILE_DIR, this.getString(R.string.defaultTrackFileDirectory));
+        String trackFilePrefix = sharedPreferences.getString(PREF_TRACK_FILE_PREFIX, this.getString(R.string.defaultTrackFilePrefix));
+        trackFile = new File(trackDirName, trackFilePrefix + fmt.format(new Date()));
+        Log.d(LOG_TAG, "Writing the prelude of the NMEA file: " + trackFile.getAbsolutePath());
+        File trackDir = trackFile.getParentFile();
+        try {
+            if ((!trackDir.mkdirs()) && (!trackDir.isDirectory())) {
+                Log.e(LOG_TAG, "Error while creating parent dir of NMEA file: " + trackDir.getAbsolutePath());
+            }
+            writer = new PrintWriter(new BufferedWriter(new FileWriter(trackFile)));
+            preludeWritten = true;
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error while writing the prelude of the NMEA file: " + trackFile.getAbsolutePath(), e);
+            // there was an error while writing the prelude of the NMEA file, stopping the service...
+            stopSelf();
+        }
+    }
 
-	@Override
-	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-	}
+    private void endTrack() {
+        if (trackFile != null && writer != null) {
+            Log.d(LOG_TAG, "Ending the NMEA file: " + trackFile.getAbsolutePath());
+            preludeWritten = false;
+            writer.close();
+            trackFile = null;
+        }
+    }
 
-	@Override
-	public void onProviderDisabled(String provider) {
-		Log.i(LOG_TAG, "The GPS has been disabled.....stopping the NMEA tracker service.");
-		stopSelf();
-	}
+    private void addNMEAString(String data) {
+        if (!preludeWritten) {
+            beginTrack();
+        }
+        Log.v(LOG_TAG, "Adding data in the NMEA file: " + data);
+        if (trackFile != null && writer != null) {
+            writer.print(data);
+        }
+    }
 
-	@Override
-	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-	}
+    /* (non-Javadoc)
+     * @see android.app.Service#onBind(android.content.Intent)
+     */
+    @Override
+    public IBinder onBind(Intent intent) {
+        if (Config.LOGD) {
+            Log.d(LOG_TAG, "trying access IBinder");
+        }
+        return null;
+    }
 
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub		
-	}
+    @Override
+    public void onLocationChanged(Location location) {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	public void onNmeaReceived(long timestamp, String data) {
-		addNMEAString(data);
-	}
+    @Override
+    public void onProviderDisabled(String provider) {
+        Log.i(LOG_TAG, "The GPS has been disabled.....stopping the NMEA tracker service.");
+        stopSelf();
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onNmeaReceived(long timestamp, String data) {
+        addNMEAString(data);
+    }
 }
