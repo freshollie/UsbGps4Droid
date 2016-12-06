@@ -17,11 +17,10 @@
 
     You should have received a copy of the GNU General Public License
     along with UsbGPS4Droid.  If not, see http://www.gnu.org/licenses/
-    
 -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.broeuschmeul.android.gps.usb.provider"
+<<<<<<< HEAD
     android:versionCode="127"
     android:versionName="@string/versionName">
 
@@ -29,30 +28,53 @@
     <uses-sdk
         android:minSdkVersion="17"
         android:targetSdkVersion="22" />
+=======
+    android:versionCode="150"
+    android:versionName="@string/versionName">
+
+    <uses-feature android:name="android.hardware.usb.host" />
+>>>>>>> marshmallow-development
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
 
+<<<<<<< HEAD
+=======
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+>>>>>>> marshmallow-development
     <application
         android:allowClearUserData="true"
         android:icon="@drawable/ic_launcher_bluegps"
         android:label="@string/app_name">
         <activity
+<<<<<<< HEAD
             android:name="org.broeuschmeul.android.gps.bluetooth.provider.BluetoothGpsActivity"
+=======
+            android:name=".USBGpsActivity"
+>>>>>>> marshmallow-development
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+<<<<<<< HEAD
         <!--
                 <service android:name=".BluetoothGpsProviderService" android:enabled="true" android:exported="true" android:process=":BluetoothGpsProviderService" >
         -->
         <service
             android:name="org.broeuschmeul.android.gps.bluetooth.provider.BluetoothGpsProviderService"
+=======
+        <!-- 		<service android:name=".BluetoothGpsProviderService" android:enabled="true" android:exported="true" android:process=":BluetoothGpsProviderService" > -->
+        <service
+            android:name=".USBGpsProviderService"
+>>>>>>> marshmallow-development
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -72,4 +94,5 @@
         </service>
 
     </application>
-</manifest> 
+
+</manifest>

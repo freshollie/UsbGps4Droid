@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2016 Oliver Bell
  * Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
  * Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
  * Copyright (C) 2011, 2012 UsbGPS4Droid Project
@@ -22,7 +23,7 @@
 /**
  *
  */
-package org.broeuschmeul.android.gps.bluetooth.provider;
+package org.broeuschmeul.android.gps.usb.provider;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,12 +33,10 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.broeuschmeul.android.gps.usb.provider.R;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-//import android.bluetooth.BluetoothAdapter;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -47,16 +46,16 @@ import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Config;
 import android.util.Log;
 import android.widget.Toast;
+import android.support.v4.app.NotificationCompat;
 
 /**
  * A Service used to replace Android internal GPS with a bluetooth GPS and/or write GPS NMEA data in a File.
  *
  * @author Herbert von Broeuschmeul
  */
-public class BluetoothGpsProviderService extends Service implements NmeaListener, LocationListener {
+public class USBGpsProviderService extends Service implements NmeaListener, LocationListener {
 
     public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING";
     public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
@@ -93,7 +92,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
     public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
     public static final String PREF_SIRF_ENABLE_STATIC_NAVIGATION = "enableStaticNavigation";
 
-    private BlueetoothGpsManager gpsManager = null;
+    private USBGpsManager gpsManager = null;
     private PrintWriter writer;
     private File trackFile;
     private boolean preludeWritten = false;
@@ -106,51 +105,56 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-//		super.onStart(intent, startId);
+    public int onStartCommand(Intent intent, int flags, int startId) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = sharedPreferences.edit();
         String deviceAddress = sharedPreferences.getString(PREF_GPS_DEVICE, "");
         int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
-        if (Config.LOGD) {
+
+        if (BuildConfig.DEBUG) {
             Log.d(LOG_TAG, "prefs device addr: " + deviceAddress);
         }
+
         if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())) {
             if (gpsManager == null) {
-                if (true /*|| BluetoothAdapter.checkBluetoothAddress(deviceAddress)*/) {
-                    String mockProvider = LocationManager.GPS_PROVIDER;
-                    if (!sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)) {
-                        mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
-                    }
-                    gpsManager = new BlueetoothGpsManager(this, deviceAddress, maxConRetries);
-                    boolean enabled = gpsManager.enable();
+                String mockProvider = LocationManager.GPS_PROVIDER;
+                if (!sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)) {
+                    mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+                }
+                gpsManager = new USBGpsManager(this, deviceAddress, maxConRetries);
+                boolean enabled = gpsManager.enable();
 //					Bundle extras = intent.getExtras();
-                    if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled) {
-                        edit.putBoolean(PREF_START_GPS_PROVIDER, enabled);
-                        edit.commit();
-                    }
-                    if (enabled) {
-                        gpsManager.enableMockLocationProvider(mockProvider);
-                        Notification notification = new Notification(R.drawable.ic_stat_notify, this.getString(R.string.foreground_gps_provider_started_notification), System.currentTimeMillis());
-                        Intent myIntent = new Intent(this, BluetoothGpsActivity.class);
-                        PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-                        notification.setLatestEventInfo(getApplicationContext(), this.getString(R.string.foreground_service_started_notification_title), this.getString(R.string.foreground_gps_provider_started_notification), myPendingIntent);
-                        startForeground(R.string.foreground_gps_provider_started_notification, notification);
-//						if (sharedPreferences.getBoolean(PREF_SIRF_GPS, false)){
-//							gpsManager.enableSirfConfig(sharedPreferences);
-//						}					
-                        toast.setText(this.getString(R.string.msg_gps_provider_started));
-                        //toast.show();
-                    } else {
-                        stopSelf();
-                    }
+                if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled) {
+                    edit.putBoolean(PREF_START_GPS_PROVIDER, enabled);
+                    edit.commit();
+                }
+                if (enabled) {
+                    gpsManager.enableMockLocationProvider(mockProvider);
+
+                    PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, USBGpsActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+
+                    Notification notification = new NotificationCompat.Builder(this)
+                            .setContentIntent(myPendingIntent)
+                            .setSmallIcon(R.drawable.ic_stat_notify)
+                            .setWhen(System.currentTimeMillis())
+                            .setAutoCancel(true)
+                            .setContentTitle(getString(R.string.foreground_service_started_notification_title))
+                            .setContentText(getString(R.string.foreground_gps_provider_started_notification))
+                            .build();
+
+                    startForeground(R.string.foreground_gps_provider_started_notification, notification);
+
+                    toast.setText(this.getString(R.string.msg_gps_provider_started));
+                    //toast.show();
                 } else {
                     stopSelf();
                 }
+
             } else {
                 toast.setText(this.getString(R.string.msg_gps_provider_already_started));
                 //toast.show();
             }
+
         } else if (ACTION_START_TRACK_RECORDING.equals(intent.getAction())) {
             if (trackFile == null) {
                 if (gpsManager != null) {
@@ -196,24 +200,16 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
                 gpsManager.enableSirfConfig(extras);
             }
         }
-    }
-
-    /* (non-Javadoc)
-     * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
-     */
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        onStart(intent, startId);
         return Service.START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        BlueetoothGpsManager manager = gpsManager;
+        USBGpsManager manager = gpsManager;
         gpsManager = null;
         if (manager != null) {
             if (manager.getDisableReason() != 0) {
-                //toast.setText(getString(R.string.msg_gps_provider_stopped_by_problem, getString(manager.getDisableReason())));
+                toast.setText(getString(R.string.msg_gps_provider_stopped_by_problem, getString(manager.getDisableReason())));
                 //toast.show();
             } else {
                 toast.setText(R.string.msg_gps_provider_stopped);
@@ -282,7 +278,7 @@ public class BluetoothGpsProviderService extends Service implements NmeaListener
      */
     @Override
     public IBinder onBind(Intent intent) {
-        if (Config.LOGD) {
+        if (BuildConfig.DEBUG) {
             Log.d(LOG_TAG, "trying access IBinder");
         }
         return null;
