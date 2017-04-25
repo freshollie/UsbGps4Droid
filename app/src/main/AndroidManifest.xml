@@ -19,23 +19,25 @@
     along with UsbGPS4Droid.  If not, see http://www.gnu.org/licenses/
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.broeuschmeul.android.gps.usb.provider"
-    android:versionCode="150"
-    android:versionName="@string/versionName">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.broeuschmeul.android.gps.usb.provider">
 
     <uses-feature android:name="android.hardware.usb.host" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"
+        tools:ignore="MockLocation" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowClearUserData="true"
-        android:icon="@drawable/ic_launcher_bluegps"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name">
+
         <activity
             android:name=".USBGpsActivity"
             android:label="@string/app_name"
@@ -47,11 +49,9 @@
             </intent-filter>
         </activity>
 
-        <!-- 		<service android:name=".BluetoothGpsProviderService" android:enabled="true" android:exported="true" android:process=":BluetoothGpsProviderService" > -->
         <service
             android:name=".USBGpsProviderService"
-            android:enabled="true"
-            android:exported="true">
+            android:enabled="true">
             <intent-filter>
                 <action android:name="org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING">
                     <category android:name="android.intent.category.DEFAULT" />

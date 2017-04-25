@@ -82,7 +82,7 @@ public class NmeaParser {
     public void enableMockLocationProvider(String gpsName, boolean force) {
         try {
             LocationProvider prov;
-            if (gpsName != null && gpsName != "") {
+            if (gpsName != null && !gpsName.isEmpty()) {
                 if (!gpsName.equals(mockLocationProvider)) {
                     disableMockLocationProvider();
                     mockLocationProvider = gpsName;

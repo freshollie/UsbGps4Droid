@@ -21,8 +21,6 @@
 -->
 
 <resources>
-    <string name="versionName">Marshmallow Beta 1</string>
-
     <string name="pref_start_gps_key">startGps</string>
     <string name="pref_gps_location_provider_key">gpsLocationProviderKey</string>
     <string name="pref_replace_std_gps_key">replaceStdtGps</string>
@@ -32,7 +30,11 @@
     <string name="pref_recording_key">trackRecording</string>
     <string name="pref_trackfile_directory_key">trackFileDirectory</string>
     <string name="pref_trackfile_prefix_key">trackFilePrefix</string>
+
     <string name="pref_gps_device_key">usbDevice</string>
+    <string name="pref_gps_device_vendor_id_key">usbDeviceVendorId</string>
+    <string name="pref_gps_device_product_id_key">usbDeviceProductId</string>
+
     <string name="pref_gps_device_speed_key">gpsDeviceSpeed</string>
     <string name="pref_about_key">about</string>
 

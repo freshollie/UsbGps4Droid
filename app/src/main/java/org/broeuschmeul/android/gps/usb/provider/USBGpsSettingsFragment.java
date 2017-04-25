@@ -24,6 +24,7 @@ package org.broeuschmeul.android.gps.usb.provider;
 
 import java.util.HashMap;
 
+import android.Manifest;
 import android.app.AlertDialog;
 //import android.bluetooth.BluetoothAdapter;
 //import android.bluetooth.BluetoothDevice;
@@ -31,10 +32,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -42,6 +43,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.support.v4.content.ContextCompat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -55,10 +57,43 @@ import android.widget.TextView;
  */
 public class USBGpsSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 
+    private Runnable usbCheckRunnable = new Runnable() {
+        @Override
+        public void run() {
+            int lastNum = usbManager.getDeviceList().values().size();
+
+            while (!Thread.interrupted()) {
+                int newNum = usbManager.getDeviceList().values().size();
+
+                if (lastNum != newNum) {
+                    updateDevicesList();
+                    lastNum = newNum;
+                }
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+
+            Log.v(TAG, "Check thread ending");
+        }
+    };
+
+    private Thread usbCheckThread;
+
     /**
      * Tag used for log messages
      */
-    private static final String LOG_TAG = "UsbGPS";
+    private static final String TAG = USBGpsSettingsFragment.class.getSimpleName();
+
+    private static final int LOCATION_REQUEST = 238472383;
+
+    public static int DEFAULT_GPS_PRODUCT_ID = 8963;
+    public static int DEFAULT_GPS_VENDOR_ID = 1659;
+
+    private boolean tryingToStart = false;
 
     private SharedPreferences sharedPref;
     //	private BluetoothAdapter bluetoothAdapter = null;
@@ -75,6 +110,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         sharedPref.registerOnSharedPreferenceChangeListener(this);
         usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
+
         Preference pref = findPreference(USBGpsProviderService.PREF_ABOUT);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -83,6 +119,43 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 return true;
             }
         });
+
+        findPreference(USBGpsProviderService.PREF_GPS_DEVICE).setOnPreferenceChangeListener(this);
+
+        if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        LOCATION_REQUEST);
+            }
+        }
+    }
+
+    private boolean hasPermission(String perm) {
+        return (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(getActivity(), perm));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == LOCATION_REQUEST) {
+            Log.v(TAG, "Test");
+            if (hasPermission(permissions[0])) {
+                if (tryingToStart) {
+                    tryingToStart = false;
+
+                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+                    serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
+                    getActivity().startService(serviceIntent);
+                }
+            } else {
+                tryingToStart = false;
+                sharedPref.edit().putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
+                        .apply();
+                new AlertDialog.Builder(getActivity()).setMessage(
+                        "Mock location needs to be enabled for this app to function")
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -90,84 +163,126 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
 	 */
     @Override
     public void onResume() {
-        this.updateDevicePreferenceList();
+        usbCheckThread = new Thread(usbCheckRunnable);
+        usbCheckThread.start();
+
+        updateDevicePreferenceList();
         super.onResume();
     }
 
+    @Override
+    public void onPause() {
+        usbCheckThread.interrupt();
+
+        super.onPause();
+    }
+
     private void updateDevicePreferenceSummary() {
-        // update bluetooth device summary
-        String defaultDeviceName = "";
+        // update usb device summary
+
         ListPreference prefDevices = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE);
-        if (!usbManager.getDeviceList().isEmpty()) {
-            defaultDeviceName = usbManager.getDeviceList().keySet().iterator().next();
-        }
-        deviceName = sharedPref.getString(USBGpsProviderService.PREF_GPS_DEVICE, defaultDeviceName);
-        String deviceDisplayedName = "";
-        if (!usbManager.getDeviceList().isEmpty() && usbManager.getDeviceList().get(deviceName) != null) {
-            deviceDisplayedName = usbManager.getDeviceList().get(deviceName).getDeviceName();
-        } else if ((usbManager.getDeviceList().size() == 1) && (usbManager.getDeviceList().get(defaultDeviceName) != null)) {
-            deviceDisplayedName = usbManager.getDeviceList().get(defaultDeviceName).getDeviceName();
-            deviceName = defaultDeviceName;
-            prefDevices.setValue(defaultDeviceName);
-        }
-        prefDevices.setSummary(getString(R.string.pref_gps_device_summary, deviceDisplayedName));
+
+        prefDevices.setValue("current");
+
+        prefDevices.setSummary(getString(R.string.pref_gps_device_summary, getSelectedDeviceSummary()));
+
         ListPreference prefDeviceSpeed = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE_SPEED);
         prefDeviceSpeed.setSummary(getString(R.string.pref_gps_device_speed_summary, sharedPref.getString(USBGpsProviderService.PREF_GPS_DEVICE_SPEED, getString(R.string.defaultGpsDeviceSpeed))));
     }
 
-    private void updateDevicePreferenceList() {
-        // update bluetooth device summary
-        updateDevicePreferenceSummary();
-        // update bluetooth device list
+    /**
+     * Gets a summary of the current select product and vendor ids
+     * @return
+     */
+    private String getSelectedDeviceSummary() {
+        int productId = sharedPref.getInt(
+                USBGpsProviderService.PREF_GPS_DEVICE_PRODUCT_ID, DEFAULT_GPS_PRODUCT_ID);
+        int vendorId = sharedPref.getInt(
+                USBGpsProviderService.PREF_GPS_DEVICE_VENDOR_ID, DEFAULT_GPS_VENDOR_ID);
+
+        String deviceDisplayedName = "Device not connected - " + vendorId + ": " + productId;
+
+        for (UsbDevice usbDevice: usbManager.getDeviceList().values()) {
+            if (usbDevice.getVendorId() == vendorId && usbDevice.getProductId() == productId) {
+                deviceDisplayedName =
+                        "USB " + usbDevice.getDeviceProtocol() + " " + usbDevice.getDeviceName() +
+                                " | " + vendorId + ": " + productId;
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    deviceDisplayedName = usbDevice.getManufacturerName() + usbDevice.getProductName() +
+                            " | " + vendorId + ": " + productId;
+                }
+
+                break;
+            }
+        }
+
+        return deviceDisplayedName;
+    }
+
+    private void updateDevicesList() {
         ListPreference prefDevices = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE);
+
         HashMap<String, UsbDevice> connectedUsbDevices = usbManager.getDeviceList();
         String[] entryValues = new String[connectedUsbDevices.size()];
         String[] entries = new String[connectedUsbDevices.size()];
+
         int i = 0;
         // Loop through usb devices
-        for (String name : connectedUsbDevices.keySet()) {
-            // Add the name and address to the ListPreference enties and entyValues
-            UsbDevice device = connectedUsbDevices.get(name);
-            Log.v(LOG_TAG, "device: " + name + " -- " + device.getDeviceName() + " -- " + device);
-            Log.v(LOG_TAG, "device prot: " + device.getDeviceProtocol() + " class: " + device.getDeviceClass() + " sub class: " + device.getDeviceSubclass());
-            Log.v(LOG_TAG, "device dev id: " + device.getDeviceId() + " prod id: " + device.getProductId() + " sub vend id: " + device.getVendorId());
-            Log.v(LOG_TAG, "device int nb: " + device.getInterfaceCount());
-            for (int k = 0; k < device.getInterfaceCount(); k++) {
-                UsbInterface usbIntf = device.getInterface(k);
-                Log.v(LOG_TAG, "intf id: : " + usbIntf.getId() + " -- " + usbIntf);
-                Log.v(LOG_TAG, "intf prot: " + usbIntf.getInterfaceProtocol() + " class: " + usbIntf.getInterfaceClass() + " sub class: " + usbIntf.getInterfaceSubclass());
-                Log.v(LOG_TAG, "intf int nb: " + usbIntf.getEndpointCount());
-                for (int j = 0; j < usbIntf.getEndpointCount(); j++) {
-                    UsbEndpoint endPt = usbIntf.getEndpoint(j);
-                    Log.v(LOG_TAG, "endPt: : " + endPt + " type: " + endPt.getType() + " dir: " + endPt.getDirection());
-                }
+        for (UsbDevice device : connectedUsbDevices.values()) {
+            // Add the name and address to the ListPreference entities and entyValues
+
+            String entryValue = device.getDeviceName() +
+                    " - " + device.getVendorId() + " : " + device.getProductId();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                entryValue = device.getManufacturerName() + " " + device.getProductName() +
+                        " - " + device.getVendorId() + " : " + device.getProductId();
             }
+
+            Log.d(TAG, "Found device: " + entryValue);
+
             entryValues[i] = device.getDeviceName();
-            entries[i] = name;
+            entries[i] = entryValue;
             i++;
         }
+
         prefDevices.setEntryValues(entryValues);
         prefDevices.setEntries(entries);
+    }
+
+    private void updateDevicePreferenceList() {
+        // update usb device summary
+        updateDevicePreferenceSummary();
+
+        // update usb device list
+        updateDevicesList();
+
         Preference pref = findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
         pref.setEnabled(sharedPref.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false));
+
         pref = findPreference(USBGpsProviderService.PREF_MOCK_GPS_NAME);
         String mockProvider = sharedPref.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+
         pref.setSummary(getString(R.string.pref_mock_gps_name_summary, mockProvider));
         pref = findPreference(USBGpsProviderService.PREF_CONNECTION_RETRIES);
+
         String maxConnRetries = sharedPref.getString(USBGpsProviderService.PREF_CONNECTION_RETRIES, getString(R.string.defaultConnectionRetries));
         pref.setSummary(getString(R.string.pref_connection_retries_summary, maxConnRetries));
+
         pref = findPreference(USBGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
         if (sharedPref.getBoolean(USBGpsProviderService.PREF_REPLACE_STD_GPS, true)) {
             String s = getString(R.string.pref_gps_location_provider_summary);
             pref.setSummary(s);
-            Log.v(LOG_TAG, "loc. provider: " + s);
-            Log.v(LOG_TAG, "loc. provider: " + pref.getSummary());
+            Log.v(TAG, "loc. provider: " + s);
+            Log.v(TAG, "loc. provider: " + pref.getSummary());
         } else {
             String s = getString(R.string.pref_mock_gps_name_summary, mockProvider);
             pref.setSummary(s);
-            Log.v(LOG_TAG, "loc. provider: " + s);
-            Log.v(LOG_TAG, "loc. provider: " + pref.getSummary());
+            Log.v(TAG, "loc. provider: " + s);
+            Log.v(TAG, "loc. provider: " + pref.getSummary());
         }
+
         BaseAdapter adapter = (BaseAdapter) getPreferenceScreen().getRootAdapter();
         adapter.notifyDataSetChanged();
     }
@@ -175,6 +290,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (usbCheckThread != null) {
+            usbCheckThread.interrupt();
+        }
         sharedPref.unregisterOnSharedPreferenceChangeListener(this);
     }
 
@@ -199,30 +317,64 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        // TODO Auto-generated method stub
+
+        if (preference.getKey().equals(USBGpsProviderService.PREF_GPS_DEVICE)) {
+            String deviceName = (String) newValue;
+
+            Log.v(TAG, "Device clicked: " + newValue);
+
+            if (!deviceName.isEmpty() && usbManager.getDeviceList().keySet().contains(deviceName)) {
+                UsbDevice device = usbManager.getDeviceList().get(deviceName);
+
+                SharedPreferences.Editor editor = sharedPref.edit();
+
+                editor.putInt(getString(R.string.pref_gps_device_product_id_key),
+                        device.getProductId());
+
+                editor.putInt(getString(R.string.pref_gps_device_vendor_id_key),
+                        device.getVendorId());
+
+                editor.apply();
+            }
+
+            updateDevicePreferenceSummary();
+            return true;
+
+        }
+
         return false;
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.v(TAG, "Shared preferences changed: " + key);
+
         if (USBGpsProviderService.PREF_START_GPS_PROVIDER.equals(key)) {
             boolean val = sharedPreferences.getBoolean(key, false);
             CheckBoxPreference pref = (CheckBoxPreference) findPreference(key);
+
             if (pref.isChecked() != val) {
                 pref.setChecked(val);
+
             } else if (val) {
-                String device = sharedPreferences.getString(USBGpsProviderService.PREF_GPS_DEVICE, "");
-                if (!device.equals(deviceName) && deviceName != null && deviceName.length() > 0) {
-                    sharedPreferences.edit().putString(USBGpsProviderService.PREF_GPS_DEVICE, deviceName).apply();
+                if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+                    serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
+                    getActivity().startService(serviceIntent);
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        tryingToStart = true;
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                LOCATION_REQUEST);
+                    }
                 }
-                Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
-                getActivity().startService(serviceIntent);
+
             } else {
                 Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
                 serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
                 getActivity().startService(serviceIntent);
             }
+
         } else if (USBGpsProviderService.PREF_TRACK_RECORDING.equals(key)) {
             boolean val = sharedPreferences.getBoolean(key, false);
             CheckBoxPreference pref = (CheckBoxPreference) findPreference(key);
@@ -239,6 +391,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
             }
         } else if (USBGpsProviderService.PREF_GPS_DEVICE.equals(key)) {
             updateDevicePreferenceSummary();
+
         } else if (USBGpsProviderService.PREF_GPS_DEVICE_SPEED.equals(key)) {
             updateDevicePreferenceSummary();
         } else if (USBGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)
@@ -254,7 +407,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 ) {
             enableSirfFeature(key);
         }
-        this.updateDevicePreferenceList();
     }
 
     private void enableSirfFeature(String key) {
