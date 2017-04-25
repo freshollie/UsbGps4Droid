@@ -1,0 +1,4 @@
+#Tue Apr 25 03:51:52 BST 2017
+base.0=/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/transforms/dex/debug/folders/1000/5/slice_4
+renamed.0=classes.dex
+file.0=/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/transforms/dex/debug/folders/1000/5/slice_4/classes.dex

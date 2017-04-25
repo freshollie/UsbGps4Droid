@@ -33,12 +33,14 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -46,6 +48,7 @@ import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
@@ -72,6 +75,8 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     public static final String PREF_TRACK_FILE_DIR = "trackFileDirectory";
     public static final String PREF_TRACK_FILE_PREFIX = "trackFilePrefix";
     public static final String PREF_GPS_DEVICE = "usbDevice";
+    public static final String PREF_GPS_DEVICE_VENDOR_ID = "usbDeviceVendorId";
+    public static final String PREF_GPS_DEVICE_PRODUCT_ID = "usbDeviceProductId";
     public static final String PREF_GPS_DEVICE_SPEED = "gpsDeviceSpeed";
     public static final String PREF_ABOUT = "about";
 
@@ -108,11 +113,16 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     public int onStartCommand(Intent intent, int flags, int startId) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = sharedPreferences.edit();
-        String deviceAddress = sharedPreferences.getString(PREF_GPS_DEVICE, "");
+
+        int vendorId = sharedPreferences.getInt(PREF_GPS_DEVICE_VENDOR_ID,
+                USBGpsSettingsFragment.DEFAULT_GPS_VENDOR_ID);
+        int productId = sharedPreferences.getInt(PREF_GPS_DEVICE_PRODUCT_ID,
+                USBGpsSettingsFragment.DEFAULT_GPS_PRODUCT_ID);
+
         int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
 
         if (BuildConfig.DEBUG) {
-            Log.d(LOG_TAG, "prefs device addr: " + deviceAddress);
+            Log.d(LOG_TAG, "prefs device addr: " + vendorId + " - " + productId);
         }
 
         if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())) {
@@ -121,20 +131,27 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
                 if (!sharedPreferences.getBoolean(PREF_REPLACE_STD_GPS, true)) {
                     mockProvider = sharedPreferences.getString(PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
                 }
-                gpsManager = new USBGpsManager(this, deviceAddress, maxConRetries);
+                gpsManager = new USBGpsManager(this, vendorId, productId, maxConRetries);
                 boolean enabled = gpsManager.enable();
-//					Bundle extras = intent.getExtras();
+
                 if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, false) != enabled) {
                     edit.putBoolean(PREF_START_GPS_PROVIDER, enabled);
-                    edit.commit();
+                    edit.apply();
                 }
+
                 if (enabled) {
                     gpsManager.enableMockLocationProvider(mockProvider);
 
-                    PendingIntent myPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, USBGpsActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+                    PendingIntent launchIntent =
+                            PendingIntent.getActivity(
+                                    this,
+                                    0,
+                                    new Intent(this, USBGpsActivity.class),
+                                    PendingIntent.FLAG_CANCEL_CURRENT
+                            );
 
                     Notification notification = new NotificationCompat.Builder(this)
-                            .setContentIntent(myPendingIntent)
+                            .setContentIntent(launchIntent)
                             .setSmallIcon(R.drawable.ic_stat_notify)
                             .setWhen(System.currentTimeMillis())
                             .setAutoCancel(true)
@@ -222,13 +239,14 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
         endTrack();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = sharedPreferences.edit();
+
         if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
             edit.putBoolean(PREF_TRACK_RECORDING, false);
-            edit.commit();
+            edit.apply();
         }
         if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)) {
             edit.putBoolean(PREF_START_GPS_PROVIDER, false);
-            edit.commit();
+            edit.apply();
         }
         super.onDestroy();
     }

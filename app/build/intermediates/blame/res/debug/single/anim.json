@@ -1,0 +1,42 @@
+[
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_popup_enter.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_popup_enter.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_slide_in_top.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_slide_in_top.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_shrink_fade_out_from_bottom.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_shrink_fade_out_from_bottom.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_slide_out_bottom.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_slide_out_bottom.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_slide_in_bottom.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_slide_in_bottom.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_fade_out.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_fade_out.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_popup_exit.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_popup_exit.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_fade_in.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_fade_in.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_slide_out_top.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_slide_out_top.xml"
+    },
+    {
+        "merged": "/home/freshollie/Documents/Repos/UsbGps4Droid/app/build/intermediates/res/merged/debug/anim/abc_grow_fade_in_from_bottom.xml",
+        "source": "/home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/res/anim/abc_grow_fade_in_from_bottom.xml"
+    }
+]

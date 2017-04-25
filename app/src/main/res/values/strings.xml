@@ -23,6 +23,8 @@
 <resources>
     <string name="app_name">UsbGps</string>
 
+    <string name="kek">TEST</string>
+
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Usb GPS is off</string>
     <string name="pref_start_gps_summary_on">Usb GPS is on</string>
@@ -128,6 +130,7 @@
     <string name="about_sources">The source code is available from Git repository on the project website: 
         https://github.com/freshollie/UsbGps4Droid
     </string>
+    <string name="msg_no_location_permission">No permission given for device location. Click here to enable.</string>
     <string-array name="pref_gps_device_speed_values">
         <item>auto</item>
         <item>1200</item>
