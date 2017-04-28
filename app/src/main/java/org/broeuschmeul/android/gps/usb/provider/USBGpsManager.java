@@ -99,7 +99,7 @@ public class USBGpsManager {
                 final UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (device.getVendorId() == gpsVendorId & device.getProductId() == gpsProductId) {
                     Log.e(LOG_TAG, "USB device detached, disabling service");
-                    disable();
+                    //disable();
                 }
             }
         }
@@ -769,6 +769,22 @@ public class USBGpsManager {
         Log.v(LOG_TAG, "usb reading thread started");
     }
 
+    private UsbDevice getDeviceFromAttached() {
+        Log.v(LOG_TAG, "Checking all connected devices");
+        for (UsbDevice connectedDevice : usbManager.getDeviceList().values()) {
+
+            Log.v(LOG_TAG, "Checking device: " + connectedDevice.getProductId() + " " + connectedDevice.getVendorId());
+
+            if (connectedDevice.getVendorId() == gpsVendorId & connectedDevice.getProductId() == gpsProductId) {
+                Log.v(LOG_TAG, "Found correct device");
+
+                return connectedDevice;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Enables the USB GPS Provider.
      *
@@ -778,8 +794,6 @@ public class USBGpsManager {
         IntentFilter permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
         IntentFilter detachFilter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
         notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
-
-
 
         if (!enabled) {
             Log.d(LOG_TAG, "enabling USB GPS manager");
@@ -798,74 +812,75 @@ public class USBGpsManager {
                 return this.enabled;
 
             } else {
-                Log.v(LOG_TAG, "Checking all connected devices");
-                for (UsbDevice connectedDevice : usbManager.getDeviceList().values()) {
+                gpsDev = getDeviceFromAttached();
 
-                    Log.v(LOG_TAG, "Checking device: " + connectedDevice.getProductId() + " " + connectedDevice.getVendorId());
+                // This thread will be run by the executor at a delay of 1 second, and will be
+                // run again if the read thread dies. It will run until maximum number of retries
+                // is exceeded
+                Runnable connectThread = new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                connected = false;
+                                gpsDev = getDeviceFromAttached();
 
-                    if (connectedDevice.getVendorId() == gpsVendorId & connectedDevice.getProductId() == gpsProductId) {
-                        Log.v(LOG_TAG, "Found correct device");
-
-                        gpsDev = connectedDevice;
-
-                        Runnable connectThread = new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        connected = false;
-                                        Log.v(LOG_TAG, "GPS device: " + gpsDev.getDeviceName());
-
-                                        if (nbRetriesRemaining > 0) {
-                                            if (connectedGps != null) {
-                                                connectedGps.close();
-                                            }
-
-                                            PendingIntent permissionIntent = PendingIntent.getBroadcast(callingService, 0, new Intent(ACTION_USB_PERMISSION), 0);
-                                            UsbDevice device = gpsDev;
-
-                                            if (device != null && usbManager.hasPermission(device)) {
-                                                Log.d(LOG_TAG, "We have permission, good!");
-                                                openConnection(device);
-
-                                            } else if (device != null) {
-                                                Log.d(LOG_TAG, "We don't have permission, so requesting...");
-                                                usbManager.requestPermission(device, permissionIntent);
-
-                                            } else {
-                                                Log.e(LOG_TAG, "Error while establishing connection: no device - " + gpsVendorId + ": " + gpsProductId);
-                                                disable(R.string.msg_gps_unavaible);
-                                            }
-                                        }
-                                    } finally {
-                                        nbRetriesRemaining--;
-                                        if (!connected) {
-                                            disableIfNeeded();
-                                        }
+                                if (nbRetriesRemaining > 0) {
+                                    if (connectedGps != null) {
+                                        connectedGps.close();
                                     }
 
+                                    if (gpsDev != null) {
+                                        Log.v(LOG_TAG, "GPS device: " + gpsDev.getDeviceName());
+
+                                        PendingIntent permissionIntent = PendingIntent.getBroadcast(callingService, 0, new Intent(ACTION_USB_PERMISSION), 0);
+                                        UsbDevice device = gpsDev;
+
+                                        if (device != null && usbManager.hasPermission(device)) {
+                                            Log.d(LOG_TAG, "We have permission, good!");
+                                            openConnection(device);
+
+                                        } else if (device != null) {
+                                            Log.d(LOG_TAG, "We don't have permission, so requesting...");
+                                            usbManager.requestPermission(device, permissionIntent);
+
+                                        } else {
+                                            Log.e(LOG_TAG, "Error while establishing connection: no device - " + gpsVendorId + ": " + gpsProductId);
+                                            disable(R.string.msg_gps_unavaible);
+                                        }
+                                    } else {
+                                        Log.e(LOG_TAG, "Device not connected");
+                                    }
                                 }
-                            };
-
-                            this.enabled = true;
-                            callingService.registerReceiver(permissionReceiver, permissionFilter);
-                            callingService.registerReceiver(detachedReceiver, detachFilter);
-
-                            Log.d(LOG_TAG, "USB GPS manager enabled");
-                            Log.v(LOG_TAG, "starting notification thread");
-
-                            notificationPool = Executors.newSingleThreadExecutor();
-                            Log.v(LOG_TAG, "starting connection and reading thread");
-                            connectionAndReadingPool = Executors.newSingleThreadScheduledExecutor();
-
-                            Log.v(LOG_TAG, "starting connection to socket task");
-                            connectionAndReadingPool.scheduleWithFixedDelay(connectThread, 1000, 1000, TimeUnit.MILLISECONDS);
-
-                            if (sirfGps) {
-                                enableSirfConfig(sharedPreferences);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                nbRetriesRemaining--;
+                                if (!connected) {
+                                    disableIfNeeded();
+                                }
                             }
-                            break;
-                        }
 
+                        }
+                    };
+
+                    if (gpsDev != null) {
+                        this.enabled = true;
+                        callingService.registerReceiver(permissionReceiver, permissionFilter);
+                        callingService.registerReceiver(detachedReceiver, detachFilter);
+
+                        Log.d(LOG_TAG, "USB GPS manager enabled");
+                        Log.v(LOG_TAG, "starting notification thread");
+
+                        notificationPool = Executors.newSingleThreadExecutor();
+                        Log.v(LOG_TAG, "starting connection and reading thread");
+                        connectionAndReadingPool = Executors.newSingleThreadScheduledExecutor();
+
+                        Log.v(LOG_TAG, "starting connection to socket task");
+                        connectionAndReadingPool.scheduleWithFixedDelay(connectThread, 1000, 1000, TimeUnit.MILLISECONDS);
+
+                        if (sirfGps) {
+                            enableSirfConfig(sharedPreferences);
+                        }
                     }
                 }
 
@@ -878,9 +893,9 @@ public class USBGpsManager {
     }
 
     /**
-     * Disables the bluetooth GPS Provider if the maximal number of connection retries is exceeded.
+     * Disables the USB GPS Provider if the maximal number of connection retries is exceeded.
      * This is used when there are possibly non fatal connection problems.
-     * In these cases the provider will try to reconnect with the bluetooth device
+     * In these cases the provider will try to reconnect with the usb device
      * and only after a given retries number will give up and shutdown the service.
      */
     private synchronized void disableIfNeeded() {
@@ -908,7 +923,7 @@ public class USBGpsManager {
     }
 
     /**
-     * Disables the bluetooth GPS provider.
+     * Disables the USB GPS provider.
      * <p>
      * It will:
      * <ul>
