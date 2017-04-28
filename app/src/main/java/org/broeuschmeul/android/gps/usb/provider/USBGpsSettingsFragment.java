@@ -77,7 +77,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 }
             }
 
-            Log.v(TAG, "Check thread ending");
+            Log.v(TAG, "USB Device Check thread ending");
         }
     };
 
@@ -239,8 +239,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 entryValue = device.getManufacturerName() + " " + device.getProductName() +
                         " - " + device.getVendorId() + " : " + device.getProductId();
             }
-
-            Log.d(TAG, "Found device: " + entryValue);
 
             entryValues[i] = device.getDeviceName();
             entries[i] = entryValue;

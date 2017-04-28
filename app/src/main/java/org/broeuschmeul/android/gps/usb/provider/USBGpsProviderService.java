@@ -168,8 +168,10 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
                 }
 
             } else {
-                toast.setText(this.getString(R.string.msg_gps_provider_already_started));
-                //toast.show();
+                // We received a start intent so restart
+                stopSelf();
+                startService(new Intent(this, USBGpsProviderService.class)
+                        .setAction(intent.getAction()));
             }
 
         } else if (ACTION_START_TRACK_RECORDING.equals(intent.getAction())) {
