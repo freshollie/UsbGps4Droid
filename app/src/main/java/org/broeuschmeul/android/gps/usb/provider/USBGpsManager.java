@@ -88,7 +88,8 @@ public class USBGpsManager {
     private boolean debug = false;
 
     private UsbManager usbManager = null;
-    private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION =
+            "org.broeuschmeul.android.gps.usb.provider.USBGpsManager.USB_PERMISSION";
 
     private final BroadcastReceiver detachedReceiver = new BroadcastReceiver() {
         @Override
@@ -98,7 +99,6 @@ public class USBGpsManager {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 final UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (device.getVendorId() == gpsVendorId & device.getProductId() == gpsProductId) {
-                    Log.e(LOG_TAG, "USB device detached, disabling service");
                     //disable();
                 }
             }
@@ -119,7 +119,9 @@ public class USBGpsManager {
                         if (device != null) {
                             if (usbManager.hasPermission(device)) {
                                 Log.d(LOG_TAG, "We have permission, good!");
-                                openConnection(device);
+                                if (enabled) {
+                                    openConnection(device);
+                                }
                             }
                         }
                     } else {
@@ -524,7 +526,9 @@ public class USBGpsManager {
                             ready = true;
 //								lastRead = Math.max(SystemClock.uptimeMillis(), lastRead);
                             lastRead = SystemClock.uptimeMillis();
-                            if (nbRetriesRemaining < maxConnectionRetries) {
+
+                            if (problemNotified) {
+                                problemNotified = false;
                                 // reset eventual disabling cause
                                 setDisableReason(0);
                                 // connection is good so reseting the number of connection try
@@ -643,8 +647,11 @@ public class USBGpsManager {
 
     private Context appContext;
     private NotificationManager notificationManager;
+
     private int maxConnectionRetries;
     private int nbRetriesRemaining;
+    private boolean problemNotified = false;
+
     private boolean connected = false;
     private boolean setDeviceSpeed = false;
     private boolean sirfGps = false;
@@ -900,6 +907,7 @@ public class USBGpsManager {
      */
     private synchronized void disableIfNeeded() {
         if (enabled) {
+            problemNotified = true;
             if (nbRetriesRemaining > 0) {
                 // Unable to connect
                 Log.e(LOG_TAG, "Unable to establish connection");
