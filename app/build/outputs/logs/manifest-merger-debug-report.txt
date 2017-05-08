@@ -1,0 +1,115 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:21:1-73:12
+	package
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:23:5-56
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+	xmlns:tools
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:22:5-51
+	xmlns:android
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:21:11-69
+	android:versionCode
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+uses-feature#android.hardware.usb.host
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:25:5-62
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:25:19-59
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:27:5-79
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:27:22-76
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:28:5-81
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:28:22-78
+uses-permission#android.permission.ACCESS_MOCK_LOCATION
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:29:5-30:39
+	tools:ignore
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:30:9-36
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:29:22-76
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:33:5-75
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:33:22-72
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:34:5-80
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:34:22-77
+application
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:36:5-71:19
+MERGED from [com.android.support:appcompat-v7:23.4.0] /home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:animated-vector-drawable:23.4.0] /home/freshollie/.android/build-cache/d7d245d9735c397b19b9897afe1556954b6d6430/output/AndroidManifest.xml:7:5-20
+MERGED from [com.android.support:support-vector-drawable:23.4.0] /home/freshollie/.android/build-cache/356b57133ebe731d46b85c89c668978309b6b5aa/output/AndroidManifest.xml:7:5-20
+MERGED from [com.android.support:support-v4:23.4.0] /home/freshollie/.android/build-cache/6f1ccb650382daefa96e198a110cc3bcd4bebdc9/output/AndroidManifest.xml:22:5-20
+	android:label
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:39:9-41
+	android:allowClearUserData
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:37:9-42
+	android:icon
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:38:9-43
+activity#org.broeuschmeul.android.gps.usb.provider.USBGpsActivity
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:41:9-50:20
+	android:label
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:43:13-45
+	android:launchMode
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:44:13-44
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:42:13-43
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:45:13-49:29
+action#android.intent.action.MAIN
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:46:17-69
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:46:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:48:17-77
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:48:27-74
+service#org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:52:9-69:19
+	android:enabled
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:54:13-35
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:53:13-50
+intent-filter#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER+org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER+org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING+org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:55:13-68:29
+action#org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:56:17-58:26
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:56:25-121
+category#android.intent.category.DEFAULT
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:57:21-80
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:57:31-77
+action#org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:59:17-61:26
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:59:25-120
+action#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:62:17-64:26
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:62:25-119
+action#org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER
+ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:65:17-67:26
+	android:name
+		ADDED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml:65:25-118
+uses-sdk
+INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+MERGED from [com.android.support:appcompat-v7:23.4.0] /home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:animated-vector-drawable:23.4.0] /home/freshollie/.android/build-cache/d7d245d9735c397b19b9897afe1556954b6d6430/output/AndroidManifest.xml:5:5-44
+MERGED from [com.android.support:support-vector-drawable:23.4.0] /home/freshollie/.android/build-cache/356b57133ebe731d46b85c89c668978309b6b5aa/output/AndroidManifest.xml:5:5-43
+MERGED from [com.android.support:support-v4:23.4.0] /home/freshollie/.android/build-cache/6f1ccb650382daefa96e198a110cc3bcd4bebdc9/output/AndroidManifest.xml:20:5-43
+	tools:overrideLibrary
+		ADDED from [com.android.support:appcompat-v7:23.4.0] /home/freshollie/.android/build-cache/80547f6f4593449fed36423a57e5a66ba3894324/output/AndroidManifest.xml:23:9-75
+	android:targetSdkVersion
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
+		INJECTED from /home/freshollie/Documents/Repos/UsbGps4Droid/app/src/main/AndroidManifest.xml
