@@ -190,9 +190,9 @@ public class USBGpsManager {
                     i = 0;
                 }
             }
-//			endpointIn = intf.getEndpoint(2);
+//            endpointIn = intf.getEndpoint(2);
             final int TIMEOUT = 1000;
-//			final int TIMEOUT = 0;
+//            final int TIMEOUT = 0;
             connection = usbManager.openDevice(device);
             boolean resclaim = false;
             Log.d(LOG_TAG, "claiming interface");
@@ -269,16 +269,16 @@ public class USBGpsManager {
                 @Override
                 public int read(byte[] buffer, int offset, int length)
                         throws IOException {
-                    if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read buffer - offset: " + offset + " length: " + length);
+//                    if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read buffer - offset: " + offset + " length: " + length);
 
                     int nb = 0;
                     ByteBuffer out = ByteBuffer.wrap(buffer, offset, length);
                     if ((!bufferRead.hasRemaining()) && (!closed)) {
-                        if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
+//                        if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
 
                         int n = connection.bulkTransfer(endpointIn, usbBuffer, 64, TIMEOUT);
 
-                        if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
+//                      if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
 
                         if (n > 0) {
                             if (n > bufferWrite.remaining()) {
@@ -287,18 +287,18 @@ public class USBGpsManager {
                             }
                             bufferWrite.put(usbBuffer, 0, n);
                             bufferRead.limit(bufferWrite.position());
-							if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read: nb: " + n + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+//                            if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read: nb: " + n + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
                         } else {
                             Log.e(LOG_TAG, "data read(buffer...) error: " + nb );
                         }
                     }
                     if (bufferRead.hasRemaining()) {
-						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : asked: " + length + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+//                      if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : asked: " + length + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
                         nb = Math.min(bufferRead.remaining(), length);
                         out.put(bufferRead.array(), bufferRead.position() + bufferRead.arrayOffset(), nb);
                         bufferRead.position(bufferRead.position() + nb);
-						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
-						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " offset: " + offset + " " + Arrays.toString(buffer));
+//                      if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+//                      if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " offset: " + offset + " " + Arrays.toString(buffer));
                     }
                     return nb;
                 }
@@ -430,7 +430,7 @@ public class USBGpsManager {
             out = tmpOut;
             out2 = tmpOut2;
             final int[] speedList = {Integer.parseInt(deviceSpeed), 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
-//			final List<String> speedList = Arrays.asList(new String[]{"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"});
+//            final List<String> speedList = Arrays.asList(new String[]{"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"});
             final byte[] data = {(byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08};
             final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
             final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
@@ -438,12 +438,12 @@ public class USBGpsManager {
             final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax, 0, 7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
             final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
             if (setDeviceSpeed) {
-////				connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);				//reset
-////				connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);				//clear Rx
-////				connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);				//clear Tx
-////				connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);	//flow control none
-////				connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0);	//baudrate 9600
-////				connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);	//data bit 8, parity none, stop bit 1, tx off
+////                connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);                //reset
+////                connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);                //clear Rx
+////                connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);                //clear Tx
+////                connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);    //flow control none
+////                connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0);    //baudrate 9600
+////                connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);    //data bit 8, parity none, stop bit 1, tx off
             }
             if (sirfGps) {
                 Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
@@ -456,11 +456,11 @@ public class USBGpsManager {
                  */
                 @Override
                 public void run() {
-//					final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
-//					final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-//					final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
-//					final byte[] datax = new byte[7];
-//					final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+//                    final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
+//                    final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+//                    final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
+//                    final byte[] datax = new byte[7];
+//                    final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
                     try {
                         int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0);
                         USBGpsManager.this.deviceSpeed = Integer.toString(connectionSpeedInfoBuffer.getInt(0));
@@ -517,18 +517,25 @@ public class USBGpsManager {
         public void run() {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 128);
-//				InputStreamReader reader = new InputStreamReader(in,"US-ASCII");
+//                InputStreamReader reader = new InputStreamReader(in,"US-ASCII");
                 String s;
+
                 long now = SystemClock.uptimeMillis();
                 // we will wait more at the beginning of the connection
                 lastRead = now + 45000;
                 while ((enabled) && (now < lastRead + 4000) && (!closed)) {
-                    s = reader.readLine();
+
+                    try {
+                        s = reader.readLine();
+                    } catch (IOException e) {
+                        s = null;
+                    }
+
                     if (s != null) {
                         //Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
                         if (notifyNmeaSentence(s + "\r\n")) {
                             ready = true;
-//								lastRead = Math.max(SystemClock.uptimeMillis(), lastRead);
+//                                lastRead = Math.max(SystemClock.uptimeMillis(), lastRead);
                             lastRead = SystemClock.uptimeMillis();
 
                             if (problemNotified) {
@@ -545,7 +552,7 @@ public class USBGpsManager {
                         Log.d(LOG_TAG, "data: not ready " + System.currentTimeMillis());
                         SystemClock.sleep(500);
                     }
-//					SystemClock.sleep(10);
+//                    SystemClock.sleep(10);
                     now = SystemClock.uptimeMillis();
                 }
             } catch (Exception e) {
@@ -1247,28 +1254,28 @@ public class USBGpsManager {
     }
 
     private void enableNMEA(boolean enable) {
-//			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
-//			String deviceSpeed = sharedPreferences.getString(USBGpsProviderService.PREF_GPS_DEVICE_SPEED, callingService.getString(R.string.defaultGpsDeviceSpeed));
+//            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callingService);
+//            String deviceSpeed = sharedPreferences.getString(USBGpsProviderService.PREF_GPS_DEVICE_SPEED, callingService.getString(R.string.defaultGpsDeviceSpeed));
         if (deviceSpeed.equals(callingService.getString(R.string.autoGpsDeviceSpeed))) {
             deviceSpeed = callingService.getString(R.string.defaultGpsDeviceSpeed);
         }
         SystemClock.sleep(400);
         if (enable) {
-//				int gll = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_GLL, false)) ? 1 : 0 ;
-//				int vtg = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_VTG, false)) ? 1 : 0 ;
-//				int gsa = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_GSA, false)) ? 5 : 0 ;
-//				int gsv = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_GSV, false)) ? 5 : 0 ;
-//				int zda = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_ZDA, false)) ? 1 : 0 ;
-//				int mss = 0;
-//				int epe = 0;
-//				int gga = 1;
-//				int rmc = 1;
-//				String command = getString(R.string.sirf_bin_to_nmea_38400_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda);
-//				String command = getString(R.string.sirf_bin_to_nmea_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda, Integer.parseInt(deviceSpeed));
+//                int gll = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_GLL, false)) ? 1 : 0 ;
+//                int vtg = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_VTG, false)) ? 1 : 0 ;
+//                int gsa = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_GSA, false)) ? 5 : 0 ;
+//                int gsv = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_GSV, false)) ? 5 : 0 ;
+//                int zda = (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_ZDA, false)) ? 1 : 0 ;
+//                int mss = 0;
+//                int epe = 0;
+//                int gga = 1;
+//                int rmc = 1;
+//                String command = getString(R.string.sirf_bin_to_nmea_38400_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda);
+//                String command = getString(R.string.sirf_bin_to_nmea_alt, gga, gll, gsa, gsv, rmc, vtg, mss, epe, zda, Integer.parseInt(deviceSpeed));
             String command = callingService.getString(R.string.sirf_bin_to_nmea);
             this.sendSirfCommand(command);
         } else {
-//				this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_to_binary));
+//                this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_to_binary));
             this.sendNmeaCommand(callingService.getString(R.string.sirf_nmea_to_binary_alt, Integer.parseInt(deviceSpeed)));
         }
         SystemClock.sleep(400);
