@@ -269,13 +269,17 @@ public class USBGpsManager {
                 @Override
                 public int read(byte[] buffer, int offset, int length)
                         throws IOException {
-                    //if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read buffer - offset: " + offset + " length: " + length);
+                    if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read buffer - offset: " + offset + " length: " + length);
+
                     int nb = 0;
                     ByteBuffer out = ByteBuffer.wrap(buffer, offset, length);
                     if ((!bufferRead.hasRemaining()) && (!closed)) {
-                        //if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
+                        if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
+
                         int n = connection.bulkTransfer(endpointIn, usbBuffer, 64, TIMEOUT);
-                        //if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
+
+                        if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
+
                         if (n > 0) {
                             if (n > bufferWrite.remaining()) {
                                 bufferRead.rewind();
@@ -283,18 +287,18 @@ public class USBGpsManager {
                             }
                             bufferWrite.put(usbBuffer, 0, n);
                             bufferRead.limit(bufferWrite.position());
-//							if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read: nb: " + n + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+							if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data read: nb: " + n + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
                         } else {
-                            //	Log.e(LOG_TAG, "data read(buffer...) error: " + nb );
+                            Log.e(LOG_TAG, "data read(buffer...) error: " + nb );
                         }
                     }
                     if (bufferRead.hasRemaining()) {
-//						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : asked: " + length + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : asked: " + length + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
                         nb = Math.min(bufferRead.remaining(), length);
                         out.put(bufferRead.array(), bufferRead.position() + bufferRead.arrayOffset(), nb);
                         bufferRead.position(bufferRead.position() + nb);
-//						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
-//						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " offset: " + offset + " " + Arrays.toString(buffer));
+						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " current: " + bufferRead.position() + " limit: " + bufferRead.limit() + " " + Arrays.toString(bufferRead.array()));
+						if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data : given: " + nb + " offset: " + offset + " " + Arrays.toString(buffer));
                     }
                     return nb;
                 }
