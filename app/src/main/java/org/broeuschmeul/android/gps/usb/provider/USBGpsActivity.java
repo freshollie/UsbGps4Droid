@@ -33,10 +33,6 @@ public class USBGpsActivity extends Activity {
                 .commit();
     }
 
-    private boolean hasPermission(String perm) {
-        return (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, perm));
-    }
-
     @Override
     public void onResume() {
         super.onResume();
