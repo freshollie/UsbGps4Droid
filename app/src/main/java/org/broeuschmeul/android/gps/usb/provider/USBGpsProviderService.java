@@ -60,6 +60,8 @@ import android.support.v4.app.NotificationCompat;
  */
 public class USBGpsProviderService extends Service implements NmeaListener, LocationListener {
 
+    public static boolean running = false;
+
     public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING";
     public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
     public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER";
@@ -106,6 +108,7 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     @Override
     public void onCreate() {
         super.onCreate();
+        running = true;
         toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);
     }
 
@@ -250,7 +253,12 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
             edit.putBoolean(PREF_START_GPS_PROVIDER, false);
             edit.apply();
         }
+        running = false;
         super.onDestroy();
+    }
+
+    public static boolean isRunning() {
+        return running;
     }
 
     private void beginTrack() {
