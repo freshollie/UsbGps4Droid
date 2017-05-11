@@ -43,6 +43,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -135,7 +136,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == LOCATION_REQUEST) {
             Log.v(TAG, "Test");
             if (hasPermission(permissions[0])) {
@@ -165,6 +168,14 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     public void onResume() {
         usbCheckThread = new Thread(usbCheckRunnable);
         usbCheckThread.start();
+
+        // Basically check the service is really running
+        if (!USBGpsProviderService.isRunning()) {
+            sharedPref
+                    .edit()
+                    .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
+                    .apply();
+        }
 
         updateDevicePreferenceList();
         super.onResume();
@@ -257,7 +268,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         updateDevicesList();
 
         Preference pref = findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
-        pref.setEnabled(sharedPref.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false));
+        pref.setEnabled(
+                sharedPref.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
+        );
 
         pref = findPreference(USBGpsProviderService.PREF_MOCK_GPS_NAME);
         String mockProvider = sharedPref.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
