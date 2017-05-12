@@ -434,13 +434,24 @@ public class USBGpsManager {
 
             if (sirfGps) {
                 Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
-                connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                try {
+                    connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                } catch (NullPointerException e) {
+                    Log.e(LOG_TAG, "Connection error");
+                    close();
+                    return;
+                }
             }
 
             if (setDeviceSpeed) {
                 Log.v(LOG_TAG, "Setting connection speed to: " + deviceSpeed);
-                connectionSpeedBuffer.putInt(0, Integer.valueOf(deviceSpeed)); // Put the value in
-                connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); // Set baudrate
+                try {
+                    connectionSpeedBuffer.putInt(0, Integer.valueOf(deviceSpeed)); // Put the value in
+                    connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); // Set baudrate
+                } catch (NullPointerException e) {
+                    Log.e(LOG_TAG, "Could not set speed");
+                    close();
+                }
                 /*
                 connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);                //reset
                 connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);                //clear Rx
@@ -819,6 +830,9 @@ public class USBGpsManager {
      * @param device GPS device
      */
     private void openConnection(UsbDevice device) {
+        if (!getDeviceFromAttached().equals(device)) {
+            return;
+        }
         connected = true;
 
         if (setDeviceSpeed) {
