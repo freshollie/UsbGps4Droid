@@ -79,7 +79,7 @@
             android:summary="@string/pref_connection_retries_summary"
             android:title="@string/pref_connection_retries_title" />
     </PreferenceScreen>
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="false"
         android:disableDependentsState="false"
         android:enabled="true"
@@ -171,7 +171,7 @@
                 android:title="@string/pref_enable_static_navigation_title" />
         </PreferenceCategory>
     </PreferenceScreen>
-    <CheckBoxPreference
+    <SwitchPreference
         android:enabled="true"
         android:key="@string/pref_recording_key"
         android:persistent="true"
