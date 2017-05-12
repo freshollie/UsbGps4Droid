@@ -25,10 +25,13 @@ package org.broeuschmeul.android.gps.usb.provider;
 import java.util.HashMap;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 //import android.bluetooth.BluetoothAdapter;
 //import android.bluetooth.BluetoothDevice;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -37,12 +40,15 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.SwitchPreference;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.method.LinkMovementMethod;
@@ -67,7 +73,13 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 int newNum = usbManager.getDeviceList().values().size();
 
                 if (lastNum != newNum) {
-                    updateDevicesList();
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateDevicePreferenceSummary();
+                            updateDevicesList();
+                        }
+                    });
                     lastNum = newNum;
                 }
 
@@ -100,6 +112,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     //	private BluetoothAdapter bluetoothAdapter = null;
     private UsbManager usbManager = null;
     private String deviceName = "";
+    private Handler mainHandler;
 
     /**
      * Called when the activity is first created.
@@ -111,6 +124,8 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         sharedPref.registerOnSharedPreferenceChangeListener(this);
         usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
+
+        mainHandler = new Handler(getActivity().getMainLooper());
 
         Preference pref = findPreference(USBGpsProviderService.PREF_ABOUT);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -132,7 +147,10 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     }
 
     private boolean hasPermission(String perm) {
-        return (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(getActivity(), perm));
+        return (
+                PackageManager.PERMISSION_GRANTED ==
+                        ContextCompat.checkSelfPermission(getActivity(), perm)
+        );
     }
 
     @Override
@@ -170,7 +188,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         usbCheckThread.start();
 
         // Basically check the service is really running
-        if (!USBGpsProviderService.isRunning()) {
+        if (!isServiceActuallyRunning()) {
             sharedPref
                     .edit()
                     .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
@@ -186,6 +204,16 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         usbCheckThread.interrupt();
 
         super.onPause();
+    }
+
+    private boolean isServiceActuallyRunning() {
+        ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (USBGpsProviderService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void updateDevicePreferenceSummary() {
@@ -286,12 +314,10 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
             String s = getString(R.string.pref_gps_location_provider_summary);
             pref.setSummary(s);
             Log.v(TAG, "loc. provider: " + s);
-            Log.v(TAG, "loc. provider: " + pref.getSummary());
         } else {
             String s = getString(R.string.pref_mock_gps_name_summary, mockProvider);
             pref.setSummary(s);
             Log.v(TAG, "loc. provider: " + s);
-            Log.v(TAG, "loc. provider: " + pref.getSummary());
         }
 
         BaseAdapter adapter = (BaseAdapter) getPreferenceScreen().getRootAdapter();
@@ -362,12 +388,29 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
 
         if (USBGpsProviderService.PREF_START_GPS_PROVIDER.equals(key)) {
             boolean val = sharedPreferences.getBoolean(key, false);
-            CheckBoxPreference pref = (CheckBoxPreference) findPreference(key);
 
-            if (pref.isChecked() != val) {
-                pref.setChecked(val);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                SwitchPreference pref = (SwitchPreference)
+                        findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
 
-            } else if (val) {
+                if (pref.isChecked() != val) {
+                    pref.setChecked(val);
+                    if (!val) {
+                        showStopDialog();
+                    }
+                    return;
+                }
+            } else {
+                CheckBoxPreference pref = (CheckBoxPreference)
+                        findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
+
+                if (pref.isChecked() != val) {
+                    pref.setChecked(val);
+                    return;
+                }
+            }
+
+            if (val) {
                 if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
                     Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
                     serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
@@ -418,6 +461,58 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 ) {
             enableSirfFeature(key);
         }
+    }
+
+    private void clearNotification() {
+        NotificationManager nm = (NotificationManager)
+                getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(R.string.service_closed_because_connection_problem_notification_title);
+    }
+
+    private void showStopDialog() {
+        int reason = sharedPref.getInt(getString(R.string.pref_disable_reason_key), 0);
+
+        if (reason > 0) {
+            if (reason == R.string.msg_mock_location_disabled) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.service_closed_because_connection_problem_notification_title)
+                        .setMessage(
+                                getString(
+                                        R.string.service_closed_because_connection_problem_notification,
+                                        getString(R.string.msg_mock_location_disabled)
+                                )
+                        )
+                        .setPositiveButton("Open mock location settings",
+                                new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                clearNotification();
+                                startActivity(
+                                        new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                );
+                            }
+                        })
+                        .show();
+            } else {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.service_closed_because_connection_problem_notification_title)
+                        .setMessage(
+                                getString(
+                                        R.string.service_closed_because_connection_problem_notification,
+                                        getString(reason)
+                                )
+                        )
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                clearNotification();
+                            }
+                        })
+                        .show();
+            }
+        }
+
     }
 
     private void enableSirfFeature(String key) {

@@ -21,8 +21,6 @@ import android.util.Log;
 
 public class USBGpsActivity extends Activity {
 
-    private int LOCATION_REQUEST = 234234;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
