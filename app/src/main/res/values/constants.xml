@@ -38,6 +38,8 @@
     <string name="pref_gps_device_speed_key">gpsDeviceSpeed</string>
     <string name="pref_about_key">about</string>
 
+    <string name="pref_disable_reason_key">disableReason</string>
+
     <string name="pref_sirf_gps_key">sirfGps</string>
     <string name="pref_sirf_enable_gga_key">enableGGA</string>
     <string name="pref_sirf_enable_rmc_key">enableRMC</string>

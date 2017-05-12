@@ -60,8 +60,6 @@ import android.support.v4.app.NotificationCompat;
  */
 public class USBGpsProviderService extends Service implements NmeaListener, LocationListener {
 
-    public static boolean running = false;
-
     public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING";
     public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
     public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER";
@@ -85,7 +83,7 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     /**
      * Tag used for log messages
      */
-    private static final String LOG_TAG = "UsbGPS";
+    private static final String LOG_TAG = USBGpsProviderService.class.getSimpleName();
 
     public static final String PREF_SIRF_GPS = "sirfGps";
     public static final String PREF_SIRF_ENABLE_GGA = "enableGGA";
@@ -108,7 +106,6 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     @Override
     public void onCreate() {
         super.onCreate();
-        running = true;
         toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);
     }
 
@@ -152,6 +149,13 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
                                     new Intent(this, USBGpsActivity.class),
                                     PendingIntent.FLAG_CANCEL_CURRENT
                             );
+
+                    sharedPreferences
+                            .edit()
+                            .putInt(
+                                    getString(R.string.pref_disable_reason_key), 0
+                            )
+                            .apply();
 
                     Notification notification = new NotificationCompat.Builder(this)
                             .setContentIntent(launchIntent)
@@ -253,12 +257,8 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
             edit.putBoolean(PREF_START_GPS_PROVIDER, false);
             edit.apply();
         }
-        running = false;
-        super.onDestroy();
-    }
 
-    public static boolean isRunning() {
-        return running;
+        super.onDestroy();
     }
 
     private void beginTrack() {

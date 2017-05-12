@@ -101,6 +101,7 @@
 
     <string name="msg_mock_location_disabled">Mock locations disabled in settings</string>
     <string name="msg_mock_location_disabled_full">Mock locations disabled in settings\nClick here to enable mock locations</string>
+    <string name="msg_mock_location_disabled_full_dialog_text">Mock locations disabled in settings\nOpen mock location settings?</string>
     <string name="msg_gps_unavaible">Cannot connect to USB GPS</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
     <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>

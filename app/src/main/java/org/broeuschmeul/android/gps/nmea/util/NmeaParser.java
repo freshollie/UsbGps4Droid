@@ -33,6 +33,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -50,7 +51,7 @@ public class NmeaParser {
     /**
      * Tag used for log messages
      */
-    private static final String LOG_TAG = "UsbGPS";
+    private static final String LOG_TAG = NmeaParser.class.getSimpleName();
 
     private String fixTime = null;
     private long fixTimestamp;
@@ -247,7 +248,10 @@ public class NmeaParser {
             Log.v(LOG_TAG, "New Fix: " + System.currentTimeMillis() + " " + fix);
 
             if (lm != null && mockGpsEnabled) {
-                fix.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    fix.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+                }
 
                 try {
                     lm.setTestProviderLocation(mockLocationProvider, fix);
@@ -427,10 +431,12 @@ public class NmeaParser {
 
                     //Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
                     hasGGA = true;
-                    if (hasGGA && hasRMC) {
+
+                    if (hasRMC) {
                         notifyFix(fix);
                     }
-                } else if (quality.equals("0")) {
+
+                } else if (quality != null && quality.equals("0")) {
                     if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
                         long updateTime = parseNmeaTime(time);
                         notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
@@ -520,10 +526,10 @@ public class NmeaParser {
                     }
                     //	Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
                     hasRMC = true;
-                    if (hasGGA && hasRMC) {
+                    if (hasGGA) {
                         notifyFix(fix);
                     }
-                } else if (status.equals("V")) {
+                } else if (status != null && status.equals("V")) {
                     if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
                         long updateTime = parseNmeaTime(time);
                         notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
