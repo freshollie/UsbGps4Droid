@@ -102,6 +102,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     private static final String TAG = USBGpsSettingsFragment.class.getSimpleName();
 
     private static final int LOCATION_REQUEST = 238472383;
+    private static final int STORAGE_REQUEST = 8972842;
 
     public static int DEFAULT_GPS_PRODUCT_ID = 8963;
     public static int DEFAULT_GPS_VENDOR_ID = 1659;
@@ -158,12 +159,11 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == LOCATION_REQUEST) {
-            Log.v(TAG, "Test");
             if (hasPermission(permissions[0])) {
                 if (tryingToStart) {
                     tryingToStart = false;
 
-                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+                    Intent serviceIntent = new Intent(getActivity(), USBGpsProviderService.class);
                     serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
                     getActivity().startService(serviceIntent);
                 }
@@ -171,8 +171,24 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 tryingToStart = false;
                 sharedPref.edit().putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
                         .apply();
+                new AlertDialog.Builder(getActivity())
+                        .setMessage("Location access needs to be enabled for this app to function")
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+            }
+        } else if (requestCode == STORAGE_REQUEST) {
+            if (hasPermission(permissions[0])) {
+                Intent serviceIntent = new Intent(getActivity(), USBGpsProviderService.class);
+                serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
+                getActivity().startService(serviceIntent);
+            } else {
+                sharedPref
+                        .edit()
+                        .putBoolean(USBGpsProviderService.PREF_TRACK_RECORDING, false)
+                        .apply();
+
                 new AlertDialog.Builder(getActivity()).setMessage(
-                        "Mock location needs to be enabled for this app to function")
+                        "In order to write a track file, the app need storage permission")
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
             }
@@ -398,14 +414,20 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                     if (!val) {
                         showStopDialog();
                     }
+                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
                     return;
                 }
+
             } else {
                 CheckBoxPreference pref = (CheckBoxPreference)
                         findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
 
                 if (pref.isChecked() != val) {
                     pref.setChecked(val);
+                    if (!val) {
+                        showStopDialog();
+                    }
+                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
                     return;
                 }
             }
@@ -415,6 +437,10 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                     Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
                     serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
                     getActivity().startService(serviceIntent);
+                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(true);
+
+
+
                 } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         tryingToStart = true;
@@ -427,27 +453,55 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
                 serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
                 getActivity().startService(serviceIntent);
+                findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(false);
             }
 
         } else if (USBGpsProviderService.PREF_TRACK_RECORDING.equals(key)) {
             boolean val = sharedPreferences.getBoolean(key, false);
-            CheckBoxPreference pref = (CheckBoxPreference) findPreference(key);
-            if (pref.isChecked() != val) {
-                pref.setChecked(val);
-            } else if (val) {
-                Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
-                getActivity().startService(serviceIntent);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                SwitchPreference pref = (SwitchPreference)
+                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
+
+                if (pref.isChecked() != val) {
+                    pref.setChecked(val);
+                    return;
+                }
+
+            } else {
+                CheckBoxPreference pref = (CheckBoxPreference)
+                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
+
+                if (pref.isChecked() != val) {
+                    pref.setChecked(val);
+                    return;
+                }
+            }
+
+            if (val) {
+                if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                STORAGE_REQUEST);
+                    }
+                } else {
+                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+                    serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
+                    getActivity().startService(serviceIntent);
+                }
+
             } else {
                 Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
                 serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_TRACK_RECORDING);
                 getActivity().startService(serviceIntent);
             }
+
         } else if (USBGpsProviderService.PREF_GPS_DEVICE.equals(key)) {
             updateDevicePreferenceSummary();
 
         } else if (USBGpsProviderService.PREF_GPS_DEVICE_SPEED.equals(key)) {
             updateDevicePreferenceSummary();
+
         } else if (USBGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)
                 || USBGpsProviderService.PREF_SIRF_ENABLE_GGA.equals(key)
                 || USBGpsProviderService.PREF_SIRF_ENABLE_RMC.equals(key)
@@ -463,7 +517,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         }
     }
 
-    private void clearNotification() {
+    private void clearStopNotification() {
         NotificationManager nm = (NotificationManager)
                 getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(R.string.service_closed_because_connection_problem_notification_title);
@@ -486,7 +540,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                                 new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                clearNotification();
+                                clearStopNotification();
                                 startActivity(
                                         new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
                                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -506,7 +560,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                clearNotification();
+                                clearStopNotification();
                             }
                         })
                         .show();

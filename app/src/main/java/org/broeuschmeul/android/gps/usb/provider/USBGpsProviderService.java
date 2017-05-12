@@ -191,7 +191,7 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
                         edit.commit();
                     }
                     toast.setText(this.getString(R.string.msg_nmea_recording_started));
-                    //toast.show();
+                    toast.show();
                 } else {
                     endTrack();
                     if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
@@ -208,7 +208,7 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
                 gpsManager.removeNmeaListener(this);
                 endTrack();
                 toast.setText(this.getString(R.string.msg_nmea_recording_stopped));
-                //toast.show();
+                toast.show();
             }
             if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
                 edit.putBoolean(PREF_TRACK_RECORDING, false);
