@@ -26,7 +26,8 @@
         android:dialogTitle="@string/pref_gps_device_title"
         android:key="@string/pref_gps_device_key"
         android:summary="@string/pref_gps_device_summary"
-        android:title="@string/pref_gps_device_title" />
+        android:title="@string/pref_gps_device_title"
+        android:dependency="@string/pref_start_gps_key" />
     <ListPreference
         android:defaultValue="@string/defaultGpsDeviceSpeed"
         android:dependency="@string/pref_start_gps_key"
@@ -38,7 +39,6 @@
         android:persistent="true"
         android:title="@string/pref_gps_device_speed_title" />
     <SwitchPreference
-        android:dependency="@string/pref_gps_device_key"
         android:disableDependentsState="true"
         android:key="@string/pref_start_gps_key"
         android:persistent="true"
