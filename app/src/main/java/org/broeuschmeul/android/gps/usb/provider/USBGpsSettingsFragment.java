@@ -123,7 +123,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        sharedPref.registerOnSharedPreferenceChangeListener(this);
+
         usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
 
         mainHandler = new Handler(getActivity().getMainLooper());
@@ -203,6 +203,8 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         usbCheckThread = new Thread(usbCheckRunnable);
         usbCheckThread.start();
 
+        sharedPref.registerOnSharedPreferenceChangeListener(this);
+
         // Basically check the service is really running
         if (!isServiceActuallyRunning()) {
             sharedPref
@@ -218,6 +220,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     @Override
     public void onPause() {
         usbCheckThread.interrupt();
+        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
 
         super.onPause();
     }

@@ -1096,7 +1096,7 @@ public class USBGpsManager {
                 PendingIntent mockLocationsSettingsIntent = PendingIntent.getActivity(
                         appContext,
                         0,
-                        new Intent(callingService, USBGpsActivity.class),
+                        new Intent(callingService, GpsInfoActivity.class),
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
                 partialServiceStoppedNotification

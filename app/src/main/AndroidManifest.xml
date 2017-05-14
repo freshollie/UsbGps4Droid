@@ -26,23 +26,25 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"
+    <uses-permission
+        android:name="android.permission.ACCESS_MOCK_LOCATION"
         tools:ignore="MockLocation" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
-        android:fullBackupContent="@xml/backup_rules"
         android:allowClearUserData="true"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name">
-
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
         <activity
-            android:name=".USBGpsActivity"
+            android:name=".GpsInfoActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -52,13 +54,17 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING"/>
-                <action android:name="org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING"/>
-                <action android:name="org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER"/>
-                <action android:name="org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER"/>
+                <action android:name="org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING" />
+                <action android:name="org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING" />
+                <action android:name="org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER" />
+                <action android:name="org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER" />
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>
