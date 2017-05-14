@@ -9,6 +9,7 @@ android {
 
         versionCode 160
         versionName "Beta 1.4"
+        vectorDrawables.useSupportLibrary = true
     }
 
     applicationVariants.all { variant ->
@@ -30,6 +31,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:support-vector-drawable:25.3.1'
 }

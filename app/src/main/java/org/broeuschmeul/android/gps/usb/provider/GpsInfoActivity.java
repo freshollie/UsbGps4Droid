@@ -2,6 +2,7 @@ package org.broeuschmeul.android.gps.usb.provider;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,16 +20,12 @@ import android.util.Log;
  * Created by Oliver Bell 5/12/15
  */
 
-public class USBGpsActivity extends Activity {
+public class GpsInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new USBGpsSettingsFragment())
-                .commit();
+        startActivity(new Intent(this, SettingsActivity.class));
     }
 
     @Override
