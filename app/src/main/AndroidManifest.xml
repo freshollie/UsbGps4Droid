@@ -64,7 +64,12 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme" />
+            android:parentActivityName=".GpsInfoActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.broeuschmeul.android.gps.usb.provider.GpsInfoActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -40,6 +40,8 @@ import android.text.TextUtils;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * This class is used to parse NMEA sentences an generate the Android Locations when there is a new GPS FIX.
  * It manage also the Mock Location Provider (enable/disable/fix & status notification)
@@ -319,320 +321,344 @@ public class NmeaParser {
                             String.format("%02X", computeChecksum(sentence))
             );
 
-            SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
-            splitter.setString(sentence);
-            String command = splitter.next();
+            // If we don't have a valid checksum then we obviously don't have the correct sentence
+            if (checkSum != null &&
+                    checkSum.equals(String.format("%02X", computeChecksum(sentence)))) {
 
-            if (command.equals("GPGGA")) {
-                /* $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
-					
-					Where:
-					     GGA          Global Positioning System Fix Data
-					     123519       Fix taken at 12:35:19 UTC
-					     4807.038,N   Latitude 48 deg 07.038' N
-					     01131.000,E  Longitude 11 deg 31.000' E
-					     1            Fix quality: 0 = invalid
-					                               1 = GPS fix (SPS)
-					                               2 = DGPS fix
-					                               3 = PPS fix
-											       4 = Real Time Kinematic
-											       5 = Float RTK
-					                               6 = estimated (dead reckoning) (2.3 feature)
-											       7 = Manual input mode
-											       8 = Simulation mode
-					     08           Number of satellites being tracked
-					     0.9          Horizontal dilution of position
-					     545.4,M      Altitude, Meters, above mean sea level
-					     46.9,M       Height of geoid (mean sea level) above WGS84
-					                      ellipsoid
-					     (empty field) time in seconds since last DGPS update
-					     (empty field) DGPS station ID number
-					     *47          the checksum data, always begins with *
-				 */
+                SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
+                splitter.setString(sentence);
+                String command = splitter.next();
 
-                // UTC time of fix HHmmss.S
-                String time = splitter.next();
+                switch (command) {
+                    case "GPGGA": {
+                        /* $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
 
-                // latitude ddmm.M
-                String lat = splitter.next();
+                            Where:
+                                 GGA          Global Positioning System Fix Data
+                                 123519       Fix taken at 12:35:19 UTC
+                                 4807.038,N   Latitude 48 deg 07.038' N
+                                 01131.000,E  Longitude 11 deg 31.000' E
+                                 1            Fix quality: 0 = invalid
+                                                           1 = GPS fix (SPS)
+                                                           2 = DGPS fix
+                                                           3 = PPS fix
+                                                           4 = Real Time Kinematic
+                                                           5 = Float RTK
+                                                           6 = estimated (dead reckoning) (2.3 feature)
+                                                           7 = Manual input mode
+                                                           8 = Simulation mode
+                                 08           Number of satellites being tracked
+                                 0.9          Horizontal dilution of position
+                                 545.4,M      Altitude, Meters, above mean sea level
+                                 46.9,M       Height of geoid (mean sea level) above WGS84
+                                                  ellipsoid
+                                 (empty field) time in seconds since last DGPS update
+                                 (empty field) DGPS station ID number
+                                 *47          the checksum data, always begins with *
+                         */
 
-                // direction (N/S)
-                String latDir = splitter.next();
+                        // UTC time of fix HHmmss.S
+                        String time = splitter.next();
 
-                // longitude dddmm.M
-                String lon = splitter.next();
+                        // latitude ddmm.M
+                        String lat = splitter.next();
 
-                // direction (E/W)
-                String lonDir = splitter.next();
+                        // direction (N/S)
+                        String latDir = splitter.next();
 
-				/* fix quality: 
-				  	0= invalid
-					1 = GPS fix (SPS)
-					2 = DGPS fix
-					3 = PPS fix
-					4 = Real Time Kinematic
-					5 = Float RTK
-					6 = estimated (dead reckoning) (2.3 feature)
-					7 = Manual input mode
-					8 = Simulation mode
-				 */
-                String quality = splitter.next();
+                        // longitude dddmm.M
+                        String lon = splitter.next();
 
-                // Number of satellites being tracked
-                String nbSat = splitter.next();
+                        // direction (E/W)
+                        String lonDir = splitter.next();
 
-                // Horizontal dilution of position (float)
-                String hdop = splitter.next();
+                        /* fix quality:
+                            0= invalid
+                            1 = GPS fix (SPS)
+                            2 = DGPS fix
+                            3 = PPS fix
+                            4 = Real Time Kinematic
+                            5 = Float RTK
+                            6 = estimated (dead reckoning) (2.3 feature)
+                            7 = Manual input mode
+                            8 = Simulation mode
+                         */
+                        String quality = splitter.next();
 
-                // Altitude, Meters, above mean sea level
-                String alt = splitter.next();
+                        // Number of satellites being tracked
+                        String nbSat = splitter.next();
 
-                // Height of geoid (mean sea level) above WGS84 ellipsoid
-                String geoAlt = splitter.next();
+                        // Horizontal dilution of position (float)
+                        String hdop = splitter.next();
 
-                // time in seconds since last DGPS update
-                // DGPS station ID number
-                if (quality != null && !quality.equals("") && !quality.equals("0")) {
-                    if (this.mockStatus != LocationProvider.AVAILABLE) {
-                        long updateTime = parseNmeaTime(time);
-                        notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
+                        // Altitude, Meters, above mean sea level
+                        String alt = splitter.next();
+
+                        // Height of geoid (mean sea level) above WGS84 ellipsoid
+                        String geoAlt = splitter.next();
+
+                        // time in seconds since last DGPS update
+                        // DGPS station ID number
+                        if (quality != null && !quality.equals("") && !quality.equals("0")) {
+                            if (this.mockStatus != LocationProvider.AVAILABLE) {
+                                long updateTime = parseNmeaTime(time);
+                                notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
+                            }
+
+                            if (!time.equals(fixTime)) {
+                                notifyFix(fix);
+                                fix = new Location(mockLocationProvider);
+                                fixTime = time;
+                                fixTimestamp = parseNmeaTime(time);
+                                fix.setTime(fixTimestamp);
+                                //Log.v(LOG_TAG, "Fix: "+fix);
+                            }
+
+                            if (lat != null && !lat.equals("")) {
+                                fix.setLatitude(parseNmeaLatitude(lat, latDir));
+                            }
+
+                            if (lon != null && !lon.equals("")) {
+                                fix.setLongitude(parseNmeaLongitude(lon, lonDir));
+                            }
+
+                            if (hdop != null && !hdop.equals("")) {
+                                fix.setAccuracy(Float.parseFloat(hdop) * precision);
+                            }
+
+                            if (alt != null && !alt.equals("")) {
+                                fix.setAltitude(Double.parseDouble(alt));
+                            }
+
+                            if (nbSat != null && !nbSat.equals("")) {
+                                Bundle extras = new Bundle();
+                                extras.putInt("satellites", Integer.parseInt(nbSat));
+                                fix.setExtras(extras);
+                            }
+
+                            //Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
+                            hasGGA = true;
+
+                            if (hasRMC) {
+                                notifyFix(fix);
+                            }
+
+                        } else if (quality != null && quality.equals("0")) {
+                            if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
+                                long updateTime = parseNmeaTime(time);
+                                notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+                            }
+                        }
+
+                        break;
                     }
+                    case "GPRMC": {
+                        /* $GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
 
-                    if (!time.equals(fixTime)) {
-                        notifyFix(fix);
-                        fix = new Location(mockLocationProvider);
-                        fixTime = time;
-                        fixTimestamp = parseNmeaTime(time);
-                        fix.setTime(fixTimestamp);
-                        //Log.v(LOG_TAG, "Fix: "+fix);
+                           Where:
+                             RMC          Recommended Minimum sentence C
+                             123519       Fix taken at 12:35:19 UTC
+                             A            Status A=active or V=Void.
+                             4807.038,N   Latitude 48 deg 07.038' N
+                             01131.000,E  Longitude 11 deg 31.000' E
+                             022.4        Speed over the ground in knots
+                             084.4        Track angle in degrees True
+                             230394       Date - 23rd of March 1994
+                             003.1,W      Magnetic Variation
+                             *6A          The checksum data, always begins with *
+                        */
+
+                        // UTC time of fix HHmmss.S
+                        String time = splitter.next();
+
+                        // fix status (A/V)
+                        String status = splitter.next();
+
+                        // latitude ddmm.M
+                        String lat = splitter.next();
+
+                        // direction (N/S)
+                        String latDir = splitter.next();
+
+                        // longitude dddmm.M
+                        String lon = splitter.next();
+
+                        // direction (E/W)
+                        String lonDir = splitter.next();
+
+                        // Speed over the ground in knots
+                        String speed = splitter.next();
+
+                        // Track angle in degrees True
+                        String bearing = splitter.next();
+
+                        // UTC date of fix DDMMYY
+                        String date = splitter.next();
+
+                        // Magnetic Variation ddd.D
+                        String magn = splitter.next();
+
+                        // Magnetic variation direction (E/W)
+                        String magnDir = splitter.next();
+
+                        // for NMEA 0183 version 3.00 active the Mode indicator field is added
+                        // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
+                        if (status != null && !status.equals("") && status.equals("A")) {
+                            if (this.mockStatus != LocationProvider.AVAILABLE) {
+                                long updateTime = parseNmeaTime(time);
+                                notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
+                            }
+
+                            if (!time.equals(fixTime)) {
+                                notifyFix(fix);
+                                fix = new Location(mockLocationProvider);
+                                fixTime = time;
+                                fixTimestamp = parseNmeaTime(time);
+                                fix.setTime(fixTimestamp);
+                                //Log.v(LOG_TAG, "Fix: "+fix);
+                            }
+
+                            if (lat != null && !lat.equals("")) {
+                                fix.setLatitude(parseNmeaLatitude(lat, latDir));
+                            }
+
+                            if (lon != null && !lon.equals("")) {
+                                fix.setLongitude(parseNmeaLongitude(lon, lonDir));
+                            }
+
+                            if (speed != null && !speed.equals("")) {
+                                fix.setSpeed(parseNmeaSpeed(speed, "N"));
+                            }
+
+                            if (bearing != null && !bearing.equals("")) {
+                                fix.setBearing(Float.parseFloat(bearing));
+                            }
+                            //	Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
+                            hasRMC = true;
+                            if (hasGGA) {
+                                notifyFix(fix);
+                            }
+                        } else if (status != null && status.equals("V")) {
+                            if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
+                                long updateTime = parseNmeaTime(time);
+                                notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+                            }
+                        }
+
+                        break;
                     }
+                    case "GPGSA": {
+                        /*  $GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39
 
-                    if (lat != null && !lat.equals("")) {
-                        fix.setLatitude(parseNmeaLatitude(lat, latDir));
+                            Where:
+                                 GSA      Satellite status
+                                 A        Auto selection of 2D or 3D fix (M = manual)
+                                 3        3D fix - values include: 1 = no fix
+                                                                   2 = 2D fix
+                                                                   3 = 3D fix
+                                 04,05... PRNs of satellites used for fix (space for 12)
+                                 2.5      PDOP (Position dilution of precision)
+                                 1.3      Horizontal dilution of precision (HDOP)
+                                 2.1      Vertical dilution of precision (VDOP)
+                                 *39      the checksum data, always begins with *
+                         */
+                        // mode : A Auto selection of 2D or 3D fix / M = manual
+                        String mode = splitter.next();
+
+                        // fix type  : 1 - no fix / 2 - 2D / 3 - 3D
+                        String fixType = splitter.next();
+
+                        // discard PRNs of satellites used for fix (space for 12)
+                        for (int i = 0; ((i < 12) && (!"1".equals(fixType))); i++) {
+                            splitter.next();
+                        }
+
+                        // Position dilution of precision (float)
+                        String pdop = splitter.next();
+
+                        // Horizontal dilution of precision (float)
+                        String hdop = splitter.next();
+
+                        // Vertical dilution of precision (float)
+                        String vdop = splitter.next();
+
+                        break;
                     }
+                    case "GPVTG": {
+                    /*  $GPVTG,054.7,T,034.4,M,005.5,N,010.2,K*48
 
-                    if (lon != null && !lon.equals("")) {
-                        fix.setLongitude(parseNmeaLongitude(lon, lonDir));
+                        where:
+                                VTG          Track made good and ground speed
+                                054.7,T      True track made good (degrees)
+                                034.4,M      Magnetic track made good
+                                005.5,N      Ground speed, knots
+                                010.2,K      Ground speed, Kilometers per hour
+                                *48          Checksum
+                     */
+                        // Track angle in degrees True
+                        String bearing = splitter.next();
+
+                        // T
+                        splitter.next();
+
+                        // Magnetic track made good
+                        String magn = splitter.next();
+
+                        // M
+                        splitter.next();
+
+                        // Speed over the ground in knots
+                        String speedKnots = splitter.next();
+
+                        // N
+                        splitter.next();
+
+                        // Speed over the ground in Kilometers per hour
+                        String speedKm = splitter.next();
+
+                        // K
+                        splitter.next();
+                        // for NMEA 0183 version 3.00 active the Mode indicator field is added
+                        // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator)
+
+                        break;
                     }
+                    case "GPGLL": {
+                    /*  $GPGLL,4916.45,N,12311.12,W,225444,A,*1D
 
-                    if (hdop != null && !hdop.equals("")) {
-                        fix.setAccuracy(Float.parseFloat(hdop) * precision);
-                    }
-
-                    if (alt != null && !alt.equals("")) {
-                        fix.setAltitude(Double.parseDouble(alt));
-                    }
-
-                    if (nbSat != null && !nbSat.equals("")) {
-                        Bundle extras = new Bundle();
-                        extras.putInt("satellites", Integer.parseInt(nbSat));
-                        fix.setExtras(extras);
-                    }
-
-                    //Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
-                    hasGGA = true;
-
-                    if (hasRMC) {
-                        notifyFix(fix);
-                    }
-
-                } else if (quality != null && quality.equals("0")) {
-                    if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
-                        long updateTime = parseNmeaTime(time);
-                        notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+                        Where:
+                             GLL          Geographic position, Latitude and Longitude
+                             4916.46,N    Latitude 49 deg. 16.45 min. North
+                             12311.12,W   Longitude 123 deg. 11.12 min. West
+                             225444       Fix taken at 22:54:44 UTC
+                             A            Data Active or V (void)
+                             *iD          checksum data
+                     */
+                        // latitude ddmm.M
+                        String lat = splitter.next();
+                        // direction (N/S)
+                        String latDir = splitter.next();
+                        // longitude dddmm.M
+                        String lon = splitter.next();
+                        // direction (E/W)
+                        String lonDir = splitter.next();
+                        // UTC time of fix HHmmss.S
+                        String time = splitter.next();
+                        // fix status (A/V)
+                        String status = splitter.next();
+                        // for NMEA 0183 version 3.00 active the Mode indicator field is added
+                        // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
+                        break;
                     }
                 }
-
-            } else if (command.equals("GPRMC")) {
-				/* $GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
-	
-				   Where:
-				     RMC          Recommended Minimum sentence C
-				     123519       Fix taken at 12:35:19 UTC
-				     A            Status A=active or V=Void.
-				     4807.038,N   Latitude 48 deg 07.038' N
-				     01131.000,E  Longitude 11 deg 31.000' E
-				     022.4        Speed over the ground in knots
-				     084.4        Track angle in degrees True
-				     230394       Date - 23rd of March 1994
-				     003.1,W      Magnetic Variation
-				     *6A          The checksum data, always begins with *
-				*/
-
-                // UTC time of fix HHmmss.S
-                String time = splitter.next();
-
-                // fix status (A/V)
-                String status = splitter.next();
-
-                // latitude ddmm.M
-                String lat = splitter.next();
-
-                // direction (N/S)
-                String latDir = splitter.next();
-
-                // longitude dddmm.M
-                String lon = splitter.next();
-
-                // direction (E/W)
-                String lonDir = splitter.next();
-
-                // Speed over the ground in knots
-                String speed = splitter.next();
-
-                // Track angle in degrees True
-                String bearing = splitter.next();
-
-                // UTC date of fix DDMMYY
-                String date = splitter.next();
-
-                // Magnetic Variation ddd.D
-                String magn = splitter.next();
-
-                // Magnetic variation direction (E/W)
-                String magnDir = splitter.next();
-
-                // for NMEA 0183 version 3.00 active the Mode indicator field is added
-                // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
-                if (status != null && !status.equals("") && status.equals("A")) {
-                    if (this.mockStatus != LocationProvider.AVAILABLE) {
-                        long updateTime = parseNmeaTime(time);
-                        notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
-                    }
-
-                    if (!time.equals(fixTime)) {
-                        notifyFix(fix);
-                        fix = new Location(mockLocationProvider);
-                        fixTime = time;
-                        fixTimestamp = parseNmeaTime(time);
-                        fix.setTime(fixTimestamp);
-                        //Log.v(LOG_TAG, "Fix: "+fix);
-                    }
-
-                    if (lat != null && !lat.equals("")) {
-                        fix.setLatitude(parseNmeaLatitude(lat, latDir));
-                    }
-
-                    if (lon != null && !lon.equals("")) {
-                        fix.setLongitude(parseNmeaLongitude(lon, lonDir));
-                    }
-
-                    if (speed != null && !speed.equals("")) {
-                        fix.setSpeed(parseNmeaSpeed(speed, "N"));
-                    }
-
-                    if (bearing != null && !bearing.equals("")) {
-                        fix.setBearing(Float.parseFloat(bearing));
-                    }
-                    //	Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
-                    hasRMC = true;
-                    if (hasGGA) {
-                        notifyFix(fix);
-                    }
-                } else if (status != null && status.equals("V")) {
-                    if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
-                        long updateTime = parseNmeaTime(time);
-                        notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
-                    }
-                }
-
-            } else if (command.equals("GPGSA")) {
-				/*  $GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39
-	
-					Where:
-					     GSA      Satellite status
-					     A        Auto selection of 2D or 3D fix (M = manual) 
-					     3        3D fix - values include: 1 = no fix
-					                                       2 = 2D fix
-					                                       3 = 3D fix
-					     04,05... PRNs of satellites used for fix (space for 12) 
-					     2.5      PDOP (Position dilution of precision) 
-					     1.3      Horizontal dilution of precision (HDOP) 
-					     2.1      Vertical dilution of precision (VDOP)
-					     *39      the checksum data, always begins with *
-				 */
-                // mode : A Auto selection of 2D or 3D fix / M = manual
-                String mode = splitter.next();
-
-                // fix type  : 1 - no fix / 2 - 2D / 3 - 3D
-                String fixType = splitter.next();
-
-                // discard PRNs of satellites used for fix (space for 12)
-                for (int i = 0; ((i < 12) && (!"1".equals(fixType))); i++) {
-                    splitter.next();
-                }
-
-                // Position dilution of precision (float)
-                String pdop = splitter.next();
-
-                // Horizontal dilution of precision (float)
-                String hdop = splitter.next();
-
-                // Vertical dilution of precision (float)
-                String vdop = splitter.next();
-
-            } else if (command.equals("GPVTG")) {
-				/*  $GPVTG,054.7,T,034.4,M,005.5,N,010.2,K*48
-					
-					where:
-					        VTG          Track made good and ground speed
-					        054.7,T      True track made good (degrees)
-					        034.4,M      Magnetic track made good
-					        005.5,N      Ground speed, knots
-					        010.2,K      Ground speed, Kilometers per hour
-					        *48          Checksum
-				 */
-                // Track angle in degrees True
-                String bearing = splitter.next();
-
-                // T
-                splitter.next();
-
-                // Magnetic track made good
-                String magn = splitter.next();
-
-                // M
-                splitter.next();
-
-                // Speed over the ground in knots
-                String speedKnots = splitter.next();
-
-                // N
-                splitter.next();
-
-                // Speed over the ground in Kilometers per hour
-                String speedKm = splitter.next();
-
-                // K
-                splitter.next();
-                // for NMEA 0183 version 3.00 active the Mode indicator field is added
-                // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator)
-
-            } else if (command.equals("GPGLL")) {
-				/*  $GPGLL,4916.45,N,12311.12,W,225444,A,*1D
-					
-					Where:
-					     GLL          Geographic position, Latitude and Longitude
-					     4916.46,N    Latitude 49 deg. 16.45 min. North
-					     12311.12,W   Longitude 123 deg. 11.12 min. West
-					     225444       Fix taken at 22:54:44 UTC
-					     A            Data Active or V (void)
-					     *iD          checksum data
-				 */
-                // latitude ddmm.M
-                String lat = splitter.next();
-                // direction (N/S)
-                String latDir = splitter.next();
-                // longitude dddmm.M
-                String lon = splitter.next();
-                // direction (E/W)
-                String lonDir = splitter.next();
-                // UTC time of fix HHmmss.S
-                String time = splitter.next();
-                // fix status (A/V)
-                String status = splitter.next();
-                // for NMEA 0183 version 3.00 active the Mode indicator field is added
-                // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
+            } else {
+                // As we have received some awful data, it is safe to assume we have missed the
+                // current fix, so reset all of the current values and restart
+                Log.e(TAG, "Sentence invalid, checksums don't match");
+                hasGGA = false;
+                hasRMC = false;
+                fixTime = null;
+                return null;
             }
         }
         return nmeaSentence;

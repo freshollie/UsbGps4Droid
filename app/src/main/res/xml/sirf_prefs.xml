@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:order="200"
+        android:orderingFromXml="true"
+        android:title="@string/pref_sirf_nmea_category_title">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="false"
+            android:key="@string/pref_sirf_enable_gga_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_gga_summary_off"
+            android:summaryOn="@string/pref_enable_gga_summary_on"
+            android:title="@string/pref_enable_gga_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="false"
+            android:key="@string/pref_sirf_enable_rmc_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_rmc_summary_off"
+            android:summaryOn="@string/pref_enable_rmc_summary_on"
+            android:title="@string/pref_enable_rmc_title" />
+        <CheckBoxPreference
+            android:key="@string/pref_sirf_enable_gsa_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_gsa_summary_off"
+            android:summaryOn="@string/pref_enable_gsa_summary_on"
+            android:title="@string/pref_enable_gsa_title" />
+        <CheckBoxPreference
+            android:key="@string/pref_sirf_enable_gsv_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_gsv_summary_off"
+            android:summaryOn="@string/pref_enable_gsv_summary_on"
+            android:title="@string/pref_enable_gsv_title" />
+        <CheckBoxPreference
+            android:key="@string/pref_sirf_enable_vtg_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_vtg_summary_off"
+            android:summaryOn="@string/pref_enable_vtg_summary_on"
+            android:title="@string/pref_enable_vtg_title" />
+        <CheckBoxPreference
+            android:key="@string/pref_sirf_enable_gll_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_gll_summary_off"
+            android:summaryOn="@string/pref_enable_gll_summary_on"
+            android:title="@string/pref_enable_gll_title" />
+        <CheckBoxPreference
+            android:key="@string/pref_sirf_enable_zda_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_zda_summary_off"
+            android:summaryOn="@string/pref_enable_zda_summary_on"
+            android:title="@string/pref_enable_zda_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:order="100"
+        android:title="@string/pref_sirf_gps_category_title">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_sirf_enable_sbas_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_sbas_summary_off"
+            android:summaryOn="@string/pref_enable_sbas_summary_on"
+            android:title="@string/pref_enable_sbas_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="false"
+            android:key="@string/pref_sirf_enable_nmea_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_nmea_summary_off"
+            android:summaryOn="@string/pref_enable_nmea_summary_on"
+            android:title="@string/pref_enable_nmea_title" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/pref_sirf_enable_static_navigation_key"
+            android:persistent="true"
+            android:summaryOff="@string/pref_enable_static_navigation_summary_off"
+            android:summaryOn="@string/pref_enable_static_navigation_summary_on"
+            android:title="@string/pref_enable_static_navigation_title" />
+    </PreferenceCategory>
+</PreferenceScreen>
