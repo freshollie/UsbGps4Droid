@@ -31,7 +31,7 @@ import android.view.MenuItem;
  * the nested settings.
  */
 
-public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
+public abstract class USBGpsBaseActivity extends AppCompatActivity implements
         USBGpsSettingsFragment.PreferenceScreenListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -49,7 +49,6 @@ public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         if (savedInstanceState != null) {
             shouldInitialise = false;
@@ -63,6 +62,18 @@ public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
         }
 
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
     }
 
     /**
@@ -109,21 +120,23 @@ public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
                                 })
                         .show();
             } else {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.service_closed_because_connection_problem_notification_title)
-                        .setMessage(
-                                getString(
-                                        R.string.service_closed_because_connection_problem_notification,
-                                        getString(reason)
-                                )
-                        )
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                clearStopNotification();
-                            }
-                        })
-                        .show();
+                if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.service_closed_because_connection_problem_notification_title)
+                            .setMessage(
+                                    getString(
+                                            R.string.service_closed_because_connection_problem_notification,
+                                            getString(reason)
+                                    )
+                            )
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    clearStopNotification();
+                                }
+                            })
+                            .show();
+                }
             }
         }
     }
@@ -162,7 +175,7 @@ public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
                 sharedPreferences.edit().putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
                         .apply();
                 new AlertDialog.Builder(this)
-                        .setMessage("Location access needs to be enabled for this app to function")
+                        .setMessage("Location permission is required for UsbGps to function")
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
 
@@ -189,7 +202,6 @@ public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
         }
     }
 
-
     /**
      * Handles service attributes changing and requesting permissions
      */
@@ -205,6 +217,8 @@ public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
                 }
 
                 if (val) {
+
+                    // If we have location permission then we can start the service
                     if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
                         Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
                         serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
@@ -212,6 +226,7 @@ public abstract class UsbGpsBaseActivity extends AppCompatActivity implements
 
 
                     } else {
+                        // Other wise we need to request for the permission
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             tryingToStart = true;
                             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},

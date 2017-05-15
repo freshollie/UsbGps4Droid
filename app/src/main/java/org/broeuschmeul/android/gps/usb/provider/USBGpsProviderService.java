@@ -167,7 +167,6 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
                     Notification notification = new NotificationCompat.Builder(this)
                             .setContentIntent(launchIntent)
                             .setSmallIcon(R.drawable.ic_stat_notify)
-                            .setWhen(System.currentTimeMillis())
                             .setAutoCancel(true)
                             .setContentTitle(getString(R.string.foreground_service_started_notification_title))
                             .setContentText(getString(R.string.foreground_gps_provider_started_notification))
