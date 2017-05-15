@@ -17,7 +17,7 @@ import android.view.MenuItem;
  * Created by Oliver Bell 5/12/15
  */
 
-public class GpsInfoActivity extends UsbGpsBaseActivity {
+public class GpsInfoActivity extends USBGpsBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
