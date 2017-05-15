@@ -29,9 +29,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 //import android.bluetooth.BluetoothAdapter;
 //import android.bluetooth.BluetoothDevice;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -48,7 +46,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.SwitchPreference;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.method.LinkMovementMethod;
@@ -64,6 +61,8 @@ import android.widget.TextView;
  */
 public class USBGpsSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 
+
+    // Checks for usb devices that connect while the screen is active
     private Runnable usbCheckRunnable = new Runnable() {
         @Override
         public void run() {
@@ -110,34 +109,35 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     private boolean tryingToStart = false;
 
     private SharedPreferences sharedPref;
-    //	private BluetoothAdapter bluetoothAdapter = null;
+
     private UsbManager usbManager = null;
     private String deviceName = "";
     private Handler mainHandler;
 
+    private PreferenceScreenListener callback;
+
+    public interface PreferenceScreenListener {
+        void onNestedScreenClicked(PreferenceFragment preferenceFragment);
+    }
+
     /**
-     * Called when the activity is first created.
+     * Called when the fragment is first created.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.pref);
+
         sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
 
         mainHandler = new Handler(getActivity().getMainLooper());
 
-        Preference pref = findPreference(USBGpsProviderService.PREF_ABOUT);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                USBGpsSettingsFragment.this.displayAboutDialog();
-                return true;
-            }
-        });
+        addPreferencesFromResource(R.xml.main_prefs);
 
         findPreference(USBGpsProviderService.PREF_GPS_DEVICE).setOnPreferenceChangeListener(this);
+
+        setupNestedPreferences();
 
         if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -147,6 +147,59 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         }
     }
 
+    private void setupNestedPreferences() {
+        findPreference(USBGpsProviderService.PREF_ABOUT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                USBGpsSettingsFragment.this.displayAboutDialog();
+                return true;
+            }
+        });
+
+        findPreference(getString(R.string.pref_gps_location_provider_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        callback.onNestedScreenClicked(new ProviderPreferences());
+                        return false;
+                    }
+                });
+
+        findPreference(getString(R.string.pref_sirf_screen_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        callback.onNestedScreenClicked(new SirfPreferences());
+                        return false;
+                    }
+                });
+
+        findPreference(getString(R.string.pref_recording_screen_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        callback.onNestedScreenClicked(new RecordingPreferences());
+                        return false;
+                    }
+                });
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof PreferenceScreenListener) {
+            callback = (PreferenceScreenListener) context;
+        } else {
+            throw new IllegalStateException("Owner must implement PreferenceScreenListener interface");
+        }
+    }
+
+    /**
+     * Checks if the applications has the given runtime permission
+     * @param perm
+     * @return
+     */
     private boolean hasPermission(String perm) {
         return (
                 PackageManager.PERMISSION_GRANTED ==
@@ -154,6 +207,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         );
     }
 
+    /**
+     * Android 6.0 requires permissions to be accepted at runtime
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
@@ -167,6 +223,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                     serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
                     getActivity().startService(serviceIntent);
                 }
+
             } else {
                 tryingToStart = false;
                 sharedPref.edit().putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
@@ -175,12 +232,15 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                         .setMessage("Location access needs to be enabled for this app to function")
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
+
             }
+
         } else if (requestCode == STORAGE_REQUEST) {
             if (hasPermission(permissions[0])) {
                 Intent serviceIntent = new Intent(getActivity(), USBGpsProviderService.class);
                 serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
                 getActivity().startService(serviceIntent);
+
             } else {
                 sharedPref
                         .edit()
@@ -191,13 +251,12 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                         "In order to write a track file, the app need storage permission")
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
+
             }
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onResume()
-	 */
+
     @Override
     public void onResume() {
         usbCheckThread = new Thread(usbCheckRunnable);
@@ -225,6 +284,10 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         super.onPause();
     }
 
+    /**
+     * If the service is killed then the shared preference for the service is never updated.
+     * This checks if the service is running from the running preferences list
+     */
     private boolean isServiceActuallyRunning() {
         ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -235,9 +298,10 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         return false;
     }
 
+    /**
+     * Updates the device summary based on the connected devices.
+     */
     private void updateDevicePreferenceSummary() {
-        // update usb device summary
-
         ListPreference prefDevices = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE);
 
         prefDevices.setValue("current");
@@ -250,7 +314,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
 
     /**
      * Gets a summary of the current select product and vendor ids
-     * @return
      */
     private String getSelectedDeviceSummary() {
         int productId = sharedPref.getInt(
@@ -278,6 +341,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         return deviceDisplayedName;
     }
 
+    /**
+     * Updates the list of available devices in the list preference
+     */
     private void updateDevicesList() {
         ListPreference prefDevices = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE);
 
@@ -307,26 +373,24 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         prefDevices.setEntries(entries);
     }
 
+    /**
+     * Refreshes all of the preferences on the screen
+     */
     private void updateDevicePreferenceList() {
+        Preference pref;
+
+        String mockProvider = sharedPref.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+
         // update usb device summary
         updateDevicePreferenceSummary();
 
         // update usb device list
         updateDevicesList();
 
-        Preference pref = findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
+        pref = findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
         pref.setEnabled(
                 sharedPref.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
         );
-
-        pref = findPreference(USBGpsProviderService.PREF_MOCK_GPS_NAME);
-        String mockProvider = sharedPref.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
-
-        pref.setSummary(getString(R.string.pref_mock_gps_name_summary, mockProvider));
-        pref = findPreference(USBGpsProviderService.PREF_CONNECTION_RETRIES);
-
-        String maxConnRetries = sharedPref.getString(USBGpsProviderService.PREF_CONNECTION_RETRIES, getString(R.string.defaultConnectionRetries));
-        pref.setSummary(getString(R.string.pref_connection_retries_summary, maxConnRetries));
 
         pref = findPreference(USBGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
         if (sharedPref.getBoolean(USBGpsProviderService.PREF_REPLACE_STD_GPS, true)) {
@@ -405,184 +469,183 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Shared preferences changed: " + key);
 
-        if (USBGpsProviderService.PREF_START_GPS_PROVIDER.equals(key)) {
-            boolean val = sharedPreferences.getBoolean(key, false);
+        switch (key) {
+            case USBGpsProviderService.PREF_START_GPS_PROVIDER: {
+                boolean val = sharedPreferences.getBoolean(key, false);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                SwitchPreference pref = (SwitchPreference)
-                        findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    SwitchPreference pref = (SwitchPreference)
+                            findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
 
-                if (pref.isChecked() != val) {
-                    pref.setChecked(val);
-                    if (!val) {
-                        showStopDialog();
+                    if (pref.isChecked() != val) {
+                        pref.setChecked(val);
+                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
+                        return;
                     }
-                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
-                    return;
-                }
-
-            } else {
-                CheckBoxPreference pref = (CheckBoxPreference)
-                        findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
-
-                if (pref.isChecked() != val) {
-                    pref.setChecked(val);
-                    if (!val) {
-                        showStopDialog();
-                    }
-                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
-                    return;
-                }
-            }
-
-            if (val) {
-                if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                    serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
-                    getActivity().startService(serviceIntent);
-                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(true);
-
-
 
                 } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        tryingToStart = true;
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                LOCATION_REQUEST);
+                    CheckBoxPreference pref = (CheckBoxPreference)
+                            findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
+
+                    if (pref.isChecked() != val) {
+                        pref.setChecked(val);
+                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
+                        return;
                     }
                 }
 
-            } else {
-                Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
-                getActivity().startService(serviceIntent);
-                findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(false);
-            }
+                if (val) {
+                    if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+                        serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
+                        getActivity().startService(serviceIntent);
+                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(true);
 
-        } else if (USBGpsProviderService.PREF_TRACK_RECORDING.equals(key)) {
-            boolean val = sharedPreferences.getBoolean(key, false);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                SwitchPreference pref = (SwitchPreference)
-                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
-
-                if (pref.isChecked() != val) {
-                    pref.setChecked(val);
-                    return;
-                }
-
-            } else {
-                CheckBoxPreference pref = (CheckBoxPreference)
-                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
-
-                if (pref.isChecked() != val) {
-                    pref.setChecked(val);
-                    return;
-                }
-            }
-
-            if (val) {
-                if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                STORAGE_REQUEST);
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            tryingToStart = true;
+                            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    LOCATION_REQUEST);
+                        }
                     }
+
                 } else {
                     Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                    serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
+                    serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
+                    getActivity().startService(serviceIntent);
+                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(false);
+                }
+
+                break;
+            }
+            case USBGpsProviderService.PREF_TRACK_RECORDING: {
+                boolean val = sharedPreferences.getBoolean(key, false);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    SwitchPreference pref = (SwitchPreference)
+                            findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
+
+                    if (pref.isChecked() != val) {
+                        pref.setChecked(val);
+                        return;
+                    }
+
+                } else {
+                    CheckBoxPreference pref = (CheckBoxPreference)
+                            findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
+
+                    if (pref.isChecked() != val) {
+                        pref.setChecked(val);
+                        return;
+                    }
+                }
+
+                if (val) {
+                    if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    STORAGE_REQUEST);
+                        }
+                    } else {
+                        Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+                        serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
+                        getActivity().startService(serviceIntent);
+                    }
+
+                } else {
+                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+                    serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_TRACK_RECORDING);
                     getActivity().startService(serviceIntent);
                 }
 
-            } else {
-                Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_TRACK_RECORDING);
-                getActivity().startService(serviceIntent);
+                break;
             }
+            case USBGpsProviderService.PREF_GPS_DEVICE:
+                updateDevicePreferenceSummary();
+                break;
 
-        } else if (USBGpsProviderService.PREF_GPS_DEVICE.equals(key)) {
-            updateDevicePreferenceSummary();
+            case USBGpsProviderService.PREF_GPS_DEVICE_SPEED:
+                updateDevicePreferenceSummary();
+                break;
 
-        } else if (USBGpsProviderService.PREF_GPS_DEVICE_SPEED.equals(key)) {
-            updateDevicePreferenceSummary();
-
-        } else if (USBGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_GGA.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_RMC.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_VTG.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_GSA.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_GSV.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_ZDA.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_SBAS.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_NMEA.equals(key)
-                || USBGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION.equals(key)
-                ) {
-            enableSirfFeature(key);
         }
     }
 
-    private void clearStopNotification() {
-        NotificationManager nm = (NotificationManager)
-                getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancel(R.string.service_closed_because_connection_problem_notification_title);
+    public static class ProviderPreferences extends PreferenceFragment {
+        SharedPreferences sharedPreferences;
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            sharedPreferences = getPreferenceManager().getSharedPreferences();
+
+            addPreferencesFromResource(R.xml.provider_prefs);
+            updatePreferenceDetails();
+        }
+
+        public void updatePreferenceDetails() {
+
+            String mockProvider = sharedPreferences.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+
+            Preference pref = findPreference(USBGpsProviderService.PREF_MOCK_GPS_NAME);
+            pref.setSummary(getString(R.string.pref_mock_gps_name_summary, mockProvider));
+
+            pref = findPreference(USBGpsProviderService.PREF_CONNECTION_RETRIES);
+
+            String maxConnRetries = sharedPreferences.getString(USBGpsProviderService.PREF_CONNECTION_RETRIES, getString(R.string.defaultConnectionRetries));
+            pref.setSummary(getString(R.string.pref_connection_retries_summary, maxConnRetries));
+        }
     }
 
-    private void showStopDialog() {
-        int reason = sharedPref.getInt(getString(R.string.pref_disable_reason_key), 0);
+    public static class SirfPreferences extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+        SharedPreferences sharedPreferences;
 
-        if (reason > 0) {
-            if (reason == R.string.msg_mock_location_disabled) {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.service_closed_because_connection_problem_notification_title)
-                        .setMessage(
-                                getString(
-                                        R.string.service_closed_because_connection_problem_notification,
-                                        getString(R.string.msg_mock_location_disabled)
-                                )
-                        )
-                        .setPositiveButton("Open mock location settings",
-                                new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                clearStopNotification();
-                                startActivity(
-                                        new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
-                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                );
-                            }
-                        })
-                        .show();
-            } else {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.service_closed_because_connection_problem_notification_title)
-                        .setMessage(
-                                getString(
-                                        R.string.service_closed_because_connection_problem_notification,
-                                        getString(reason)
-                                )
-                        )
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                clearStopNotification();
-                            }
-                        })
-                        .show();
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            sharedPreferences = getPreferenceManager().getSharedPreferences();
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+            addPreferencesFromResource(R.xml.sirf_prefs);
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (USBGpsProviderService.PREF_SIRF_ENABLE_GLL.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_GGA.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_RMC.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_VTG.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_GSA.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_GSV.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_ZDA.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_SBAS.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_NMEA.equals(key)
+                    || USBGpsProviderService.PREF_SIRF_ENABLE_STATIC_NAVIGATION.equals(key)
+                    ) {
+                enableSirfFeature(key);
             }
         }
 
-    }
-
-    private void enableSirfFeature(String key) {
-        CheckBoxPreference pref = (CheckBoxPreference) (findPreference(key));
-        if (pref.isChecked() != sharedPref.getBoolean(key, false)) {
-            pref.setChecked(sharedPref.getBoolean(key, false));
-        } else {
-
+        private void enableSirfFeature(String key) {
             Intent configIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
             configIntent.setAction(USBGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
-            configIntent.putExtra(key, pref.isChecked());
+            configIntent.putExtra(key, sharedPreferences.getBoolean(key, false));
             getActivity().startService(configIntent);
+        }
 
+        @Override
+        public void onDestroy() {
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+            super.onDestroy();
+        }
+    }
+
+    public static class RecordingPreferences extends PreferenceFragment {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.recording_prefs);
         }
     }
 }

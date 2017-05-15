@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:disableDependentsState="true"
+        android:key="@string/pref_replace_std_gps_key"
+        android:persistent="true"
+        android:summaryOff="@string/pref_replace_std_gps_summary_off"
+        android:summaryOn="@string/pref_replace_std_gps_summary_on"
+        android:title="@string/pref_replace_std_gps_title" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_force_enable_provider_key"
+        android:persistent="true"
+        android:summaryOff="@string/pref_force_enable_provider_summary_off"
+        android:summaryOn="@string/pref_force_enable_provider_summary_on"
+        android:title="@string/pref_force_enable_provider_title" />
+    <EditTextPreference
+        android:defaultValue="@string/defaultMockGpsName"
+        android:dependency="@string/pref_replace_std_gps_key"
+        android:key="@string/pref_mock_gps_name_key"
+        android:summary="@string/pref_mock_gps_name_summary"
+        android:title="@string/pref_mock_gps_name_title" />
+    <EditTextPreference
+        android:defaultValue="@string/defaultConnectionRetries"
+        android:inputType="numberDecimal"
+        android:key="@string/pref_connection_retries_key"
+        android:summary="@string/pref_connection_retries_summary"
+        android:title="@string/pref_connection_retries_title" />
+</PreferenceScreen>
