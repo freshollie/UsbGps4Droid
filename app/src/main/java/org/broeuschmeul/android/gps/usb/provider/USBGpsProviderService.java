@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -62,6 +63,8 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     public static final String ACTION_START_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER";
     public static final String ACTION_STOP_GPS_PROVIDER = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.STOP_GPS_PROVIDER";
     public static final String ACTION_CONFIGURE_SIRF_GPS = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.CONFIGURE_SIRF_GPS";
+    public static final String ACTION_ENABLE_SIRF_GPS = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.ENABLE_SIRF_GPS";
+
     public static final String PREF_START_GPS_PROVIDER = "startGps";
     public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
     public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
@@ -98,12 +101,12 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     private PrintWriter writer;
     private File trackFile;
     private boolean preludeWritten = false;
-    private Toast toast;
+
+    private boolean debugToasts = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        toast = Toast.makeText(getApplicationContext(), "NMEA track recording... on", Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -111,12 +114,19 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = sharedPreferences.edit();
 
+        debugToasts = sharedPreferences.getBoolean(getString(R.string.pref_toast_logging_key), false);
+
         int vendorId = sharedPreferences.getInt(PREF_GPS_DEVICE_VENDOR_ID,
                 USBGpsSettingsFragment.DEFAULT_GPS_VENDOR_ID);
         int productId = sharedPreferences.getInt(PREF_GPS_DEVICE_PRODUCT_ID,
                 USBGpsSettingsFragment.DEFAULT_GPS_PRODUCT_ID);
 
-        int maxConRetries = Integer.parseInt(sharedPreferences.getString(PREF_CONNECTION_RETRIES, this.getString(R.string.defaultConnectionRetries)));
+        int maxConRetries = Integer.parseInt(
+                sharedPreferences.getString(
+                        PREF_CONNECTION_RETRIES,
+                        this.getString(R.string.defaultConnectionRetries)
+                )
+        );
 
         if (BuildConfig.DEBUG) {
             Log.d(LOG_TAG, "prefs device addr: " + vendorId + " - " + productId);
@@ -165,62 +175,52 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
 
                     startForeground(R.string.foreground_gps_provider_started_notification, notification);
 
-                    toast.setText(this.getString(R.string.msg_gps_provider_started));
-                    //toast.show();
+                    showToast(R.string.msg_gps_provider_started);
+
+                    if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)) {
+                        startTracking();
+                    }
                 } else {
                     stopSelf();
                 }
 
             } else {
-                // We received a start intent so restart
+                // We received a start intent even though it's already running so restart
                 stopSelf();
                 startService(new Intent(this, USBGpsProviderService.class)
                         .setAction(intent.getAction()));
             }
 
         } else if (ACTION_START_TRACK_RECORDING.equals(intent.getAction())) {
-            if (trackFile == null) {
-                if (gpsManager != null) {
-                    beginTrack();
-                    gpsManager.addNmeaListener(this);
-                    if (!sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)) {
-                        edit.putBoolean(PREF_TRACK_RECORDING, true);
-                        edit.commit();
-                    }
-                    toast.setText(this.getString(R.string.msg_nmea_recording_started));
-                    toast.show();
-                } else {
-                    endTrack();
-                    if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
-                        edit.putBoolean(PREF_TRACK_RECORDING, false);
-                        edit.commit();
-                    }
-                }
-            } else {
-                toast.setText(this.getString(R.string.msg_nmea_recording_already_started));
-                //toast.show();
-            }
+            startTracking();
+
         } else if (ACTION_STOP_TRACK_RECORDING.equals(intent.getAction())) {
             if (gpsManager != null) {
                 gpsManager.removeNmeaListener(this);
                 endTrack();
-                toast.setText(this.getString(R.string.msg_nmea_recording_stopped));
-                toast.show();
+                showToast(this.getString(R.string.msg_nmea_recording_stopped));
             }
             if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
                 edit.putBoolean(PREF_TRACK_RECORDING, false);
                 edit.commit();
             }
+
         } else if (ACTION_STOP_GPS_PROVIDER.equals(intent.getAction())) {
             if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)) {
                 edit.putBoolean(PREF_START_GPS_PROVIDER, false);
                 edit.commit();
             }
             stopSelf();
-        } else if (ACTION_CONFIGURE_SIRF_GPS.equals(intent.getAction())) {
+
+        } else if (ACTION_CONFIGURE_SIRF_GPS.equals(intent.getAction()) ||
+                ACTION_ENABLE_SIRF_GPS.equals(intent.getAction())) {
             if (gpsManager != null) {
                 Bundle extras = intent.getExtras();
-                gpsManager.enableSirfConfig(extras);
+                if (extras != null) {
+                    gpsManager.enableSirfConfig(extras);
+                } else {
+                    gpsManager.enableSirfConfig(sharedPreferences);
+                }
             }
         }
         return Service.START_NOT_STICKY;
@@ -232,11 +232,9 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
         gpsManager = null;
         if (manager != null) {
             if (manager.getDisableReason() != 0) {
-                toast.setText(getString(R.string.msg_gps_provider_stopped_by_problem, getString(manager.getDisableReason())));
-                //toast.show();
+                showToast(getString(R.string.msg_gps_provider_stopped_by_problem, getString(manager.getDisableReason())));
             } else {
-                toast.setText(R.string.msg_gps_provider_stopped);
-                //toast.show();
+                showToast(R.string.msg_gps_provider_stopped);
             }
             manager.removeNmeaListener(this);
             manager.disableMockLocationProvider();
@@ -246,10 +244,6 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = sharedPreferences.edit();
 
-        if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
-            edit.putBoolean(PREF_TRACK_RECORDING, false);
-            edit.apply();
-        }
         if (sharedPreferences.getBoolean(PREF_START_GPS_PROVIDER, true)) {
             edit.putBoolean(PREF_START_GPS_PROVIDER, false);
             edit.apply();
@@ -258,8 +252,46 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
         super.onDestroy();
     }
 
+    private void startTracking() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        if (trackFile == null) {
+            if (gpsManager != null) {
+                beginTrack();
+                gpsManager.addNmeaListener(this);
+                if (!sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)) {
+                    edit.putBoolean(PREF_TRACK_RECORDING, true);
+                    edit.apply();
+                }
+                showToast(R.string.msg_nmea_recording_started);
+            } else {
+                endTrack();
+                if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
+                    edit.putBoolean(PREF_TRACK_RECORDING, false);
+                    edit.apply();
+                }
+            }
+        } else {
+            showToast(R.string.msg_nmea_recording_already_started);
+        }
+    }
+
+    private void showToast(int messageId) {
+        if (debugToasts) {
+            Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showToast(String message) {
+        if (debugToasts) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void beginTrack() {
+        @SuppressLint("SimpleDateFormat")
         SimpleDateFormat fmt = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss'.nmea'");
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String trackDirName = sharedPreferences.getString(PREF_TRACK_FILE_DIR, this.getString(R.string.defaultTrackFileDirectory));
         String trackFilePrefix = sharedPreferences.getString(PREF_TRACK_FILE_PREFIX, this.getString(R.string.defaultTrackFilePrefix));
@@ -311,7 +343,7 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
 
     @Override
     public void onLocationChanged(Location location) {
-        // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -322,12 +354,12 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
 
     @Override
     public void onProviderEnabled(String provider) {
-        // TODO Auto-generated method stub
+
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        // TODO Auto-generated method stub
+
     }
 
     @Override

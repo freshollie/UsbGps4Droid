@@ -143,8 +143,7 @@
         <item>57600</item>
         <item>115200</item>
     </string-array>
-    <string name="title_activity_settings">SettingsActivity</string>
-    <string name="title_activity_settings2">Settings</string>
+    <string name="title_activity_settings">Usb Gps Settings</string>
 
     <!-- Strings related to Settings -->
 
@@ -220,4 +219,8 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="pref_recording_screen_key">pref_recording_screen</string>
     <string name="pref_sirf_screen_key">pref_sirf_screen</string>
+    <string name="pref_toast_logging_key">pref_toast_logging</string>
+    <string name="pref_toast_logging_title">Show Toasts</string>
+    <string name="pref_toast_logging_summary_on">Debug toast messages will be shown</string>
+    <string name="pref_toast_logging_summary_off">Debug toast messages will not be shown</string>
 </resources>
