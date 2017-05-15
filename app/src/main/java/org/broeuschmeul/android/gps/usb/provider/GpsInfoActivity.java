@@ -9,7 +9,11 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 /**
  * Preferences activity was deprecated and so now we make a preferences
@@ -21,21 +25,32 @@ import android.util.Log;
  * Created by Oliver Bell 5/12/15
  */
 
-public class GpsInfoActivity extends AppCompatActivity {
+public class GpsInfoActivity extends UsbGpsActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startActivity(new Intent(this, SettingsActivity.class));
+        setContentView(R.layout.activity_info);
+        setContentView(R.layout.activity_settings);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

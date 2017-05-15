@@ -546,11 +546,15 @@ public class USBGpsManager {
         public void run() {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 128);
-//                InputStreamReader reader = new InputStreamReader(in,"US-ASCII");
+
+                // Sentence to read from the device
                 String s;
 
                 long now = SystemClock.uptimeMillis();
+
                 // we will wait more at the beginning of the connection
+                // but if we don't get a signal after 45 seconds we can assume the device
+                // is not usable
                 lastRead = now + 45000;
                 while ((enabled) && (now < lastRead + 4000) && (!closed)) {
 
@@ -564,7 +568,7 @@ public class USBGpsManager {
                         //Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
                         if (notifyNmeaSentence(s + "\r\n")) {
                             ready = true;
-                            //                                lastRead = Math.max(SystemClock.uptimeMillis(), lastRead);
+
                             lastRead = SystemClock.uptimeMillis();
 
                             if (problemNotified) {
@@ -572,7 +576,7 @@ public class USBGpsManager {
                                 // reset eventual disabling cause
                                 setDisableReason(0);
                                 // connection is good so resetting the number of connection try
-                                Log.v(LOG_TAG, "connection is good so reseting the number of connection try");
+                                Log.v(LOG_TAG, "connection is good so resetting the number of connection try");
                                 nbRetriesRemaining = maxConnectionRetries;
                                 notificationManager.cancel(R.string.connection_problem_notification_title);
                             }
@@ -586,18 +590,18 @@ public class USBGpsManager {
                 }
 
                 if (now > lastRead + 4000) {
-                    Log.e(LOG_TAG, "Read timeout");
+                    Log.e(LOG_TAG, "Read timeout in read thread");
                 } else if (closed) {
-                    Log.v(LOG_TAG, "Read thread is closing, stopping read thread");
+                    Log.d(LOG_TAG, "Device connection closing, stopping read thread");
                 } else {
-                    Log.v(LOG_TAG, "Provider disabled, stopping read thread");
+                    Log.d(LOG_TAG, "Provider disabled, stopping read thread");
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "error while getting data", e);
                 setMockLocationProviderOutOfService();
             } finally {
                 // cleanly closing everything...
-                Log.e(LOG_TAG, "Read thread problem, closing connection");
+                Log.v(LOG_TAG, "Closing read thread");
                 this.close();
                 disableIfNeeded();
             }
@@ -1278,9 +1282,9 @@ public class USBGpsManager {
     }
 
     /**
-     * Notifies the reception of a NMEA sentence from the bluetooth GPS to registered NMEA listeners.
+     * Notifies the reception of a NMEA sentence from the USB GPS to registered NMEA listeners.
      *
-     * @param nmeaSentence the complete NMEA sentence received from the bluetooth GPS (i.e. $....*XY where XY is the checksum)
+     * @param nmeaSentence the complete NMEA sentence received from the USB GPS (i.e. $....*XY where XY is the checksum)
      * @return true if the input string is a valid NMEA sentence, false otherwise.
      */
     private boolean notifyNmeaSentence(final String nmeaSentence) {

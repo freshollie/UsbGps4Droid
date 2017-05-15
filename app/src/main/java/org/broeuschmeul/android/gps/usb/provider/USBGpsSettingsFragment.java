@@ -59,7 +59,8 @@ import android.widget.TextView;
  *
  * @author Herbert von Broeuschmeul
  */
-public class USBGpsSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
+public class USBGpsSettingsFragment extends PreferenceFragment implements
+        OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 
 
     // Checks for usb devices that connect while the screen is active
@@ -256,7 +257,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         }
     }
 
-
     @Override
     public void onResume() {
         usbCheckThread = new Thread(usbCheckRunnable);
@@ -387,11 +387,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         // update usb device list
         updateDevicesList();
 
-        pref = findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
-        pref.setEnabled(
-                sharedPref.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
-        );
-
         pref = findPreference(USBGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
         if (sharedPref.getBoolean(USBGpsProviderService.PREF_REPLACE_STD_GPS, true)) {
             String s = getString(R.string.pref_gps_location_provider_summary);
@@ -479,7 +474,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
 
                     if (pref.isChecked() != val) {
                         pref.setChecked(val);
-                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
                         return;
                     }
 
@@ -489,7 +483,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
 
                     if (pref.isChecked() != val) {
                         pref.setChecked(val);
-                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(!val);
                         return;
                     }
                 }
@@ -499,7 +492,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                         Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
                         serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
                         getActivity().startService(serviceIntent);
-                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(true);
 
 
                     } else {
@@ -514,7 +506,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                     Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
                     serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
                     getActivity().startService(serviceIntent);
-                    findPreference(USBGpsProviderService.PREF_TRACK_RECORDING).setEnabled(false);
                 }
 
                 break;
@@ -560,6 +551,15 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
                 }
 
                 break;
+            }
+            case USBGpsProviderService.PREF_SIRF_GPS: {
+                if (sharedPreferences.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)) {
+                    if (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_GPS, false)) {
+                        Intent configIntent = new Intent(getActivity(), USBGpsProviderService.class);
+                        configIntent.setAction(USBGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
+                        getActivity().startService(configIntent);
+                    }
+                }
             }
             case USBGpsProviderService.PREF_GPS_DEVICE:
                 updateDevicePreferenceSummary();
@@ -627,7 +627,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements OnPref
         }
 
         private void enableSirfFeature(String key) {
-            Intent configIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
+            Intent configIntent = new Intent(getActivity(), USBGpsProviderService.class);
             configIntent.setAction(USBGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
             configIntent.putExtra(key, sharedPreferences.getBoolean(key, false));
             getActivity().startService(configIntent);
