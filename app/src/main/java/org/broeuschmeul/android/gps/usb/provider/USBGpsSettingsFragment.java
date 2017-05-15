@@ -55,7 +55,9 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 /**
- * A PreferenceActivity Class used to configure, start and stop the NMEA tracker service.
+ * A Preference Fragment Class used to configure the provider
+ *
+ * Starting any services will trigger events in the base usb gps activities
  *
  * @author Herbert von Broeuschmeul
  */
@@ -101,13 +103,8 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
      */
     private static final String TAG = USBGpsSettingsFragment.class.getSimpleName();
 
-    private static final int LOCATION_REQUEST = 238472383;
-    private static final int STORAGE_REQUEST = 8972842;
-
     public static int DEFAULT_GPS_PRODUCT_ID = 8963;
     public static int DEFAULT_GPS_VENDOR_ID = 1659;
-
-    private boolean tryingToStart = false;
 
     private SharedPreferences sharedPref;
 
@@ -140,12 +137,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
 
         setupNestedPreferences();
 
-        if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        LOCATION_REQUEST);
-            }
-        }
+
     }
 
     private void setupNestedPreferences() {
@@ -193,67 +185,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
             callback = (PreferenceScreenListener) context;
         } else {
             throw new IllegalStateException("Owner must implement PreferenceScreenListener interface");
-        }
-    }
-
-    /**
-     * Checks if the applications has the given runtime permission
-     * @param perm
-     * @return
-     */
-    private boolean hasPermission(String perm) {
-        return (
-                PackageManager.PERMISSION_GRANTED ==
-                        ContextCompat.checkSelfPermission(getActivity(), perm)
-        );
-    }
-
-    /**
-     * Android 6.0 requires permissions to be accepted at runtime
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == LOCATION_REQUEST) {
-            if (hasPermission(permissions[0])) {
-                if (tryingToStart) {
-                    tryingToStart = false;
-
-                    Intent serviceIntent = new Intent(getActivity(), USBGpsProviderService.class);
-                    serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
-                    getActivity().startService(serviceIntent);
-                }
-
-            } else {
-                tryingToStart = false;
-                sharedPref.edit().putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
-                        .apply();
-                new AlertDialog.Builder(getActivity())
-                        .setMessage("Location access needs to be enabled for this app to function")
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-
-            }
-
-        } else if (requestCode == STORAGE_REQUEST) {
-            if (hasPermission(permissions[0])) {
-                Intent serviceIntent = new Intent(getActivity(), USBGpsProviderService.class);
-                serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
-                getActivity().startService(serviceIntent);
-
-            } else {
-                sharedPref
-                        .edit()
-                        .putBoolean(USBGpsProviderService.PREF_TRACK_RECORDING, false)
-                        .apply();
-
-                new AlertDialog.Builder(getActivity()).setMessage(
-                        "In order to write a track file, the app need storage permission")
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-
-            }
         }
     }
 
@@ -467,7 +398,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         switch (key) {
             case USBGpsProviderService.PREF_START_GPS_PROVIDER: {
                 boolean val = sharedPreferences.getBoolean(key, false);
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     SwitchPreference pref = (SwitchPreference)
                             findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
@@ -486,28 +416,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                         return;
                     }
                 }
-
-                if (val) {
-                    if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                        serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
-                        getActivity().startService(serviceIntent);
-
-
-                    } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            tryingToStart = true;
-                            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    LOCATION_REQUEST);
-                        }
-                    }
-
-                } else {
-                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                    serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
-                    getActivity().startService(serviceIntent);
-                }
-
                 break;
             }
             case USBGpsProviderService.PREF_TRACK_RECORDING: {
@@ -531,36 +439,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                         return;
                     }
                 }
-
-                if (val) {
-                    if (!hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    STORAGE_REQUEST);
-                        }
-                    } else {
-                        Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                        serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
-                        getActivity().startService(serviceIntent);
-                    }
-
-                } else {
-                    Intent serviceIntent = new Intent(getActivity().getBaseContext(), USBGpsProviderService.class);
-                    serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_TRACK_RECORDING);
-                    getActivity().startService(serviceIntent);
-                }
-
                 break;
             }
-            case USBGpsProviderService.PREF_SIRF_GPS: {
-                if (sharedPreferences.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)) {
-                    if (sharedPreferences.getBoolean(USBGpsProviderService.PREF_SIRF_GPS, false)) {
-                        Intent configIntent = new Intent(getActivity(), USBGpsProviderService.class);
-                        configIntent.setAction(USBGpsProviderService.ACTION_CONFIGURE_SIRF_GPS);
-                        getActivity().startService(configIntent);
-                    }
-                }
-            }
+
             case USBGpsProviderService.PREF_GPS_DEVICE:
                 updateDevicePreferenceSummary();
                 break;
