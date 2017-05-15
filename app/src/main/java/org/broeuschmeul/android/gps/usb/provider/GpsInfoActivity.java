@@ -1,16 +1,8 @@
 package org.broeuschmeul.android.gps.usb.provider;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,7 +17,7 @@ import android.view.MenuItem;
  * Created by Oliver Bell 5/12/15
  */
 
-public class GpsInfoActivity extends UsbGpsActivity {
+public class GpsInfoActivity extends UsbGpsBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +37,6 @@ public class GpsInfoActivity extends UsbGpsActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));

@@ -1,10 +1,9 @@
 package org.broeuschmeul.android.gps.usb.provider;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
-public class SettingsActivity extends UsbGpsActivity {
+public class SettingsActivity extends UsbGpsBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
