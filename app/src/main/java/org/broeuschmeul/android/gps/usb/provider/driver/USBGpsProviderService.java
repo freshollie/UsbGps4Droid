@@ -63,9 +63,10 @@ import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
 import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
 
 /**
- * A Service used to replace Android internal GPS with a bluetooth GPS and/or write GPS NMEA data in a File.
+ * A Service used to replace Android internal GPS with a USB GPS and/or write GPS NMEA data in a File.
  *
- * @author Herbert von Broeuschmeul
+ * @author Herbert von Broeuschmeul &
+ * @author Oliver Bell
  */
 public class USBGpsProviderService extends Service implements USBGpsManager.NmeaListener, LocationListener {
 
@@ -130,12 +131,15 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
         public void onReceive(final Context context, Intent intent) {
             SharedPreferences sharedPreferences =
                     PreferenceManager.getDefaultSharedPreferences(context);
+            Log.v(LOG_TAG, intent.getAction());
+
 
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) &&
                     sharedPreferences.getBoolean(PREF_START_ON_BOOT, false))  {
                 new Handler(context.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        Log.v(LOG_TAG, "Boot start");
                         context.startService(
                                 new Intent(context, USBGpsProviderService.class)
                                         .setAction(ACTION_START_GPS_PROVIDER)
