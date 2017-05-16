@@ -25,6 +25,7 @@
     <PreferenceCategory
         android:title="Device"
         />
+
     <ListPreference
         android:dialogTitle="@string/pref_gps_device_title"
         android:key="@string/pref_gps_device_key"
@@ -45,7 +46,6 @@
     <PreferenceCategory
         android:title="Service"
         />
-
     <CheckBoxPreference
         android:disableDependentsState="true"
         android:key="@string/pref_start_gps_key"
@@ -53,7 +53,12 @@
         android:summaryOff="@string/pref_start_gps_summary_off"
         android:summaryOn="@string/pref_start_gps_summary_on"
         android:title="@string/pref_start_gps_title" />
-
+    <CheckBoxPreference
+        android:key="@string/pref_start_on_boot_key"
+        android:defaultValue="false"
+        android:summaryOn="@string/pref_start_on_boot_summary_on"
+        android:summaryOff="@string/pref_start_on_boot_summary_off"
+        android:title="@string/pref_start_on_boot_title" />
     <Preference
         android:dependency="@string/pref_start_gps_key"
         android:key="@string/pref_gps_location_provider_key"
@@ -63,7 +68,6 @@
     <PreferenceCategory
         android:title="SiRF"
         />
-
     <CheckBoxPreference
         android:defaultValue="false"
         android:disableDependentsState="false"
@@ -73,7 +77,6 @@
         android:summaryOff="@string/pref_sirf_gps_summary_off"
         android:summaryOn="@string/pref_sirf_gps_summary_on"
         android:title="@string/pref_sirf_gps_title" />
-
     <Preference
         android:dependency="@string/pref_sirf_gps_key"
         android:orderingFromXml="true"
@@ -84,14 +87,12 @@
     <PreferenceCategory
         android:title="NMEA Log"
         />
-
     <CheckBoxPreference
         android:enabled="true"
         android:key="@string/pref_recording_key"
         android:summaryOff="@string/pref_recording_summary_off"
         android:summaryOn="@string/pref_recording_summary_on"
         android:title="@string/pref_recording_title" />
-
     <Preference
         android:title="@string/pref_recording_params_title"
         android:key="@string/pref_recording_screen_key" />
@@ -99,7 +100,6 @@
     <PreferenceCategory
         android:title="About"
         />
-
     <Preference
         android:key="@string/pref_about_key"
         android:persistent="false"
@@ -109,7 +109,6 @@
     <PreferenceCategory
         android:title="Debug"
         />
-
     <CheckBoxPreference
         android:key="@string/pref_toast_logging_key"
         android:title="@string/pref_toast_logging_title"
@@ -117,4 +116,5 @@
         android:summaryOff="@string/pref_toast_logging_summary_off"
         android:defaultValue="false"
         />
+
 </PreferenceScreen>

@@ -20,7 +20,7 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.usb.provider;
+package org.broeuschmeul.android.gps.usb.provider.driver;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,8 +43,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
-import org.broeuschmeul.android.gps.usb.USBGpsApplication;
-import org.broeuschmeul.android.gps.usb.ui.GpsInfoActivity;
+import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
+import org.broeuschmeul.android.gps.usb.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
 
 import android.Manifest;
 import android.app.Notification;
@@ -92,7 +94,14 @@ public class USBGpsManager {
 
     private UsbManager usbManager = null;
     private static final String ACTION_USB_PERMISSION =
-            "org.broeuschmeul.android.gps.usb.provider.USBGpsManager.USB_PERMISSION";
+            "org.broeuschmeul.android.gps.usb.provider.driver.USBGpsManager.USB_PERMISSION";
+
+    /**
+     * Used to listen for nmea updates from UsbGpsManager
+     */
+    public interface NmeaListener {
+        void onNmeaReceived(long timestamp, String nmea);
+    }
 
     private final BroadcastReceiver permissionAndDetachReceiver = new BroadcastReceiver() {
 

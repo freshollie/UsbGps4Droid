@@ -20,7 +20,7 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.usb.ui;
+package org.broeuschmeul.android.gps.usb.provider.ui;
 
 import java.util.HashMap;
 
@@ -52,7 +52,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import org.broeuschmeul.android.gps.usb.provider.R;
-import org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService;
+import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 
 /**
  * A Preference Fragment Class used to configure the provider

@@ -227,4 +227,8 @@
     <string name="location_placeholder">Location: Lat %1$s, Lon %2$s</string>
     <string name="info_activity_title">UsbGps - Overview</string>
     <string name="elevation_placeholder">Altitude: %s</string>
+    <string name="pref_start_on_boot_summary_on">Usb Gps service will try and start when android starts</string>
+    <string name="pref_start_on_boot_summary_off">Usb Gps service will not try and start when android starts</string>
+    <string name="pref_start_on_boot_title">Start service on boot</string>
+    <string name="pref_start_on_boot_key">startOnBoot</string>
 </resources>
