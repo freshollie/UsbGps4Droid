@@ -24,6 +24,7 @@ package org.broeuschmeul.android.gps.usb.ui;
 
 import java.util.HashMap;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 //import android.bluetooth.BluetoothAdapter;
@@ -152,7 +153,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        callback.onNestedScreenClicked(new ProviderPreferences());
+                        if (callback != null) {
+                            callback.onNestedScreenClicked(new ProviderPreferences());
+                        }
                         return false;
                     }
                 });
@@ -161,7 +164,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        callback.onNestedScreenClicked(new SirfPreferences());
+                        if (callback != null) {
+                            callback.onNestedScreenClicked(new SirfPreferences());
+                        }
                         return false;
                     }
                 });
@@ -170,7 +175,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        callback.onNestedScreenClicked(new RecordingPreferences());
+                        if (callback != null) {
+                            callback.onNestedScreenClicked(new RecordingPreferences());
+                        }
                         return false;
                     }
                 });
@@ -178,6 +185,17 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
 
     @Override
     public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof PreferenceScreenListener) {
+            callback = (PreferenceScreenListener) context;
+        } else {
+            throw new IllegalStateException("Owner must implement PreferenceScreenListener interface");
+        }
+    }
+
+    @Override
+    public void onAttach(Activity context) {
         super.onAttach(context);
 
         if (context instanceof PreferenceScreenListener) {
