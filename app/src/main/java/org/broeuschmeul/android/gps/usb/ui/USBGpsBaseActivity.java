@@ -1,6 +1,7 @@
 package org.broeuschmeul.android.gps.usb.ui;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -71,6 +72,13 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
     @Override
     public void onResume() {
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        // Basically check the service is really running
+        if (!isServiceRunning()) {
+            sharedPreferences
+                    .edit()
+                    .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
+                    .apply();
+        }
         super.onResume();
     }
 
@@ -212,6 +220,20 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
     }
 
     /**
+     * If the service is killed then the shared preference for the service is never updated.
+     * This checks if the service is running from the running preferences list
+     */
+    public boolean isServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (USBGpsProviderService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Handles service attributes changing and requesting permissions
      */
     @Override
@@ -220,18 +242,15 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
             case USBGpsProviderService.PREF_START_GPS_PROVIDER: {
                 boolean val = sharedPreferences.getBoolean(key, false);
 
-                if (!sharedPreferences
-                        .getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)) {
-                    showStopDialog();
-                }
-
                 if (val) {
 
                     // If we have location permission then we can start the service
                     if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
-                        serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
-                        startService(serviceIntent);
+                        if (!isServiceRunning()) {
+                            Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
+                            serviceIntent.setAction(USBGpsProviderService.ACTION_START_GPS_PROVIDER);
+                            startService(serviceIntent);
+                        }
 
 
                     } else {
@@ -244,9 +263,14 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                     }
 
                 } else {
-                    Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
-                    serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
-                    startService(serviceIntent);
+                    // Will show a stop dialog if needed
+                    showStopDialog();
+
+                    if (isServiceRunning()) {
+                        Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
+                        serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_GPS_PROVIDER);
+                        startService(serviceIntent);
+                    }
                 }
 
                 break;

@@ -223,4 +223,8 @@
     <string name="pref_toast_logging_title">Show Toasts</string>
     <string name="pref_toast_logging_summary_on">Debug toast messages will be shown</string>
     <string name="pref_toast_logging_summary_off">Debug toast messages will not be shown</string>
+    <string name="number_of_satellites_placeholder">Number of satellites: %s</string>
+    <string name="accuracy_placeholder">Accuracy: %s</string>
+
+    <string name="location_placeholder">Location: Lat %1$s, Lon %2$s</string>
 </resources>

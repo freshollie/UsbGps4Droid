@@ -3,19 +3,30 @@ package org.broeuschmeul.android.gps.usb.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
+import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
+import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.usb.USBGpsApplication;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService;
+import org.w3c.dom.Text;
+
+import java.text.DecimalFormat;
 
 /**
  * Preferences activity was deprecated and so now we make a preferences
@@ -33,6 +44,14 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private SharedPreferences sharedPreferences;
     private static final String TAG = GpsInfoActivity.class.getSimpleName();
 
+    private USBGpsApplication application;
+
+    private SwitchCompat startSwitch;
+    private TextView numSatellites;
+    private TextView accuracyText;
+    private TextView locationText;
+    private TextView logText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,24 +60,96 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         setSupportActionBar(toolbar);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        application = (USBGpsApplication) getApplication();
+
+        setupUI();
     }
 
-    private void setupSwitch() {
-        Switch serviceSwitch = (Switch) findViewById(R.id.service_start_switch);
+    private void setupUI() {
+        startSwitch = (SwitchCompat) findViewById(R.id.service_start_switch);
+        startSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sharedPreferences
+                        .edit()
+                        .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, isChecked)
+                        .apply();
+            }
+        });
+
+        numSatellites = (TextView) findViewById(R.id.num_satellites_text);
+        accuracyText = (TextView) findViewById(R.id.accuracy_text);
+        locationText = (TextView) findViewById(R.id.location_text);
+        logText = (TextView) findViewById(R.id.log_box);
+        logText.setMovementMethod(new ScrollingMovementMethod());
+
     }
 
     private void updateData() {
 
+        boolean running =
+                sharedPreferences.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false);
+
+        startSwitch.setChecked(
+                running
+        );
+
+        String accuracyValue = "N/A";
+        String numSatellitesValue = "N/A";
+        String lat = "N/A";
+        String lon = "N/A";
+
+        Location location = application.getLastLocation();
+        if (!running) {
+            location = null;
+        }
+
+        if (location != null) {
+            accuracyValue = String.valueOf(location.getAccuracy());
+            if (location.getExtras() != null) {
+                numSatellitesValue = String.valueOf(location.getExtras().getInt(NmeaParser.SATELLITE_KEY));
+            }
+            DecimalFormat df = new DecimalFormat("#.#####");
+            lat = df.format(location.getLatitude());
+            lon = df.format(location.getLongitude());
+        }
+
+        numSatellites.setText(
+                getString(R.string.number_of_satellites_placeholder, numSatellitesValue)
+        );
+        accuracyText.setText(getString(R.string.accuracy_placeholder, accuracyValue));
+        locationText.setText(getString(R.string.location_placeholder, lat, lon));
+        updateLog();
+    }
+
+    public void updateLog() {
+        logText.scrollTo(0, 0);
+        logText.setText(TextUtils.join("\n", application.getSentenceLog()));
+        Layout layout = logText.getLayout();
+        if (layout != null) {
+            int lineTop = layout.getLineTop(logText.getLineCount());
+            final int scrollAmount = lineTop + logText.getPaddingTop()
+                    + logText.getPaddingBottom() - logText.getBottom() + logText.getTop();
+            if (scrollAmount > 0) {
+                logText.scrollBy(0, scrollAmount);
+            } else {
+                logText.scrollTo(0, 0);
+            }
+        }
     }
 
     @Override
     public void onResume() {
+        updateData();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         ((USBGpsApplication) getApplication()).registerServiceDataListener(this);
         super.onResume();
     }
 
     @Override
     public void onPause() {
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         ((USBGpsApplication) getApplication()).unregisterServiceDataListener(this);
         super.onPause();
     }
@@ -82,20 +173,20 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
     @Override
     public void onNewSentence(String sentence) {
-        Log.v(TAG, sentence);
+        updateLog();
     }
 
     @Override
     public void onLocationNotified(Location location) {
-
+        updateData();
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        super.onSharedPreferenceChanged(sharedPreferences, key);
-
         if (key.equals(USBGpsProviderService.PREF_START_GPS_PROVIDER)) {
-
+            updateData();
         }
+
+        super.onSharedPreferenceChanged(sharedPreferences, key);
     }
 }

@@ -192,14 +192,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         usbCheckThread = new Thread(usbCheckRunnable);
         usbCheckThread.start();
 
-        // Basically check the service is really running
-        if (!isServiceActuallyRunning()) {
-            sharedPref
-                    .edit()
-                    .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
-                    .apply();
-        }
-
         updateDevicePreferenceList();
         super.onResume();
     }
@@ -217,7 +209,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
      * If the service is killed then the shared preference for the service is never updated.
      * This checks if the service is running from the running preferences list
      */
-    private boolean isServiceActuallyRunning() {
+    private boolean isServiceRunning() {
         ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (USBGpsProviderService.class.getName().equals(service.service.getClassName())) {

@@ -58,6 +58,8 @@ public class NmeaParser {
      */
     private static final String LOG_TAG = NmeaParser.class.getSimpleName();
 
+    public static final String SATELLITE_KEY = "satellites";
+
     private Context appContext;
 
     private String fixTime = null;
@@ -252,9 +254,8 @@ public class NmeaParser {
         hasGGA = false;
         hasRMC = false;
 
-        ((USBGpsApplication) appContext).notifyNewLocation(fix);
-
         if (fix != null) {
+            ((USBGpsApplication) appContext).notifyNewLocation(fix);
             Log.v(LOG_TAG, "New Fix: " + System.currentTimeMillis() + " " + fix);
 
             if (lm != null && mockGpsEnabled) {
@@ -440,7 +441,7 @@ public class NmeaParser {
 
                             if (nbSat != null && !nbSat.equals("")) {
                                 Bundle extras = new Bundle();
-                                extras.putInt("satellites", Integer.parseInt(nbSat));
+                                extras.putInt(SATELLITE_KEY, Integer.parseInt(nbSat));
                                 fix.setExtras(extras);
                             }
 

@@ -1314,7 +1314,9 @@ public class USBGpsManager {
                 res = true;
                 Log.v(LOG_TAG, "notifying NMEA sentence: " + recognizedSentence);
 
-                ((USBGpsApplication) appContext).notifyNewSentence(recognizedSentence);
+                ((USBGpsApplication) appContext).notifyNewSentence(
+                        recognizedSentence.replaceAll("(\\r|\\n)", "")
+                );
 
                 synchronized (nmeaListeners) {
                     for (final NmeaListener listener : nmeaListeners) {
