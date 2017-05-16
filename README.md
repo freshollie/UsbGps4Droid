@@ -1,31 +1,44 @@
 # UsbGps4Droid
 
-Builds
-------
-Download the latest APKs from [here](/app/build/outputs/apk/)
+## Builds
 
-About
------
-Usb GPS for Android, this is my own implimentation of USB GPS, updated to work properly on android 6.0.1.
+Download the latest APK from [here](/app/build/outputs/apk/) (Android 3.1 and higher)
 
-I have patched this app to work mainly for implementation in an in car android tablet.
+## About
 
-My implementation doesn't require selecting the USB device, it will select the device (https://www.amazon.co.uk/GlobalSat-BU-353-S4-USB-Receiver-Black/dp/B008200LHW) and automatically connect.
+UsbGps4Droid is an USB Gps driver and settings UI for the android operating system.
 
-Current Development
--------------------
+The driver will provider location updates to android internal GPS and such requires mock location enabled.
 
-This current build will work on devices up to android marshmallow.
+Originally written by Herbert von Broeuschmeul, and I have taken over maintaining the project. I have fixed several bugs with the main algorithm with current android operating systems.
 
-The user is required to set the app is a mock location provider in the android developer settings.
+## Disclaimer
 
-I also renamed several classes in this build and created
+This app has only been tested on 2 of my devices, running 5.1 and 6.0. Any issues with this app on your device, please make an issue and I will resolve as soon as possible.
+
+## Current Development
+
+The current updates include:
+
+### 2.0
+
+- Added information interface which shows the log of information being received from the GPS device.
+- Updated device selection settings
+- Fix to algorithm to pick the correct device from the USB device list
+- Fix to connection baud rate settings
+- Updated NMEA recording to be enabled to start when service starts.
+- Fixed auto-reconnecting
+- Dialog popups in app for problems
+- Compatibility down to android 3.1
 
 
-Usage
------
+## Usage
 
-The best implementation is to start the service in the background.
+The driver works with SiRF and allows the user to log more than just location data to NMEA when enabled.
+
+The app will not start automatically when the device connects.
+
+The best implementation is to start the service in the background. (This can be done through tasker as root)
 
 ```bash
 am startservice -a org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER
@@ -33,12 +46,34 @@ am startservice -a org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.
 
 Be sure to call this only once the GPS device is connected as the app will not wait for it to be connected.
 
-The service will automatically close itself when the USB device is disconnected, IE the car has turned off.
+The service will automatically close itself when the USB device is disconnected for too long.
 
-
-Contributing
------------
+## Contributing
 
 To help with development simply clone the repository, create your branch and then import the project into android studio (File -> New -> Import Project)
 
-It should build perfectly, providing you have the correct SDKs (Currently API 23 required)
+It should build perfectly, providing you have the correct SDKs (Currently SDK 25 required)
+
+## Screenshots
+
+
+### Main interface
+
+#### Landscape tablet
+<p align="center">
+    <img src="screenshots/main_screen_tablet_api_23.png" align="center" alt="Main interface marshmallow" width="600"/>
+</p>
+
+<p align="center">
+    <img src="screenshots/main_screen_tablet_api16.png" align="center" alt="Main interface honeycomb" width="600"/>
+</p>
+
+#### Portrait
+<p align="center">
+    <img src="screenshots/main_screen_tablet_portrait_api_23.png" align="center" alt="Main interface portait" width="400"/>
+</p>
+
+#### Device selection
+<p align="center">
+    <img src="screenshots/options_device_choice.png" align="center" alt="Device choice settings" width="600"/>
+</p>

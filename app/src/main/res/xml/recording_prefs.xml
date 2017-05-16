@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:defaultValue="@string/defaultTrackFileDirectory"
+        android:key="@string/pref_trackfile_directory_key"
+        android:summary="@string/pref_trackfile_directory_summary"
+        android:title="@string/pref_trackfile_directory_title" />
+    <EditTextPreference
+        android:defaultValue="@string/defaultTrackFilePrefix"
+        android:key="@string/pref_trackfile_prefix_key"
+        android:summary="@string/pref_trackfile_prefix_summary"
+        android:title="@string/pref_trackfile_prefix_title" />
+</PreferenceScreen>
