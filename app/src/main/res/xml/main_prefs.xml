@@ -23,7 +23,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/app_name">
     <PreferenceCategory
-        android:title="Device"
+        android:title="@string/pref_category_device_title"
         />
 
     <ListPreference
@@ -43,8 +43,8 @@
         android:persistent="true"
         android:title="@string/pref_gps_device_speed_title" />
 
-    <PreferenceCategory
-        android:title="Service"
+    <CheckBoxPreference
+        android:title="@string/pref_category_service_title"
         />
     <CheckBoxPreference
         android:disableDependentsState="true"
@@ -66,7 +66,7 @@
         android:title="@string/pref_gps_location_provider_title" />
 
     <PreferenceCategory
-        android:title="SiRF"
+        android:title="@string/pref_category_sirf_title"
         />
     <CheckBoxPreference
         android:defaultValue="false"
@@ -85,7 +85,7 @@
         android:key="@string/pref_sirf_screen_key"/>
 
     <PreferenceCategory
-        android:title="NMEA Log"
+        android:title="@string/pref_category_nmea_log_title"
         />
     <CheckBoxPreference
         android:enabled="true"
@@ -107,7 +107,7 @@
         android:title="@string/pref_about_title" />
 
     <PreferenceCategory
-        android:title="Debug"
+        android:title="@string/pref_category_debug_title"
         />
     <CheckBoxPreference
         android:key="@string/pref_toast_logging_key"
