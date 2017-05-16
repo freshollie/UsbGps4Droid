@@ -20,11 +20,10 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.usb.provider;
+package org.broeuschmeul.android.gps.usb.ui;
 
 import java.util.HashMap;
 
-import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 //import android.bluetooth.BluetoothAdapter;
@@ -33,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Build;
@@ -46,13 +44,14 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.SwitchPreference;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import org.broeuschmeul.android.gps.usb.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService;
 
 /**
  * A Preference Fragment Class used to configure the provider
@@ -137,7 +136,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
 
         setupNestedPreferences();
 
-
+        sharedPref.registerOnSharedPreferenceChangeListener(this);
     }
 
     private void setupNestedPreferences() {
@@ -193,8 +192,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         usbCheckThread = new Thread(usbCheckRunnable);
         usbCheckThread.start();
 
-        sharedPref.registerOnSharedPreferenceChangeListener(this);
-
         // Basically check the service is really running
         if (!isServiceActuallyRunning()) {
             sharedPref
@@ -209,8 +206,9 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
 
     @Override
     public void onPause() {
-        usbCheckThread.interrupt();
-        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
+        if (usbCheckThread != null) {
+            usbCheckThread.interrupt();
+        }
 
         super.onPause();
     }
@@ -333,15 +331,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         adapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (usbCheckThread != null) {
-            usbCheckThread.interrupt();
-        }
-        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
-    }
-
     private void displayAboutDialog() {
         View messageView = getActivity().getLayoutInflater().inflate(R.layout.about, null, false);
         // we need this to enable html links
@@ -418,6 +407,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 }
                 break;
             }
+
             case USBGpsProviderService.PREF_TRACK_RECORDING: {
                 boolean val = sharedPreferences.getBoolean(key, false);
 
@@ -451,6 +441,12 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 break;
 
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
     }
 
     public static class ProviderPreferences extends PreferenceFragment {
