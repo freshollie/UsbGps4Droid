@@ -23,7 +23,7 @@
 /**
  *
  */
-package org.broeuschmeul.android.gps.usb.provider;
+package org.broeuschmeul.android.gps.usb.provider.driver;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,6 +39,8 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -47,6 +49,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
@@ -54,15 +57,17 @@ import android.util.Log;
 import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
 
-import org.broeuschmeul.android.gps.usb.ui.GpsInfoActivity;
-import org.broeuschmeul.android.gps.usb.ui.USBGpsSettingsFragment;
+import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
+import org.broeuschmeul.android.gps.usb.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
+import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
 
 /**
  * A Service used to replace Android internal GPS with a bluetooth GPS and/or write GPS NMEA data in a File.
  *
  * @author Herbert von Broeuschmeul
  */
-public class USBGpsProviderService extends Service implements NmeaListener, LocationListener {
+public class USBGpsProviderService extends Service implements USBGpsManager.NmeaListener, LocationListener {
 
     public static final String ACTION_START_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.START_TRACK_RECORDING";
     public static final String ACTION_STOP_TRACK_RECORDING = "org.broeuschmeul.android.gps.usb.tracker.nmea.intent.action.STOP_TRACK_RECORDING";
@@ -72,6 +77,7 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     public static final String ACTION_ENABLE_SIRF_GPS = "org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.ENABLE_SIRF_GPS";
 
     public static final String PREF_START_GPS_PROVIDER = "startGps";
+    public static final String PREF_START_ON_BOOT = "startOnBoot";
     public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
     public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
     public static final String PREF_FORCE_ENABLE_PROVIDER = "forceEnableProvider";
@@ -109,6 +115,30 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
     private boolean preludeWritten = false;
 
     private boolean debugToasts = false;
+
+    /**
+     * Will start the service if set so in settings when the device boots
+     */
+    public static class BootReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            SharedPreferences sharedPreferences =
+                    PreferenceManager.getDefaultSharedPreferences(context);
+
+            if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) &&
+                    sharedPreferences.getBoolean(PREF_START_ON_BOOT, false))  {
+                new Handler(context.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        context.startService(
+                                new Intent(context, USBGpsProviderService.class)
+                                        .setAction(ACTION_START_GPS_PROVIDER)
+                        );
+                    }
+                }, 2000);
+            }
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -259,8 +289,6 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
 
     /**
      * Checks if the applications has the given runtime permission
-     * @param perm
-     * @return
      */
     private boolean hasPermission(String perm) {
         return (

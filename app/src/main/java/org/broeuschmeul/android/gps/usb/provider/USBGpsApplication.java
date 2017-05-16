@@ -1,4 +1,4 @@
-package org.broeuschmeul.android.gps.usb;
+package org.broeuschmeul.android.gps.usb.provider;
 
 import android.app.Application;
 import android.location.Location;

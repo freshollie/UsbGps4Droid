@@ -1,33 +1,27 @@
-package org.broeuschmeul.android.gps.usb.ui;
+package org.broeuschmeul.android.gps.usb.provider.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
-import org.broeuschmeul.android.gps.usb.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 import org.broeuschmeul.android.gps.usb.provider.R;
-import org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService;
-import org.w3c.dom.Text;
+import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 
 import java.text.DecimalFormat;
 

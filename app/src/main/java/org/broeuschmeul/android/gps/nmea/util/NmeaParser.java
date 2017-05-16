@@ -21,7 +21,6 @@
 
 package org.broeuschmeul.android.gps.nmea.util;
 
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -41,7 +40,7 @@ import android.text.TextUtils;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
-import org.broeuschmeul.android.gps.usb.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 
 import static android.content.ContentValues.TAG;
 
