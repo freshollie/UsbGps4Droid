@@ -97,6 +97,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     public static final String PREF_GPS_DEVICE_VENDOR_ID = "usbDeviceVendorId";
     public static final String PREF_GPS_DEVICE_PRODUCT_ID = "usbDeviceProductId";
     public static final String PREF_GPS_DEVICE_SPEED = "gpsDeviceSpeed";
+    public static final String PREF_TOAST_LOGGING = "showToasts";
     public static final String PREF_ABOUT = "about";
 
     /**
@@ -160,7 +161,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = sharedPreferences.edit();
 
-        debugToasts = sharedPreferences.getBoolean(getString(R.string.pref_toast_logging_key), false);
+        debugToasts = sharedPreferences.getBoolean(PREF_TOAST_LOGGING, false);
 
         int vendorId = sharedPreferences.getInt(PREF_GPS_DEVICE_VENDOR_ID,
                 USBGpsSettingsFragment.DEFAULT_GPS_VENDOR_ID);
