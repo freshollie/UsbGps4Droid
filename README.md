@@ -61,7 +61,7 @@ It should build perfectly, providing you have the correct SDKs (Currently SDK 25
 
 #### Landscape tablet
 <p align="center">>
-    <img src="screenshots/main_screen_tablet_api23.png" align="center" alt="Main interface marshmallow" width="800"/>
+    <img src="screenshots/main_screen_tablet_api_23.png" align="center" alt="Main interface marshmallow" width="800"/>
 </p>
 
 <p align="center">>
@@ -70,7 +70,7 @@ It should build perfectly, providing you have the correct SDKs (Currently SDK 25
 
 #### Portrait
 <p align="center">>
-    <img src="screenshots/main_screen_tablet_portrait_api_23.png" align="center" alt="Main interface portait" width="800"/>
+    <img src="screenshots/main_screen_tablet_portrait_api_23.png" align="center" alt="Main interface portait" width="300"/>
 </p>
 
 #### Device selection
