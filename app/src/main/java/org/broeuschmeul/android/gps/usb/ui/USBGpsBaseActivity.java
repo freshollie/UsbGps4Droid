@@ -16,7 +16,9 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import org.broeuschmeul.android.gps.usb.USBGpsApplication;
@@ -48,6 +50,8 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
 
     private static final int LOCATION_REQUEST = 238472383;
     private static final int STORAGE_REQUEST = 8972842;
+
+    private boolean homeAsUp = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +95,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
     /**
      * @param whereId where the fragment needs to be shown in.
      */
-    public void showSettingsFragment(int whereId) {
+    public void showSettingsFragment(int whereId, boolean homeAsUp) {
         resSettingsHolder = whereId;
         // Opens the root fragment if its the first time opening
         if (shouldInitialise) {
@@ -99,6 +103,9 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                     .add(whereId, new USBGpsSettingsFragment())
                     .commit();
         }
+
+        this.homeAsUp = homeAsUp;
+
     }
 
     private void clearStopNotification() {
@@ -323,6 +330,10 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
      */
     @Override
     public void onNestedScreenClicked(PreferenceFragment preferenceFragment) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         getFragmentManager().beginTransaction()
                 .replace(resSettingsHolder, preferenceFragment, TAG_NESTED)
                 .addToBackStack(TAG_NESTED)
@@ -336,6 +347,10 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
         if (getFragmentManager().getBackStackEntryCount() == 0) {
             super.onBackPressed();
         } else {
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(homeAsUp);
+            }
             getFragmentManager().popBackStack();
         }
     }
