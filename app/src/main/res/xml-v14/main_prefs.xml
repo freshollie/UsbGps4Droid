@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+	Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
+	Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
+	Copyright (C) 2011, 2012 UsbGPS4Droid Project
+	  
+	This file is part of UsbGPS4Droid.
+	
+    UsbGPS4Droid is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UsbGPS4Droid is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UsbGPS4Droid.  If not, see http://www.gnu.org/licenses/
+    
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/app_name">
+    <PreferenceCategory
+        android:title="Device"
+        />
+
+    <ListPreference
+        android:dialogTitle="@string/pref_gps_device_title"
+        android:key="@string/pref_gps_device_key"
+        android:summary="@string/pref_gps_device_summary"
+        android:title="@string/pref_gps_device_title"
+        android:dependency="@string/pref_start_gps_key" />
+    <ListPreference
+        android:defaultValue="@string/defaultGpsDeviceSpeed"
+        android:dependency="@string/pref_start_gps_key"
+        android:dialogTitle="@string/pref_gps_device_speed_title"
+        android:enabled="true"
+        android:entries="@array/pref_gps_device_speed_values"
+        android:entryValues="@array/pref_gps_device_speed_values"
+        android:key="@string/pref_gps_device_speed_key"
+        android:persistent="true"
+        android:title="@string/pref_gps_device_speed_title" />
+
+    <PreferenceCategory
+        android:title="Service"
+        />
+    <SwitchPreference
+        android:disableDependentsState="true"
+        android:key="@string/pref_start_gps_key"
+        android:persistent="true"
+        android:summaryOff="@string/pref_start_gps_summary_off"
+        android:summaryOn="@string/pref_start_gps_summary_on"
+        android:title="@string/pref_start_gps_title" />
+    <Preference
+        android:dependency="@string/pref_start_gps_key"
+        android:key="@string/pref_gps_location_provider_key"
+        android:summary="@string/pref_gps_location_provider_summary"
+        android:title="@string/pref_gps_location_provider_title" />
+
+    <PreferenceCategory
+        android:title="SiRF"
+        />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:disableDependentsState="false"
+        android:enabled="true"
+        android:key="@string/pref_sirf_gps_key"
+        android:persistent="true"
+        android:summaryOff="@string/pref_sirf_gps_summary_off"
+        android:summaryOn="@string/pref_sirf_gps_summary_on"
+        android:title="@string/pref_sirf_gps_title" />
+    <Preference
+        android:dependency="@string/pref_sirf_gps_key"
+        android:orderingFromXml="true"
+        android:shouldDisableView="true"
+        android:title="@string/pref_start_gps_params_title"
+        android:key="@string/pref_sirf_screen_key"/>
+
+    <PreferenceCategory
+        android:title="NMEA Log"
+        />
+    <SwitchPreference
+        android:enabled="true"
+        android:key="@string/pref_recording_key"
+        android:summaryOff="@string/pref_recording_summary_off"
+        android:summaryOn="@string/pref_recording_summary_on"
+        android:title="@string/pref_recording_title" />
+    <Preference
+        android:title="@string/pref_recording_params_title"
+        android:key="@string/pref_recording_screen_key" />
+
+    <PreferenceCategory
+        android:title="About"
+        />
+    <Preference
+        android:key="@string/pref_about_key"
+        android:persistent="false"
+        android:summary="@string/pref_about_summary"
+        android:title="@string/pref_about_title" />
+
+    <PreferenceCategory
+        android:title="Debug"
+        />
+    <SwitchPreference
+        android:key="@string/pref_toast_logging_key"
+        android:title="@string/pref_toast_logging_title"
+        android:summaryOn="@string/pref_toast_logging_summary_on"
+        android:summaryOff="@string/pref_toast_logging_summary_off"
+        android:defaultValue="false"
+        />
+
+</PreferenceScreen>

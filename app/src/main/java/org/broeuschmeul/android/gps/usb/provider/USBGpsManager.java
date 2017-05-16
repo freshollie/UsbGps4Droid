@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
+import org.broeuschmeul.android.gps.usb.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.ui.GpsInfoActivity;
 
 import android.Manifest;
 import android.app.Notification;
@@ -84,28 +86,15 @@ public class USBGpsManager {
     /**
      * Tag used for log messages
      */
-    private static final String LOG_TAG = "UsbGPS";
+    private static final String LOG_TAG = USBGpsManager.class.getSimpleName();
+
     private boolean debug = false;
 
     private UsbManager usbManager = null;
     private static final String ACTION_USB_PERMISSION =
             "org.broeuschmeul.android.gps.usb.provider.USBGpsManager.USB_PERMISSION";
 
-    private final BroadcastReceiver detachedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                final UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (device.getVendorId() == gpsVendorId & device.getProductId() == gpsProductId) {
-                    //disable();
-                }
-            }
-        }
-    };
-
-    private final BroadcastReceiver permissionReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver permissionAndDetachReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -126,6 +115,12 @@ public class USBGpsManager {
                         }
                     } else {
                         Log.d(LOG_TAG, "permission denied for device " + device);
+                    }
+                }
+            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                synchronized (this) {
+                    if (connectedGps != null && enabled) {
+                        connectedGps.close();
                     }
                 }
             }
@@ -180,10 +175,12 @@ public class USBGpsManager {
             endpointIn = null;
             while (i > 1) {
                 UsbEndpoint curEndpoint = intf.getEndpoint(--i);
-                if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_IN) && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
+                if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_IN)
+                        && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
                     endpointIn = curEndpoint;
                 }
-                if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
+                if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_OUT)
+                        && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
                     endpointOut = curEndpoint;
                 }
                 if ((endpointIn != null) && (endpointOut != null)) {
@@ -353,12 +350,12 @@ public class USBGpsManager {
 
                 @Override
                 public void write(int oneByte) throws IOException {
-                    if (BuildConfig.DEBUG || debug)
-                        Log.d(LOG_TAG, "trying to write data (one byte): " + oneByte + " char: " + (char) oneByte);
+                    //if (BuildConfig.DEBUG || debug)
+                    //    Log.d(LOG_TAG, "trying to write data (one byte): " + oneByte + " char: " + (char) oneByte);
                     oneByteBuffer[0] = (byte) oneByte;
                     this.write(oneByteBuffer, 0, 1);
-                    if (BuildConfig.DEBUG || debug)
-                        Log.d(LOG_TAG, "writen data (one byte): " + oneByte + " char: " + (char) oneByte);
+                    //if (BuildConfig.DEBUG || debug)
+                    //    Log.d(LOG_TAG, "writen data (one byte): " + oneByte + " char: " + (char) oneByte);
                 }
 
                 /* (non-Javadoc)
@@ -367,12 +364,12 @@ public class USBGpsManager {
                 @Override
                 public void write(byte[] buffer, int offset, int count)
                         throws IOException {
-                    if (BuildConfig.DEBUG || debug)
-                        Log.d(LOG_TAG, "trying to write data : " + Arrays.toString(buffer) + " offset " + offset + " count: " + count);
+                    //if (BuildConfig.DEBUG || debug)
+                    //    Log.d(LOG_TAG, "trying to write data : " + Arrays.toString(buffer) + " offset " + offset + " count: " + count);
                     bufferWrite.clear();
                     bufferWrite.put(buffer, offset, count);
-                    if (BuildConfig.DEBUG || debug)
-                        Log.d(LOG_TAG, "trying to write data : " + Arrays.toString(this.buffer));
+                    //if (BuildConfig.DEBUG || debug)
+                    //    Log.d(LOG_TAG, "trying to write data : " + Arrays.toString(this.buffer));
                     int n = 0;
                     if (!closed) {
                         n = connection.bulkTransfer(endpointOut, this.buffer, count, TIMEOUT);
@@ -384,8 +381,8 @@ public class USBGpsManager {
                         Log.e(LOG_TAG, "error while trying to write data: " + n + " bytes writen when expecting " + count);
                         throw new IOException("error while trying to write data: " + Arrays.toString(this.buffer));
                     }
-                    if (BuildConfig.DEBUG || debug)
-                        Log.d(LOG_TAG, "writen data (one byte): " + Arrays.toString(this.buffer));
+                    //if (BuildConfig.DEBUG || debug)
+                    //    Log.d(LOG_TAG, "writen data (one byte): " + Arrays.toString(this.buffer));
                 }
 
                 /* (non-Javadoc)
@@ -429,7 +426,7 @@ public class USBGpsManager {
             in = tmpIn;
             out = tmpOut;
             out2 = tmpOut2;
-            final int[] speedList = {Integer.parseInt(deviceSpeed), 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
+            final int[] speedList = {Integer.valueOf(deviceSpeed), 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
 //            final List<String> speedList = Arrays.asList(new String[]{"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"});
             final byte[] data = {(byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08};
             final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
@@ -437,75 +434,110 @@ public class USBGpsManager {
             final byte[] datax = new byte[7];
             final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax, 0, 7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
             final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
-            if (setDeviceSpeed) {
-////                connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);                //reset
-////                connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);                //clear Rx
-////                connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);                //clear Tx
-////                connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);    //flow control none
-////                connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0);    //baudrate 9600
-////                connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);    //data bit 8, parity none, stop bit 1, tx off
-            }
+
             if (sirfGps) {
                 Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
-                connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                try {
+                    connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                } catch (NullPointerException e) {
+                    Log.e(LOG_TAG, "Connection error");
+                    close();
+                    return;
+                }
             }
-            Thread autoConf = new Thread() {
 
-                /* (non-Javadoc)
-                 * @see java.lang.Thread#run()
-                 */
-                @Override
-                public void run() {
+            if (setDeviceSpeed) {
+                Log.v(LOG_TAG, "Setting connection speed to: " + deviceSpeed);
+                try {
+                    connectionSpeedBuffer.putInt(0, Integer.valueOf(deviceSpeed)); // Put the value in
+                    connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); // Set baudrate
+                } catch (NullPointerException e) {
+                    Log.e(LOG_TAG, "Could not set speed");
+                    close();
+                }
+                /*
+                connection.controlTransfer(0x40, 0, 0, 0, null, 0, 0);                //reset
+                connection.controlTransfer(0x40, 0, 1, 0, null, 0, 0);                //clear Rx
+                connection.controlTransfer(0x40, 0, 2, 0, null, 0, 0);                //clear Tx
+                connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0, 0);    //flow control none
+                connection.controlTransfer(0x40, 0x03, Integer.valueOf(deviceSpeed), 0, null, 0, 0);    //baudrate 9600
+                connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0, 0);    //data bit 8, parity none, stop bit 1, tx off
+                */
+            } else {
+                Thread autoConf = new Thread() {
+
+                    /* (non-Javadoc)
+                     * @see java.lang.Thread#run()
+                     */
+                    @Override
+                    public void run() {
 //                    final byte[] data = { (byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08 };
 //                    final ByteBuffer connectionSpeedBuffer = ByteBuffer.wrap(data, 0, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN);
 //                    final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
 //                    final byte[] datax = new byte[7];
 //                    final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-                    try {
-                        int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0);
-                        USBGpsManager.this.deviceSpeed = Integer.toString(connectionSpeedInfoBuffer.getInt(0));
-                        Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
-                        Log.e(LOG_TAG, "info connection speed: " + USBGpsManager.this.deviceSpeed);
-                        Thread.sleep(4000);
-                        Log.e(LOG_TAG, "trying to use speed in range: " + Arrays.toString(speedList));
-                        for (int speed : speedList) {
-                            if (!ready && !closed) {
-                                USBGpsManager.this.deviceSpeed = Integer.toString(speed);
-                                Log.e(LOG_TAG, "trying to use speed " + speed);
-                                Log.d(LOG_TAG, "initializing connection:  " + speed + " baud and 8N1 (0 bits no parity 1 stop bit");
-                                connectionSpeedBuffer.putInt(0, speed);
-                                int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0);
-                                if (sirfGps) {
-                                    Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
-                                    connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                        try {
+                            // Get the current data rate from the device and transfer it into datax
+                            int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0);
+
+                            // Datax is used in a byte buffer which this now turns into an integer
+                            // and sets how preference speed to that speed
+                            USBGpsManager.this.deviceSpeed = Integer.toString(connectionSpeedInfoBuffer.getInt(0));
+
+                            // logs the bytes we got
+                            Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
+                            Log.e(LOG_TAG, "info connection speed: " + USBGpsManager.this.deviceSpeed);
+
+                            Thread.sleep(4000);
+                            Log.e(LOG_TAG, "trying to use speed in range: " + Arrays.toString(speedList));
+                            for (int speed : speedList) {
+                                if (!ready && !closed) {
+                                    // set a new datarate
+                                    USBGpsManager.this.deviceSpeed = Integer.toString(speed);
+                                    Log.e(LOG_TAG, "trying to use speed " + speed);
+                                    Log.d(LOG_TAG, "initializing connection:  " + speed + " baud and 8N1 (0 bits no parity 1 stop bit");
+
+                                    // Put that data rate into a new data byte array
+                                    connectionSpeedBuffer.putInt(0, speed);
+
+                                    // And set the device to that data rate
+                                    int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0);
+
+                                    if (sirfGps) {
+                                        Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
+                                        connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                                    }
+                                    Log.e(LOG_TAG, "data init " + res1 + " " + res2);
+                                    Thread.sleep(4000);
                                 }
-                                Log.e(LOG_TAG, "data init " + res1 + " " + res2);
-                                Thread.sleep(4000);
+                            }
+                            // And get the current data rate again
+                            res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0);
+
+                            Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
+                            Log.e(LOG_TAG, "info connection speed: " + connectionSpeedInfoBuffer.getInt(0));
+
+                            if (!closed) {
+                                Thread.sleep(10000);
+                            }
+                        } catch (InterruptedException e) {
+                            Log.e(LOG_TAG, "autoconf thread interrupted", e);
+                        } finally {
+                            if ((!closed) && (!ready) || (lastRead + 4000 < SystemClock.uptimeMillis())) {
+                                setMockLocationProviderOutOfService();
+                                Log.e(LOG_TAG, "Something went wrong in auto config");
+                                // cleanly closing everything...
+                                ConnectedGps.this.close();
+                                USBGpsManager.this.disableIfNeeded();
                             }
                         }
-                        res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0);
-                        Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
-                        Log.e(LOG_TAG, "info connection speed: " + connectionSpeedInfoBuffer.getInt(0));
-                        if (!closed) {
-                            Thread.sleep(10000);
-                        }
-                    } catch (InterruptedException e) {
-                        Log.e(LOG_TAG, "autoconf thread interupted", e);
-                    } finally {
-                        if ((!closed) && (!ready) || (lastRead + 4000 < SystemClock.uptimeMillis())) {
-                            setMockLocationProviderOutOfService();
-                            Log.e(LOG_TAG, "Something went wrong in auto config");
-                            // cleanly closing everything...
-                            ConnectedGps.this.close();
-                            USBGpsManager.this.disableIfNeeded();
-                        }
                     }
-                }
 
-            };
-            Log.e(LOG_TAG, "trying to find speed ");
-            ready = false;
-            autoConf.start();
+                };
+                Log.e(LOG_TAG, "trying to find speed ");
+                ready = false;
+                autoConf.start();
+            }
         }
 
         public boolean isReady() {
@@ -517,11 +549,15 @@ public class USBGpsManager {
         public void run() {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 128);
-//                InputStreamReader reader = new InputStreamReader(in,"US-ASCII");
+
+                // Sentence to read from the device
                 String s;
 
                 long now = SystemClock.uptimeMillis();
+
                 // we will wait more at the beginning of the connection
+                // but if we don't get a signal after 45 seconds we can assume the device
+                // is not usable
                 lastRead = now + 45000;
                 while ((enabled) && (now < lastRead + 4000) && (!closed)) {
 
@@ -535,15 +571,15 @@ public class USBGpsManager {
                         //Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
                         if (notifyNmeaSentence(s + "\r\n")) {
                             ready = true;
-//                                lastRead = Math.max(SystemClock.uptimeMillis(), lastRead);
+
                             lastRead = SystemClock.uptimeMillis();
 
                             if (problemNotified) {
                                 problemNotified = false;
                                 // reset eventual disabling cause
                                 setDisableReason(0);
-                                // connection is good so reseting the number of connection try
-                                Log.v(LOG_TAG, "connection is good so reseting the number of connection try");
+                                // connection is good so resetting the number of connection try
+                                Log.v(LOG_TAG, "connection is good so resetting the number of connection try");
                                 nbRetriesRemaining = maxConnectionRetries;
                                 notificationManager.cancel(R.string.connection_problem_notification_title);
                             }
@@ -555,12 +591,20 @@ public class USBGpsManager {
 //                    SystemClock.sleep(10);
                     now = SystemClock.uptimeMillis();
                 }
+
+                if (now > lastRead + 4000) {
+                    Log.e(LOG_TAG, "Read timeout in read thread");
+                } else if (closed) {
+                    Log.d(LOG_TAG, "Device connection closing, stopping read thread");
+                } else {
+                    Log.d(LOG_TAG, "Provider disabled, stopping read thread");
+                }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "error while getting data", e);
                 setMockLocationProviderOutOfService();
             } finally {
                 // cleanly closing everything...
-                Log.e(LOG_TAG, "Something went wrong getting data");
+                Log.v(LOG_TAG, "Closing read thread");
                 this.close();
                 disableIfNeeded();
             }
@@ -610,31 +654,41 @@ public class USBGpsManager {
             ready = false;
             closed = true;
             try {
-                Log.d(LOG_TAG, "closing USB GPS output sream");
+                Log.d(LOG_TAG, "closing USB GPS output stream");
                 in.close();
+
             } catch (IOException e) {
                 Log.e(LOG_TAG, "error while closing GPS NMEA output stream", e);
+
             } finally {
                 try {
                     Log.d(LOG_TAG, "closing USB GPS input streams");
                     out2.close();
                     out.close();
+
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "error while closing GPS input streams", e);
+
                 } finally {
                     if (BuildConfig.DEBUG || debug)
-                        Log.e(LOG_TAG, "releasing usb interface for connection: " + connection);
+                        Log.d(LOG_TAG, "releasing usb interface for connection: " + connection);
+
                     boolean released = connection.releaseInterface(intf);
+
                     if (released) {
                         if (BuildConfig.DEBUG || debug)
-                            Log.e(LOG_TAG, "usb interface released for connection: " + connection);
+                            Log.d(LOG_TAG, "usb interface released for connection: " + connection);
+
                     } else {
                         if (BuildConfig.DEBUG || debug)
-                            Log.e(LOG_TAG, "unable to release usb interface for connection: " + connection);
+                            Log.d(LOG_TAG, "unable to release usb interface for connection: " + connection);
+
                     }
+
                     if (BuildConfig.DEBUG || debug)
-                        Log.e(LOG_TAG, "closing usb connection: " + connection);
+                        Log.d(LOG_TAG, "closing usb connection: " + connection);
                     connection.close();
+
                 }
             }
         }
@@ -643,11 +697,14 @@ public class USBGpsManager {
     private Service callingService;
     private UsbDevice gpsDev;
 
-    private NmeaParser parser = new NmeaParser(10f);
+    private NmeaParser parser;
     private boolean enabled = false;
     private ExecutorService notificationPool;
     private ScheduledExecutorService connectionAndReadingPool;
-    private List<NmeaListener> nmeaListeners = Collections.synchronizedList(new LinkedList<NmeaListener>());
+
+    private final List<NmeaListener> nmeaListeners =
+            Collections.synchronizedList(new LinkedList<NmeaListener>());
+
     private LocationManager locationManager;
     private SharedPreferences sharedPreferences;
     private ConnectedGps connectedGps;
@@ -685,6 +742,7 @@ public class USBGpsManager {
         this.maxConnectionRetries = maxRetries + 1;
         this.nbRetriesRemaining = maxConnectionRetries;
         this.appContext = callingService.getApplicationContext();
+        this.parser = new NmeaParser(10f, this.appContext);
 
         locationManager = (LocationManager) callingService.getSystemService(Context.LOCATION_SERVICE);
 
@@ -748,18 +806,26 @@ public class USBGpsManager {
         boolean isMockLocation;
 
         try {
-            //if marshmallow
+            //If marshmallow or higher then we need to check that this app is set as the provider
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 AppOpsManager opsManager = (AppOpsManager)
                         appContext.getSystemService(Context.APP_OPS_SERVICE);
-                isMockLocation = (
-                        opsManager.checkOp(AppOpsManager.OPSTR_MOCK_LOCATION,
-                        android.os.Process.myUid(),
-                        BuildConfig.APPLICATION_ID) == AppOpsManager.MODE_ALLOWED);
+                isMockLocation =
+                        opsManager.checkOp(
+                                AppOpsManager.OPSTR_MOCK_LOCATION,
+                                android.os.Process.myUid(),
+                                BuildConfig.APPLICATION_ID
+                        ) == AppOpsManager.MODE_ALLOWED;
+
             } else {
-                // Check outside of marshmallow, when this was just a tick box
-                isMockLocation = !android.provider.Settings.Secure.getString(appContext.getContentResolver(), "mock_location").equals("0");
+                // Anything below it then we just need to check the tickbox is checked.
+                isMockLocation =
+                        !android.provider.Settings.Secure.getString(
+                                appContext.getContentResolver(),
+                                "mock_location"
+                        ).equals("0");
             }
+
         } catch (Exception e) {
             return false;
         }
@@ -772,10 +838,14 @@ public class USBGpsManager {
      * @param device GPS device
      */
     private void openConnection(UsbDevice device) {
+        if (!getDeviceFromAttached().equals(device)) {
+            return;
+        }
         connected = true;
 
         if (setDeviceSpeed) {
             Log.v(LOG_TAG, "will set device speed: " + deviceSpeed);
+
         } else {
             Log.v(LOG_TAG, "will use default device speed: " + defaultDeviceSpeed);
             deviceSpeed = defaultDeviceSpeed;
@@ -810,8 +880,10 @@ public class USBGpsManager {
      */
     public synchronized boolean enable() {
         IntentFilter permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
-        IntentFilter detachFilter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
+        permissionFilter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        notificationManager.cancel(
+                R.string.service_closed_because_connection_problem_notification_title
+        );
 
         if (!enabled) {
             Log.d(LOG_TAG, "enabling USB GPS manager");
@@ -839,6 +911,7 @@ public class USBGpsManager {
                         @Override
                         public void run() {
                             try {
+                                Log.v(LOG_TAG, "Starting connect thread");
                                 connected = false;
                                 gpsDev = getDeviceFromAttached();
 
@@ -883,8 +956,7 @@ public class USBGpsManager {
 
                     if (gpsDev != null) {
                         this.enabled = true;
-                        callingService.registerReceiver(permissionReceiver, permissionFilter);
-                        callingService.registerReceiver(detachedReceiver, detachFilter);
+                        callingService.registerReceiver(permissionAndDetachReceiver, permissionFilter);
 
                         Log.d(LOG_TAG, "USB GPS manager enabled");
                         Log.v(LOG_TAG, "starting notification thread");
@@ -894,7 +966,12 @@ public class USBGpsManager {
                         connectionAndReadingPool = Executors.newSingleThreadScheduledExecutor();
 
                         Log.v(LOG_TAG, "starting connection to socket task");
-                        connectionAndReadingPool.scheduleWithFixedDelay(connectThread, 1000, 1000, TimeUnit.MILLISECONDS);
+                        connectionAndReadingPool.scheduleWithFixedDelay(
+                                connectThread,
+                                1000,
+                                1000,
+                                TimeUnit.MILLISECONDS
+                        );
 
                         if (sirfGps) {
                             enableSirfConfig(sharedPreferences);
@@ -921,18 +998,28 @@ public class USBGpsManager {
             problemNotified = true;
             if (nbRetriesRemaining > 0) {
                 // Unable to connect
-                Log.e(LOG_TAG, "Unable to establish connection");
+                Log.e(LOG_TAG, "Connection ended");
 
-                String pbMessage = appContext.getResources().getQuantityString(R.plurals.connection_problem_notification, nbRetriesRemaining, nbRetriesRemaining);
+                String pbMessage = appContext.getResources()
+                        .getQuantityString(
+                                R.plurals.connection_problem_notification,
+                                nbRetriesRemaining,
+                                nbRetriesRemaining
+                        );
 
                 Notification connectionProblemNotification = connectionProblemNotificationBuilder
                         .setWhen(System.currentTimeMillis())
-                        .setContentTitle(appContext.getString(R.string.connection_problem_notification_title))
+                        .setContentTitle(
+                                appContext.getString(R.string.connection_problem_notification_title)
+                        )
                         .setContentText(pbMessage)
                         .setNumber(1 + maxConnectionRetries - nbRetriesRemaining)
                         .build();
 
-                notificationManager.notify(R.string.connection_problem_notification_title, connectionProblemNotification);
+                notificationManager.notify(
+                        R.string.connection_problem_notification_title,
+                        connectionProblemNotification
+                );
 
             } else {
                 disable(R.string.msg_two_many_connection_problems);
@@ -978,50 +1065,78 @@ public class USBGpsManager {
         notificationManager.cancel(R.string.connection_problem_notification_title);
 
         if (getDisableReason() != 0) {
-            NotificationCompat.Builder partialServiceStoppedNotification = serviceStoppedNotificationBuilder
-                    .setWhen(System.currentTimeMillis())
-                    .setContentTitle(appContext.getString(R.string.service_closed_because_connection_problem_notification_title))
-                    .setContentText(appContext.getString(R.string.service_closed_because_connection_problem_notification, appContext.getString(getDisableReason())));
+            NotificationCompat.Builder partialServiceStoppedNotification =
+                    serviceStoppedNotificationBuilder
+                            .setWhen(System.currentTimeMillis())
+                            .setAutoCancel(true)
+                            .setContentTitle(
+                                    appContext.getString(
+                                            R.string.service_closed_because_connection_problem_notification_title
+                                    )
+                            )
+                            .setContentText(
+                                    appContext.getString(
+                                            R.string.service_closed_because_connection_problem_notification,
+                                            appContext.getString(getDisableReason())
+                                    )
+                            );
 
             if (getDisableReason() == R.string.msg_mock_location_disabled) {
-
-                PendingIntent mockLocationsSettingsIntent = PendingIntent.getActivity(
-                        appContext,
-                        0,
-                        new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS),
-                        PendingIntent.FLAG_CANCEL_CURRENT);
+                PendingIntent mockLocationsSettingsIntent =
+                        PendingIntent.getActivity(
+                            appContext,
+                            0,
+                            new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS),
+                            PendingIntent.FLAG_CANCEL_CURRENT
+                        );
 
                 partialServiceStoppedNotification
                         .setContentIntent(mockLocationsSettingsIntent)
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText(
-                                appContext.getString(R.string.service_closed_because_connection_problem_notification, appContext.getString(R.string.msg_mock_location_disabled_full))
+                        .setStyle(
+                                new NotificationCompat.BigTextStyle().bigText(
+                                        appContext.getString(
+                                                R.string.service_closed_because_connection_problem_notification,
+                                                appContext.getString(R.string.msg_mock_location_disabled_full))
                                 )
                         );
+
             } else if (getDisableReason() == R.string.msg_no_location_permission) {
                 PendingIntent mockLocationsSettingsIntent = PendingIntent.getActivity(
                         appContext,
                         0,
-                        new Intent(callingService, USBGpsActivity.class),
+                        new Intent(callingService, GpsInfoActivity.class),
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
                 partialServiceStoppedNotification
                         .setContentIntent(mockLocationsSettingsIntent)
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText(
-                                appContext.getString(
-                                        R.string.service_closed_because_connection_problem_notification,
-                                        appContext.getString(R.string.msg_no_location_permission))
+                        .setStyle(
+                                new NotificationCompat.BigTextStyle().bigText(
+                                        appContext.getString(
+                                                R.string.service_closed_because_connection_problem_notification,
+                                                appContext.getString(R.string.msg_no_location_permission)
+                                        )
                                 )
                         );
             }
 
             Notification serviceStoppedNotification = partialServiceStoppedNotification.build();
-            notificationManager.notify(R.string.service_closed_because_connection_problem_notification_title, serviceStoppedNotification);
+            notificationManager.notify(
+                    R.string.service_closed_because_connection_problem_notification_title,
+                    serviceStoppedNotification
+            );
+
+            sharedPreferences
+                    .edit()
+                    .putInt(
+                            appContext.getString(R.string.pref_disable_reason_key),
+                            getDisableReason()
+                    )
+                    .apply();
         }
 
         if (enabled) {
             Log.d(LOG_TAG, "disabling USB GPS manager");
-            callingService.unregisterReceiver(permissionReceiver);
-            callingService.unregisterReceiver(detachedReceiver);
+            callingService.unregisterReceiver(permissionAndDetachReceiver);
 
             enabled = false;
             connectionAndReadingPool.shutdown();
@@ -1083,7 +1198,8 @@ public class USBGpsManager {
         if (parser != null) {
             Log.d(LOG_TAG, "enabling mock locations provider: " + gpsName);
             boolean force = sharedPreferences.getBoolean(
-                    USBGpsProviderService.PREF_FORCE_ENABLE_PROVIDER, true);
+                    USBGpsProviderService.PREF_FORCE_ENABLE_PROVIDER, true
+            );
             parser.enableMockLocationProvider(gpsName, force);
         }
     }
@@ -1170,9 +1286,9 @@ public class USBGpsManager {
     }
 
     /**
-     * Notifies the reception of a NMEA sentence from the bluetooth GPS to registered NMEA listeners.
+     * Notifies the reception of a NMEA sentence from the USB GPS to registered NMEA listeners.
      *
-     * @param nmeaSentence the complete NMEA sentence received from the bluetooth GPS (i.e. $....*XY where XY is the checksum)
+     * @param nmeaSentence the complete NMEA sentence received from the USB GPS (i.e. $....*XY where XY is the checksum)
      * @return true if the input string is a valid NMEA sentence, false otherwise.
      */
     private boolean notifyNmeaSentence(final String nmeaSentence) {
@@ -1187,12 +1303,21 @@ public class USBGpsManager {
                 // a priori Mock Location is disabled
                 sentence = null;
                 disable(R.string.msg_mock_location_disabled);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Sentence not parsable");
+                Log.e(LOG_TAG, nmeaSentence);
+                e.printStackTrace();
             }
             final String recognizedSentence = sentence;
             final long timestamp = System.currentTimeMillis();
             if (recognizedSentence != null) {
                 res = true;
                 Log.v(LOG_TAG, "notifying NMEA sentence: " + recognizedSentence);
+
+                ((USBGpsApplication) appContext).notifyNewSentence(
+                        recognizedSentence.replaceAll("(\\r|\\n)", "")
+                );
+
                 synchronized (nmeaListeners) {
                     for (final NmeaListener listener : nmeaListeners) {
                         notificationPool.execute(new Runnable() {
