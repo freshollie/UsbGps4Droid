@@ -61,19 +61,19 @@ It should build perfectly, providing you have the correct SDKs (Currently SDK 25
 
 #### Landscape tablet
 <p align="center">>
-    <img src="screenshots/main_screen_tablet_api_23.png" align="center" alt="Main interface marshmallow" width="300"/>
+    <img src="screenshots/main_screen_tablet_api_23.png" align="center" alt="Main interface marshmallow" width="500"/>
 </p>
 
 <p align="center">>
-    <img src="screenshots/main_screen_tablet_api16.png" align="center" alt="Main interface honeycomb" width="300"/>
+    <img src="screenshots/main_screen_tablet_api16.png" align="center" alt="Main interface honeycomb" width="500"/>
 </p>
 
 #### Portrait
 <p align="center">>
-    <img src="screenshots/main_screen_tablet_portrait_api_23.png" align="center" alt="Main interface portait" width="300"/>
+    <img src="screenshots/main_screen_tablet_portrait_api_23.png" align="center" alt="Main interface portait" width="400"/>
 </p>
 
 #### Device selection
 <p align="center">>
-    <img src="screenshots/options_device_choice.png" align="center" alt="Device choice settings" width="300"/>
+    <img src="screenshots/options_device_choice.png" align="center" alt="Device choice settings" width="500"/>
 </p>
