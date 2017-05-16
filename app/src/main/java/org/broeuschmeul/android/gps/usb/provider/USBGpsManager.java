@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
+import org.broeuschmeul.android.gps.usb.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.ui.GpsInfoActivity;
 
 import android.Manifest;
 import android.app.Notification;
@@ -85,13 +87,14 @@ public class USBGpsManager {
      * Tag used for log messages
      */
     private static final String LOG_TAG = USBGpsManager.class.getSimpleName();
+
     private boolean debug = false;
 
     private UsbManager usbManager = null;
     private static final String ACTION_USB_PERMISSION =
             "org.broeuschmeul.android.gps.usb.provider.USBGpsManager.USB_PERMISSION";
 
-    private final BroadcastReceiver permissionAndDettachReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver permissionAndDetachReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -694,12 +697,12 @@ public class USBGpsManager {
     private Service callingService;
     private UsbDevice gpsDev;
 
-    private NmeaParser parser = new NmeaParser(10f);
+    private NmeaParser parser;
     private boolean enabled = false;
     private ExecutorService notificationPool;
     private ScheduledExecutorService connectionAndReadingPool;
 
-    private List<NmeaListener> nmeaListeners =
+    private final List<NmeaListener> nmeaListeners =
             Collections.synchronizedList(new LinkedList<NmeaListener>());
 
     private LocationManager locationManager;
@@ -739,6 +742,7 @@ public class USBGpsManager {
         this.maxConnectionRetries = maxRetries + 1;
         this.nbRetriesRemaining = maxConnectionRetries;
         this.appContext = callingService.getApplicationContext();
+        this.parser = new NmeaParser(10f, this.appContext);
 
         locationManager = (LocationManager) callingService.getSystemService(Context.LOCATION_SERVICE);
 
@@ -952,7 +956,7 @@ public class USBGpsManager {
 
                     if (gpsDev != null) {
                         this.enabled = true;
-                        callingService.registerReceiver(permissionAndDettachReceiver, permissionFilter);
+                        callingService.registerReceiver(permissionAndDetachReceiver, permissionFilter);
 
                         Log.d(LOG_TAG, "USB GPS manager enabled");
                         Log.v(LOG_TAG, "starting notification thread");
@@ -1132,7 +1136,7 @@ public class USBGpsManager {
 
         if (enabled) {
             Log.d(LOG_TAG, "disabling USB GPS manager");
-            callingService.unregisterReceiver(permissionAndDettachReceiver);
+            callingService.unregisterReceiver(permissionAndDetachReceiver);
 
             enabled = false;
             connectionAndReadingPool.shutdown();
@@ -1309,6 +1313,9 @@ public class USBGpsManager {
             if (recognizedSentence != null) {
                 res = true;
                 Log.v(LOG_TAG, "notifying NMEA sentence: " + recognizedSentence);
+
+                ((USBGpsApplication) appContext).notifyNewSentence(recognizedSentence);
+
                 synchronized (nmeaListeners) {
                     for (final NmeaListener listener : nmeaListeners) {
                         notificationPool.execute(new Runnable() {

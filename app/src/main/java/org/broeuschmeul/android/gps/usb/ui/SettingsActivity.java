@@ -1,7 +1,9 @@
-package org.broeuschmeul.android.gps.usb.provider;
+package org.broeuschmeul.android.gps.usb.ui;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+
+import org.broeuschmeul.android.gps.usb.provider.R;
 
 public class SettingsActivity extends USBGpsBaseActivity {
     @Override

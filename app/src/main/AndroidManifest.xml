@@ -37,9 +37,10 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name="org.broeuschmeul.android.gps.usb.USBGpsApplication">
         <activity
-            android:name=".GpsInfoActivity"
+            android:name="org.broeuschmeul.android.gps.usb.ui.GpsInfoActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
@@ -62,7 +63,7 @@
         </service>
 
         <activity
-            android:name=".SettingsActivity"
+            android:name="org.broeuschmeul.android.gps.usb.ui.SettingsActivity"
             android:label="@string/title_activity_settings">
         </activity>
     </application>

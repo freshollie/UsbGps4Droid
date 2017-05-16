@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="org.broeuschmeul.android.gps.usb.provider.SettingsActivity"
+    tools:context="org.broeuschmeul.android.gps.usb.provider.org.broeuschmeul.android.gps.usb.ui.SettingsActivity"
     tools:showIn="@layout/activity_settings">
 
 </android.support.constraint.ConstraintLayout>

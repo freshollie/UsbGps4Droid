@@ -29,6 +29,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -39,6 +40,8 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
+
+import org.broeuschmeul.android.gps.usb.USBGpsApplication;
 
 import static android.content.ContentValues.TAG;
 
@@ -55,6 +58,8 @@ public class NmeaParser {
      */
     private static final String LOG_TAG = NmeaParser.class.getSimpleName();
 
+    private Context appContext;
+
     private String fixTime = null;
     private long fixTimestamp;
 
@@ -70,12 +75,13 @@ public class NmeaParser {
 
     private Location fix = null;
 
-    public NmeaParser() {
-        this(5f);
+    public NmeaParser(Context context) {
+        this(5f, context);
     }
 
-    public NmeaParser(float precision) {
+    public NmeaParser(float precision, Context context) {
         this.precision = precision;
+        this.appContext = context;
     }
 
     public void setLocationManager(LocationManager lm) {
@@ -245,6 +251,8 @@ public class NmeaParser {
         fixTime = null;
         hasGGA = false;
         hasRMC = false;
+
+        ((USBGpsApplication) appContext).notifyNewLocation(fix);
 
         if (fix != null) {
             Log.v(LOG_TAG, "New Fix: " + System.currentTimeMillis() + " " + fix);

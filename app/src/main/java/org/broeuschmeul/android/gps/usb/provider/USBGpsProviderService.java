@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -40,6 +41,7 @@ import android.app.Service;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -47,9 +49,13 @@ import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
+
+import org.broeuschmeul.android.gps.usb.ui.GpsInfoActivity;
+import org.broeuschmeul.android.gps.usb.ui.USBGpsSettingsFragment;
 
 /**
  * A Service used to replace Android internal GPS with a bluetooth GPS and/or write GPS NMEA data in a File.
@@ -251,25 +257,50 @@ public class USBGpsProviderService extends Service implements NmeaListener, Loca
         super.onDestroy();
     }
 
+    /**
+     * Checks if the applications has the given runtime permission
+     * @param perm
+     * @return
+     */
+    private boolean hasPermission(String perm) {
+        return (
+                PackageManager.PERMISSION_GRANTED ==
+                        ContextCompat.checkSelfPermission(this, perm)
+        );
+    }
+
     private void startTracking() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor edit = sharedPreferences.edit();
         if (trackFile == null) {
             if (gpsManager != null) {
-                beginTrack();
-                gpsManager.addNmeaListener(this);
-                if (!sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)) {
-                    edit.putBoolean(PREF_TRACK_RECORDING, true);
-                    edit.apply();
+                if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    beginTrack();
+                    gpsManager.addNmeaListener(this);
+                    if (!sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)) {
+                        edit.putBoolean(PREF_TRACK_RECORDING, true);
+                        edit.apply();
+                    }
+
+                    showToast(R.string.msg_nmea_recording_started);
+
+                } else {
+                    Toast.makeText(this, "UsbGps logger - No storage permission", Toast.LENGTH_SHORT)
+                            .show();
+
+                    edit.putBoolean(PREF_TRACK_RECORDING, false)
+                            .apply();
                 }
-                showToast(R.string.msg_nmea_recording_started);
+
             } else {
                 endTrack();
                 if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
                     edit.putBoolean(PREF_TRACK_RECORDING, false);
                     edit.apply();
                 }
+
             }
+
         } else {
             showToast(R.string.msg_nmea_recording_already_started);
         }

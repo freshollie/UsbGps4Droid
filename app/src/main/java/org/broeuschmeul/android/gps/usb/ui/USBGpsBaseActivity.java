@@ -1,4 +1,4 @@
-package org.broeuschmeul.android.gps.usb.provider;
+package org.broeuschmeul.android.gps.usb.ui;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -10,15 +10,17 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+
+import org.broeuschmeul.android.gps.usb.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService;
 
 /**
  * Created by freshollie on 15/05/17.
@@ -54,8 +56,10 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
             shouldInitialise = false;
         }
 
-        if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                !USBGpsApplication.wasLocationAsked()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                USBGpsApplication.setLocationAsked();
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         LOCATION_REQUEST);
             }
@@ -172,8 +176,11 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
 
             } else {
                 tryingToStart = false;
-                sharedPreferences.edit().putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
+
+                sharedPreferences.edit()
+                        .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false)
                         .apply();
+
                 new AlertDialog.Builder(this)
                         .setMessage("Location permission is required for UsbGps to function")
                         .setPositiveButton(android.R.string.ok, null)
@@ -193,8 +200,10 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                         .putBoolean(USBGpsProviderService.PREF_TRACK_RECORDING, false)
                         .apply();
 
-                new AlertDialog.Builder(this).setMessage(
-                        "In order to write a track file, the app need storage permission")
+                new AlertDialog.Builder(this)
+                        .setMessage(
+                                "In order to write a track file, the app need storage permission"
+                        )
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
 
@@ -252,15 +261,21 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                                     STORAGE_REQUEST);
                         }
                     } else {
-                        Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
-                        serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
-                        startService(serviceIntent);
+                        if (sharedPreferences.getBoolean(
+                                USBGpsProviderService.PREF_START_GPS_PROVIDER, false)) {
+                            Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
+                            serviceIntent.setAction(USBGpsProviderService.ACTION_START_TRACK_RECORDING);
+                            startService(serviceIntent);
+                        }
                     }
 
                 } else {
-                    Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
-                    serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_TRACK_RECORDING);
-                    startService(serviceIntent);
+                    if (sharedPreferences.getBoolean(
+                            USBGpsProviderService.PREF_START_GPS_PROVIDER, false)) {
+                        Intent serviceIntent = new Intent(this, USBGpsProviderService.class);
+                        serviceIntent.setAction(USBGpsProviderService.ACTION_STOP_TRACK_RECORDING);
+                        startService(serviceIntent);
+                    }
                 }
 
                 break;
