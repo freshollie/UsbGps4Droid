@@ -1,7 +1,9 @@
 package org.broeuschmeul.android.gps.usb.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -50,12 +53,28 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView numSatellites;
     private TextView accuracyText;
     private TextView locationText;
+    private TextView elevationText;
     private TextView logText;
+    private boolean doublePane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_info);
+        doublePane = false;
+
+        if (isLargeScreen()) {
+            if (getResources().getConfiguration().orientation ==
+                    Configuration.ORIENTATION_LANDSCAPE) {
+                doublePane = true;
+            }
+        }
+
+        if (doublePane) {
+            savedInstanceState = null;
+            setContentView(R.layout.activity_info_double);
+        } else {
+            setContentView(R.layout.activity_info);
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -64,6 +83,13 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         application = (USBGpsApplication) getApplication();
 
         setupUI();
+
+        super.onCreate(savedInstanceState);
+
+        if (doublePane) {
+            showSettingsFragment(R.id.settings_holder, false);
+            findViewById(R.id.switch_card_view).setVisibility(View.GONE);
+        }
     }
 
     private void setupUI() {
@@ -81,9 +107,16 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         numSatellites = (TextView) findViewById(R.id.num_satellites_text);
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
         locationText = (TextView) findViewById(R.id.location_text);
+        elevationText = (TextView) findViewById(R.id.elevation_text);
+
         logText = (TextView) findViewById(R.id.log_box);
         logText.setMovementMethod(new ScrollingMovementMethod());
 
+    }
+
+    private boolean isLargeScreen() {
+        return (getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
     private void updateData() {
@@ -99,6 +132,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         String numSatellitesValue = "N/A";
         String lat = "N/A";
         String lon = "N/A";
+        String elevation = "N/A";
 
         Location location = application.getLastLocation();
         if (!running) {
@@ -113,6 +147,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             DecimalFormat df = new DecimalFormat("#.#####");
             lat = df.format(location.getLatitude());
             lon = df.format(location.getLongitude());
+            elevation = String.valueOf(location.getAltitude());
         }
 
         numSatellites.setText(
@@ -120,6 +155,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         );
         accuracyText.setText(getString(R.string.accuracy_placeholder, accuracyValue));
         locationText.setText(getString(R.string.location_placeholder, lat, lon));
+        elevationText.setText(getString(R.string.elevation_placeholder, elevation));
         updateLog();
     }
 
@@ -156,8 +192,10 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
+        if (!doublePane) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_main, menu);
+        }
         return true;
     }
 

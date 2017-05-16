@@ -23,8 +23,6 @@
 <resources>
     <string name="app_name">UsbGps</string>
 
-    <string name="kek">TEST</string>
-
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Usb GPS is off</string>
     <string name="pref_start_gps_summary_on">Usb GPS is on</string>
@@ -227,4 +225,6 @@
     <string name="accuracy_placeholder">Accuracy: %s</string>
 
     <string name="location_placeholder">Location: Lat %1$s, Lon %2$s</string>
+    <string name="info_activity_title">UsbGps - Overview</string>
+    <string name="elevation_placeholder">Altitude: %s</string>
 </resources>

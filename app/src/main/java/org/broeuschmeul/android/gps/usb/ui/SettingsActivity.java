@@ -15,6 +15,6 @@ public class SettingsActivity extends USBGpsBaseActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        showSettingsFragment(R.id.settings_content);
+        showSettingsFragment(R.id.settings_content, true);
     }
 }
