@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -130,10 +131,17 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         clearStopNotification();
-                                        startActivity(
-                                                new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        );
+                                        try {
+                                            startActivity(
+                                                    new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+                                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            );
+                                        } catch (ActivityNotFoundException e) {
+                                            new AlertDialog.Builder(USBGpsBaseActivity.this)
+                                                    .setMessage(R.string.warning_no_developer_options)
+                                                    .setPositiveButton(android.R.string.ok, null)
+                                                    .show();
+                                        }
                                     }
                                 })
                         .show();
