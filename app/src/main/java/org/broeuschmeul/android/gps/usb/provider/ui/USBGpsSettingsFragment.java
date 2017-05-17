@@ -211,6 +211,26 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         usbCheckThread = new Thread(usbCheckRunnable);
         usbCheckThread.start();
 
+        final CheckBoxPreference timePreference =
+                (CheckBoxPreference) findPreference(USBGpsProviderService.PREF_SET_TIME);
+
+        if (!SuperuserManager.getInstance().hasPermission() && timePreference.isChecked()) {
+            SuperuserManager.getInstance().request(new SuperuserManager.permissionListener() {
+                @Override
+                public void onGranted() {
+                }
+
+                @Override
+                public void onDenied() {
+                    new Handler(getActivity().getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            timePreference.setChecked(false);
+                        }
+                    });
+                }
+            });
+        }
         updateDevicePreferenceList();
         super.onResume();
     }
@@ -455,23 +475,30 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 if (sharedPreferences.getBoolean(key, false)) {
                     SuperuserManager suManager = SuperuserManager.getInstance();
                     if (!suManager.hasPermission()) {
-                        sharedPreferences
-                                .edit()
-                                .putBoolean(key, false)
-                                .apply();
+                        ((CheckBoxPreference) findPreference(key)).setChecked(false);
 
                         suManager.request(new SuperuserManager.permissionListener() {
                             @Override
                             public void onGranted() {
-                                sharedPreferences
-                                        .edit()
-                                        .putBoolean(key, false)
-                                        .apply();
+                                new Handler(getActivity().getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ((CheckBoxPreference) findPreference(key)).setChecked(true);
+                                    }
+                                });
                             }
 
                             @Override
                             public void onDenied() {
-
+                                new Handler(getActivity().getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        new AlertDialog.Builder(getActivity())
+                                                .setMessage(R.string.warning_set_time_needs_su)
+                                                .setPositiveButton(android.R.string.ok, null)
+                                                .show();
+                                    }
+                                });
                             }
                         });
                     }

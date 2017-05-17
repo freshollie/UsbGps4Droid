@@ -43,6 +43,10 @@ public class USBGpsApplication extends Application {
         return locationAsked;
     }
 
+    public static void setLocationNotAsked() {
+        locationAsked = false;
+    }
+
     public String[] getSentenceLog() {
         return sentenceLog.toArray(new String[sentenceLog.size()]);
     }
