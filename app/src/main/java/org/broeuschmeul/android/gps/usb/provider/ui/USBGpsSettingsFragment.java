@@ -53,6 +53,7 @@ import android.widget.TextView;
 
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
+import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
 
 /**
  * A Preference Fragment Class used to configure the provider
@@ -391,7 +392,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         Log.v(TAG, "Shared preferences changed: " + key);
 
         switch (key) {
@@ -448,6 +449,33 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
 
             case USBGpsProviderService.PREF_GPS_DEVICE_SPEED:
                 updateDevicePreferenceSummary();
+                break;
+
+            case USBGpsProviderService.PREF_SET_TIME:
+                if (sharedPreferences.getBoolean(key, false)) {
+                    SuperuserManager suManager = SuperuserManager.getInstance();
+                    if (!suManager.hasPermission()) {
+                        sharedPreferences
+                                .edit()
+                                .putBoolean(key, false)
+                                .apply();
+
+                        suManager.request(new SuperuserManager.permissionListener() {
+                            @Override
+                            public void onGranted() {
+                                sharedPreferences
+                                        .edit()
+                                        .putBoolean(key, false)
+                                        .apply();
+                            }
+
+                            @Override
+                            public void onDenied() {
+
+                            }
+                        });
+                    }
+                }
                 break;
 
         }

@@ -165,5 +165,11 @@
     <string name="pref_category_sirf_title">SiRF</string>
     <string name="pref_category_nmea_log_title">NMEA Log</string>
     <string name="pref_category_debug_title">Debug</string>
+    <string name="pref_category_other">Other</string>
+    <string name="pref_set_time_key">setTime</string>
+    <string name="pref_set_time_summary_on">Set the system time to the gps time when a time is received</string>
+    <string name="pref_set_time_summary_off">Don\'t set the system time to the gps time</string>
+    <string name="pref_set_time_title">Set system time from GPS (Root required)</string>
+    <string name="pref_category_about_title">About</string>
 
 </resources>
