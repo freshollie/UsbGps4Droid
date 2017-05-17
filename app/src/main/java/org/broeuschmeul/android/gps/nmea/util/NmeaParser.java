@@ -21,7 +21,6 @@
 
 package org.broeuschmeul.android.gps.nmea.util;
 
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -29,6 +28,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
@@ -41,7 +41,7 @@ import android.text.TextUtils;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
-import org.broeuschmeul.android.gps.usb.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 
 import static android.content.ContentValues.TAG;
 
@@ -76,6 +76,7 @@ public class NmeaParser {
     private int mockStatus = LocationProvider.OUT_OF_SERVICE;
 
     private Location fix = null;
+    private String lastSentenceTime = "";
 
     public NmeaParser(Context context) {
         this(5f, context);
@@ -368,6 +369,7 @@ public class NmeaParser {
 
                         // UTC time of fix HHmmss.S
                         String time = splitter.next();
+                        lastSentenceTime = time;
 
                         // latitude ddmm.M
                         String lat = splitter.next();
@@ -479,6 +481,7 @@ public class NmeaParser {
 
                         // UTC time of fix HHmmss.S
                         String time = splitter.next();
+                        lastSentenceTime = time;
 
                         // fix status (A/V)
                         String status = splitter.next();
@@ -653,6 +656,8 @@ public class NmeaParser {
                         String lonDir = splitter.next();
                         // UTC time of fix HHmmss.S
                         String time = splitter.next();
+                        lastSentenceTime = time;
+
                         // fix status (A/V)
                         String status = splitter.next();
                         // for NMEA 0183 version 3.00 active the Mode indicator field is added
@@ -719,13 +724,16 @@ public class NmeaParser {
 
     public long parseNmeaTime(String time) {
         long timestamp = 0;
+        @SuppressLint("SimpleDateFormat")
         SimpleDateFormat fmt = new SimpleDateFormat("HHmmss.SSS");
-        fmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         try {
-            if (time != null && time != null) {
+            if (time != null) {
                 long now = System.currentTimeMillis();
                 long today = now - (now % 86400000L);
                 long temp1;
+
                 // sometime we don't have millisecond in the time string, so we have to reformat it
                 temp1 = fmt.parse(String.format((Locale) null, "%010.3f", Double.parseDouble(time))).getTime();
                 long temp2 = today + temp1;
@@ -751,5 +759,13 @@ public class NmeaParser {
             checksum ^= (byte) c;
         }
         return checksum;
+    }
+
+    public String getLastSentenceTime() {
+        return lastSentenceTime;
+    }
+
+    public void clearLastSentenceTime() {
+        lastSentenceTime = "";
     }
 }

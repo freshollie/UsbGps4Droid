@@ -1,4 +1,4 @@
-package org.broeuschmeul.android.gps.usb.ui;
+package org.broeuschmeul.android.gps.usb.provider.ui;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;

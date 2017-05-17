@@ -20,7 +20,7 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.usb.provider;
+package org.broeuschmeul.android.gps.usb.provider.driver;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,8 +31,11 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -43,10 +46,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
-import org.broeuschmeul.android.gps.usb.USBGpsApplication;
-import org.broeuschmeul.android.gps.usb.ui.GpsInfoActivity;
+import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
+import org.broeuschmeul.android.gps.usb.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
+import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -66,6 +73,7 @@ import android.hardware.usb.UsbManager;
 import android.location.LocationManager;
 import android.location.GpsStatus.NmeaListener;
 import android.os.Build;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.app.AppOpsManager;
 import android.os.Bundle;
@@ -92,7 +100,14 @@ public class USBGpsManager {
 
     private UsbManager usbManager = null;
     private static final String ACTION_USB_PERMISSION =
-            "org.broeuschmeul.android.gps.usb.provider.USBGpsManager.USB_PERMISSION";
+            "org.broeuschmeul.android.gps.usb.provider.driver.USBGpsManager.USB_PERMISSION";
+
+    /**
+     * Used to listen for nmea updates from UsbGpsManager
+     */
+    public interface NmeaListener {
+        void onNmeaReceived(long timestamp, String nmea);
+    }
 
     private final BroadcastReceiver permissionAndDetachReceiver = new BroadcastReceiver() {
 
@@ -694,6 +709,9 @@ public class USBGpsManager {
         }
     }
 
+    private boolean timeSetAlready;
+    private boolean shouldSetTime;
+
     private Service callingService;
     private UsbDevice gpsDev;
 
@@ -752,6 +770,9 @@ public class USBGpsManager {
                 USBGpsProviderService.PREF_GPS_DEVICE_SPEED,
                 callingService.getString(R.string.defaultGpsDeviceSpeed)
         );
+
+        shouldSetTime = sharedPreferences.getBoolean(USBGpsProviderService.PREF_SET_TIME, false);
+        timeSetAlready = true;
 
         defaultDeviceSpeed = callingService.getString(R.string.defaultGpsDeviceSpeed);
         setDeviceSpeed = !deviceSpeed.equals(callingService.getString(R.string.autoGpsDeviceSpeed));
@@ -841,6 +862,21 @@ public class USBGpsManager {
         if (!getDeviceFromAttached().equals(device)) {
             return;
         }
+
+        // After 10 seconds we can assume the GPS must have the
+        // correct time and so we are ready to assume the GPS can
+        // set the correct time
+        new Handler(appContext.getMainLooper())
+                .postDelayed(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                timeSetAlready = false;
+                            }
+                        },
+                        10000
+                );
+
         connected = true;
 
         if (setDeviceSpeed) {
@@ -1107,6 +1143,8 @@ public class USBGpsManager {
                         new Intent(callingService, GpsInfoActivity.class),
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
+                USBGpsApplication.setLocationNotAsked();
+
                 partialServiceStoppedNotification
                         .setContentIntent(mockLocationsSettingsIntent)
                         .setStyle(
@@ -1286,6 +1324,39 @@ public class USBGpsManager {
     }
 
     /**
+     * Sets the system time to the given UTC time value
+     * @param time UTC value HHmmss.SSS
+     */
+    @SuppressLint("SimpleDateFormat")
+    private void setSystemTime(String time) {
+        long parseTime = parser.parseNmeaTime(time);
+
+        Log.v(LOG_TAG, "What?: " + parseTime);
+
+        String timeFormatToybox =
+                new SimpleDateFormat("MMddhhmmyyyy.ss").format(new Date(parseTime));
+
+        String timeFormatToolbox =
+                new SimpleDateFormat("yyyyMMdd.hhmmss").format(new Date(parseTime));
+
+        Log.v(LOG_TAG, "Setting system time to: " + timeFormatToybox);
+        SuperuserManager suManager = SuperuserManager.getInstance();
+
+        Log.e(LOG_TAG, "toolbox date -s " + timeFormatToolbox+ "; toybox date " + timeFormatToybox +
+                "; am broadcast -a android.intent.action.TIME_SET");
+
+        if (suManager.hasPermission()) {
+            suManager.asyncExecute("toolbox date -s " + timeFormatToolbox+ "; toybox date " + timeFormatToybox +
+                    "; am broadcast -a android.intent.action.TIME_SET");
+        } else {
+            sharedPreferences
+                    .edit()
+                    .putBoolean(USBGpsProviderService.PREF_SET_TIME, false)
+                    .apply();
+        }
+    }
+
+    /**
      * Notifies the reception of a NMEA sentence from the USB GPS to registered NMEA listeners.
      *
      * @param nmeaSentence the complete NMEA sentence received from the USB GPS (i.e. $....*XY where XY is the checksum)
@@ -1297,7 +1368,19 @@ public class USBGpsManager {
             Log.v(LOG_TAG, "parsing and notifying NMEA sentence: " + nmeaSentence);
             String sentence = null;
             try {
+                if (shouldSetTime && !timeSetAlready) {
+                    parser.clearLastSentenceTime();
+                }
+
                 sentence = parser.parseNmeaSentence(nmeaSentence);
+
+                if (shouldSetTime && !timeSetAlready) {
+                    if (!parser.getLastSentenceTime().isEmpty()) {
+                        setSystemTime(parser.getLastSentenceTime());
+                        timeSetAlready = true;
+                    }
+                }
+
             } catch (SecurityException e) {
                 Log.e(LOG_TAG, "error while parsing NMEA sentence: " + nmeaSentence, e);
                 // a priori Mock Location is disabled
