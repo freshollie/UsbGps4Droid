@@ -1,4 +1,4 @@
-package org.broeuschmeul.android.gps.usb;
+package org.broeuschmeul.android.gps.usb.provider;
 
 import android.app.Application;
 import android.location.Location;
@@ -41,6 +41,10 @@ public class USBGpsApplication extends Application {
 
     public static boolean wasLocationAsked() {
         return locationAsked;
+    }
+
+    public static void setLocationNotAsked() {
+        locationAsked = false;
     }
 
     public String[] getSentenceLog() {

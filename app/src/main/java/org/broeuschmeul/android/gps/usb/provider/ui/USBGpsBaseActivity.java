@@ -1,9 +1,10 @@
-package org.broeuschmeul.android.gps.usb.ui;
+package org.broeuschmeul.android.gps.usb.provider.ui;
 
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,12 +19,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import org.broeuschmeul.android.gps.usb.USBGpsApplication;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 import org.broeuschmeul.android.gps.usb.provider.R;
-import org.broeuschmeul.android.gps.usb.provider.USBGpsProviderService;
+import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 
 /**
  * Created by freshollie on 15/05/17.
@@ -131,10 +131,17 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         clearStopNotification();
-                                        startActivity(
-                                                new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        );
+                                        try {
+                                            startActivity(
+                                                    new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+                                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            );
+                                        } catch (ActivityNotFoundException e) {
+                                            new AlertDialog.Builder(USBGpsBaseActivity.this)
+                                                    .setMessage(R.string.warning_no_developer_options)
+                                                    .setPositiveButton(android.R.string.ok, null)
+                                                    .show();
+                                        }
                                     }
                                 })
                         .show();

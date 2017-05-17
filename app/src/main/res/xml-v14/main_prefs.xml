@@ -23,7 +23,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/app_name">
     <PreferenceCategory
-        android:title="Device"
+        android:title="@string/pref_category_device_title"
         />
 
     <ListPreference
@@ -44,7 +44,7 @@
         android:title="@string/pref_gps_device_speed_title" />
 
     <PreferenceCategory
-        android:title="Service"
+        android:title="@string/pref_category_service_title"
         />
     <SwitchPreference
         android:disableDependentsState="true"
@@ -53,14 +53,27 @@
         android:summaryOff="@string/pref_start_gps_summary_off"
         android:summaryOn="@string/pref_start_gps_summary_on"
         android:title="@string/pref_start_gps_title" />
+    <CheckBoxPreference
+        android:key="@string/pref_start_on_boot_key"
+        android:defaultValue="false"
+        android:summaryOn="@string/pref_start_on_boot_summary_on"
+        android:summaryOff="@string/pref_start_on_boot_summary_off"
+        android:title="@string/pref_start_on_boot_title" />
     <Preference
         android:dependency="@string/pref_start_gps_key"
         android:key="@string/pref_gps_location_provider_key"
         android:summary="@string/pref_gps_location_provider_summary"
         android:title="@string/pref_gps_location_provider_title" />
+    <CheckBoxPreference
+        android:key="@string/pref_set_time_key"
+        android:summaryOn="@string/pref_set_time_summary_on"
+        android:summaryOff="@string/pref_set_time_summary_off"
+        android:title="@string/pref_set_time_title"
+        android:defaultValue="false"
+        />
 
     <PreferenceCategory
-        android:title="SiRF"
+        android:title="@string/pref_category_sirf_title"
         />
     <CheckBoxPreference
         android:defaultValue="false"
@@ -79,7 +92,7 @@
         android:key="@string/pref_sirf_screen_key"/>
 
     <PreferenceCategory
-        android:title="NMEA Log"
+        android:title="@string/pref_category_nmea_log_title"
         />
     <SwitchPreference
         android:enabled="true"
@@ -92,7 +105,7 @@
         android:key="@string/pref_recording_screen_key" />
 
     <PreferenceCategory
-        android:title="About"
+        android:title="@string/pref_category_about_title"
         />
     <Preference
         android:key="@string/pref_about_key"
@@ -101,7 +114,7 @@
         android:title="@string/pref_about_title" />
 
     <PreferenceCategory
-        android:title="Debug"
+        android:title="@string/pref_category_debug_title"
         />
     <SwitchPreference
         android:key="@string/pref_toast_logging_key"
