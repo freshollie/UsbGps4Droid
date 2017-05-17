@@ -46,7 +46,7 @@ The app will not start automatically when the device connects.
 The best implementation is to start the service in the background. (This can be done through tasker as root)
 
 ```bash
-am startservice -a org.broeuschmeul.android.gps.usb.provider.nmea.intent.action.START_GPS_PROVIDER
+am startservice -a org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.START_GPS_PROVIDER
 ```
 
 Be sure to call this only once the GPS device is connected as the app will not wait for it to be connected.
