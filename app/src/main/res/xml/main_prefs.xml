@@ -64,6 +64,13 @@
         android:key="@string/pref_gps_location_provider_key"
         android:summary="@string/pref_gps_location_provider_summary"
         android:title="@string/pref_gps_location_provider_title" />
+    <CheckBoxPreference
+        android:key="@string/pref_set_time_key"
+        android:summaryOn="@string/pref_set_time_summary_on"
+        android:summaryOff="@string/pref_set_time_summary_off"
+        android:title="@string/pref_set_time_title"
+        android:defaultValue="false"
+        />
 
     <PreferenceCategory
         android:title="@string/pref_category_sirf_title"
@@ -98,7 +105,7 @@
         android:key="@string/pref_recording_screen_key" />
 
     <PreferenceCategory
-        android:title="About"
+        android:title="@string/pref_category_about_title"
         />
     <Preference
         android:key="@string/pref_about_key"

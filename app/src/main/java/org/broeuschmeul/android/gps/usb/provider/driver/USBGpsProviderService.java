@@ -98,6 +98,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     public static final String PREF_GPS_DEVICE_PRODUCT_ID = "usbDeviceProductId";
     public static final String PREF_GPS_DEVICE_SPEED = "gpsDeviceSpeed";
     public static final String PREF_TOAST_LOGGING = "showToasts";
+    public static final String PREF_SET_TIME = "setTime";
     public static final String PREF_ABOUT = "about";
 
     /**
