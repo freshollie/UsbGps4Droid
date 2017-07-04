@@ -33,7 +33,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -71,7 +70,6 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.location.LocationManager;
-import android.location.GpsStatus.NmeaListener;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -430,6 +428,8 @@ public class USBGpsManager {
 
             };
 
+
+
             try {
                 if (tmpOut != null) {
                     tmpOut2 = new PrintStream(tmpOut, false, "US-ASCII");
@@ -448,12 +448,12 @@ public class USBGpsManager {
             final byte[] sirfBin2Nmea = SirfUtils.genSirfCommandFromPayload(callingService.getString(R.string.sirf_bin_to_nmea));
             final byte[] datax = new byte[7];
             final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax, 0, 7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-            final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, 0);
+            final int res1 = connection.controlTransfer(0x21, 34, 0, 0, null, 0, TIMEOUT);
 
             if (sirfGps) {
                 Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
                 try {
-                    connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                    connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, TIMEOUT);
                 } catch (NullPointerException e) {
                     Log.e(LOG_TAG, "Connection error");
                     close();
@@ -465,7 +465,7 @@ public class USBGpsManager {
                 Log.v(LOG_TAG, "Setting connection speed to: " + deviceSpeed);
                 try {
                     connectionSpeedBuffer.putInt(0, Integer.valueOf(deviceSpeed)); // Put the value in
-                    connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0); // Set baudrate
+                    connection.controlTransfer(0x21, 32, 0, 0, data, 7, TIMEOUT); // Set baudrate
                 } catch (NullPointerException e) {
                     Log.e(LOG_TAG, "Could not set speed");
                     close();
@@ -493,7 +493,7 @@ public class USBGpsManager {
 //                    final ByteBuffer connectionSpeedInfoBuffer = ByteBuffer.wrap(datax,0,7).order(java.nio.ByteOrder.LITTLE_ENDIAN);
                         try {
                             // Get the current data rate from the device and transfer it into datax
-                            int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0);
+                            int res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, TIMEOUT);
 
                             // Datax is used in a byte buffer which this now turns into an integer
                             // and sets how preference speed to that speed
@@ -516,18 +516,18 @@ public class USBGpsManager {
                                     connectionSpeedBuffer.putInt(0, speed);
 
                                     // And set the device to that data rate
-                                    int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, 0);
+                                    int res2 = connection.controlTransfer(0x21, 32, 0, 0, data, 7, TIMEOUT);
 
                                     if (sirfGps) {
                                         Log.e(LOG_TAG, "trying to switch from SiRF binaray to NMEA");
-                                        connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, 0);
+                                        connection.bulkTransfer(endpointOut, sirfBin2Nmea, sirfBin2Nmea.length, TIMEOUT);
                                     }
                                     Log.e(LOG_TAG, "data init " + res1 + " " + res2);
                                     Thread.sleep(4000);
                                 }
                             }
                             // And get the current data rate again
-                            res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, 0);
+                            res0 = connection.controlTransfer(0xA1, 33, 0, 0, datax, 7, TIMEOUT);
 
                             Log.e(LOG_TAG, "info connection: " + Arrays.toString(datax));
                             Log.e(LOG_TAG, "info connection speed: " + connectionSpeedInfoBuffer.getInt(0));
@@ -639,9 +639,7 @@ public class USBGpsManager {
                     out.write(buffer);
                     out.flush();
                 }
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Exception during write", e);
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 Log.e(LOG_TAG, "Exception during write", e);
             }
         }

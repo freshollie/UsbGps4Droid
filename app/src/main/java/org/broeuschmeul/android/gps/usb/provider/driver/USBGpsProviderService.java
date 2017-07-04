@@ -135,7 +135,6 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
                     PreferenceManager.getDefaultSharedPreferences(context);
             Log.v(LOG_TAG, intent.getAction());
 
-
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) &&
                     sharedPreferences.getBoolean(PREF_START_ON_BOOT, false))  {
                 new Handler(context.getMainLooper()).postDelayed(new Runnable() {
