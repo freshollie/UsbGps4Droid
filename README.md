@@ -20,6 +20,9 @@ This app has only been tested on 2 of my devices, running 5.1 and 6.0. Any issue
 
 The current updates include:
 
+### 2.1.1
+- Fixed bug which would hang the service if the device was not responding the transfer requests
+
 ### 2.1
 - Added option to start service on bootup
 - Added option to set the system clock to the gps clock (10 seconds after connecting the clock will be set)
