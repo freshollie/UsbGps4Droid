@@ -106,8 +106,8 @@
                     android:id="@+id/gps_time_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/num_satellites_text"
-                    android:layout_marginLeft="50dp"
+                    android:layout_below="@+id/location_text"
+                    android:layout_alignParentRight="true"
                     android:text="@string/gps_time_placeholder"/>
 
                 <ImageView
