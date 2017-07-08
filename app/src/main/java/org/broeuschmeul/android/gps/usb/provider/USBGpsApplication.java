@@ -68,15 +68,14 @@ public class USBGpsApplication extends Application {
             sentenceLog.remove(0);
         }
 
-        final String newSentence = System.currentTimeMillis() + ": " + sentence;
-        sentenceLog.add(newSentence);
+        sentenceLog.add(sentence);
 
         synchronized (serviceDataListeners) {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     for (ServiceDataListener dataListener: serviceDataListeners) {
-                        dataListener.onNewSentence(newSentence);
+                        dataListener.onNewSentence(sentence);
                     }
                 }
             });
