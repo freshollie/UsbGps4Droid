@@ -201,7 +201,7 @@ public class USBGpsManager {
                 }
             }
 //            endpointIn = intf.getEndpoint(2);
-            final int TIMEOUT = 1000;
+            final int TIMEOUT = 100;
 //            final int TIMEOUT = 0;
             connection = usbManager.openDevice(device);
             boolean resclaim = false;
@@ -1395,9 +1395,19 @@ public class USBGpsManager {
                 res = true;
                 Log.v(LOG_TAG, "notifying NMEA sentence: " + recognizedSentence);
 
+
                 ((USBGpsApplication) appContext).notifyNewSentence(
                         recognizedSentence.replaceAll("(\\r|\\n)", "")
                 );
+
+                if (!parser.getLastSentenceTime().isEmpty()) {
+                    ((USBGpsApplication) appContext).notifyNewSentence(
+                            "GpsTime: " +
+                                    parser.getLastSentenceTime() +
+                                    ", SystemTime: " +
+                                    System.currentTimeMillis()
+                    );
+                }
 
                 synchronized (nmeaListeners) {
                     for (final NmeaListener listener : nmeaListeners) {
