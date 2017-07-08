@@ -50,6 +50,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView elevationText;
     private TextView logText;
     private boolean doublePane;
+    private TextView timeText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
         locationText = (TextView) findViewById(R.id.location_text);
         elevationText = (TextView) findViewById(R.id.elevation_text);
+        timeText = (TextView) findViewById(R.id.gps_time_text);
 
         logText = (TextView) findViewById(R.id.log_box);
         logText.setMovementMethod(new ScrollingMovementMethod());
@@ -127,6 +129,8 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         String lat = "N/A";
         String lon = "N/A";
         String elevation = "N/A";
+        String gpsTime = "N/A";
+        String systemTime = "N/A";
 
         Location location = application.getLastLocation();
         if (!running) {
@@ -142,6 +146,8 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             lat = df.format(location.getLatitude());
             lon = df.format(location.getLongitude());
             elevation = String.valueOf(location.getAltitude());
+            gpsTime = String.valueOf(location.getTime());
+            systemTime = String.valueOf(location.getExtras().getLong(NmeaParser.SYSTEM_TIME_FIX));
         }
 
         numSatellites.setText(
@@ -150,7 +156,12 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         accuracyText.setText(getString(R.string.accuracy_placeholder, accuracyValue));
         locationText.setText(getString(R.string.location_placeholder, lat, lon));
         elevationText.setText(getString(R.string.elevation_placeholder, elevation));
+        timeText.setText(getString(R.string.gps_time_placeholder, gpsTime, systemTime));
         updateLog();
+    }
+
+    public void updateGpsTime() {
+
     }
 
     public void updateLog() {

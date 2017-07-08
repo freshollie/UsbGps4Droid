@@ -173,5 +173,6 @@
     <string name="pref_category_about_title">About</string>
     <string name="warning_set_time_needs_su">Set time function needs SU permission</string>
     <string name="warning_no_developer_options">Developer options need to be enabled first</string>
+    <string name="gps_time_placeholder">Gps Time: %1$s\nSys Time: %2$s</string>
 
 </resources>

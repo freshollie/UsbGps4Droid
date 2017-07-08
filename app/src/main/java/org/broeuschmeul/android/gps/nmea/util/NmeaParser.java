@@ -59,6 +59,7 @@ public class NmeaParser {
     private static final String LOG_TAG = NmeaParser.class.getSimpleName();
 
     public static final String SATELLITE_KEY = "satellites";
+    public static final String SYSTEM_TIME_FIX = "system_time_fix";
 
     private Context appContext;
 
@@ -422,6 +423,15 @@ public class NmeaParser {
                                 fixTime = time;
                                 fixTimestamp = parseNmeaTime(time);
                                 fix.setTime(fixTimestamp);
+
+                                Bundle bundle = fix.getExtras();
+                                if (bundle == null) {
+                                    bundle = new Bundle();
+                                }
+
+                                bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
+                                fix.setExtras(bundle);
+
                                 //Log.v(LOG_TAG, "Fix: "+fix);
                             }
 
@@ -442,9 +452,14 @@ public class NmeaParser {
                             }
 
                             if (nbSat != null && !nbSat.equals("")) {
-                                Bundle extras = new Bundle();
-                                extras.putInt(SATELLITE_KEY, Integer.parseInt(nbSat));
-                                fix.setExtras(extras);
+
+                                Bundle bundle = fix.getExtras();
+                                if (bundle == null) {
+                                    bundle = new Bundle();
+                                }
+
+                                bundle.putInt(SATELLITE_KEY, Integer.parseInt(nbSat));
+                                fix.setExtras(bundle);
                             }
 
                             //Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
@@ -527,6 +542,15 @@ public class NmeaParser {
                                 fixTime = time;
                                 fixTimestamp = parseNmeaTime(time);
                                 fix.setTime(fixTimestamp);
+
+                                Bundle bundle = fix.getExtras();
+                                if (bundle == null) {
+                                    bundle = new Bundle();
+                                }
+
+                                bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
+                                fix.setExtras(bundle);
+
                                 //Log.v(LOG_TAG, "Fix: "+fix);
                             }
 

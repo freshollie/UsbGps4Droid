@@ -201,7 +201,7 @@ public class USBGpsManager {
                 }
             }
 //            endpointIn = intf.getEndpoint(2);
-            final int TIMEOUT = 1000;
+            final int TIMEOUT = 100;
 //            final int TIMEOUT = 0;
             connection = usbManager.openDevice(device);
             boolean resclaim = false;
@@ -601,7 +601,7 @@ public class USBGpsManager {
                         }
                     } else {
                         Log.d(LOG_TAG, "data: not ready " + System.currentTimeMillis());
-                        SystemClock.sleep(500);
+                        SystemClock.sleep(100);
                     }
 //                    SystemClock.sleep(10);
                     now = SystemClock.uptimeMillis();
@@ -1394,6 +1394,7 @@ public class USBGpsManager {
             if (recognizedSentence != null) {
                 res = true;
                 Log.v(LOG_TAG, "notifying NMEA sentence: " + recognizedSentence);
+
 
                 ((USBGpsApplication) appContext).notifyNewSentence(
                         recognizedSentence.replaceAll("(\\r|\\n)", "")
