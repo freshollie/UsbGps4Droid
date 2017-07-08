@@ -106,7 +106,16 @@
                         android:text="@string/elevation_placeholder"
                         android:textAppearance="?android:textAppearanceMedium" />
 
+                    <TextView
+                        android:id="@+id/gps_time_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/location_text"
+                        android:layout_alignParentRight="true"
+                        android:text="@string/gps_time_placeholder"/>
+
                     <ImageView
+                        android:id="@+id/app_logo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
