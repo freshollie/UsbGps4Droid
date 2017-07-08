@@ -601,7 +601,7 @@ public class USBGpsManager {
                         }
                     } else {
                         Log.d(LOG_TAG, "data: not ready " + System.currentTimeMillis());
-                        SystemClock.sleep(500);
+                        SystemClock.sleep(100);
                     }
 //                    SystemClock.sleep(10);
                     now = SystemClock.uptimeMillis();
@@ -1399,15 +1399,6 @@ public class USBGpsManager {
                 ((USBGpsApplication) appContext).notifyNewSentence(
                         recognizedSentence.replaceAll("(\\r|\\n)", "")
                 );
-
-                if (!parser.getLastSentenceTime().isEmpty()) {
-                    ((USBGpsApplication) appContext).notifyNewSentence(
-                            "GpsTime: " +
-                                    parser.getLastSentenceTime() +
-                                    ", SystemTime: " +
-                                    System.currentTimeMillis()
-                    );
-                }
 
                 synchronized (nmeaListeners) {
                     for (final NmeaListener listener : nmeaListeners) {
