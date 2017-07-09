@@ -286,7 +286,7 @@ public class USBGpsManager {
                     if ((!bufferRead.hasRemaining()) && (!closed)) {
 //                        if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
 
-                        int n = connection.bulkTransfer(endpointIn, usbBuffer, 64, TIMEOUT);
+                        int n = connection.bulkTransfer(endpointIn, usbBuffer, 64, 10000);
 
 //                      if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
 
