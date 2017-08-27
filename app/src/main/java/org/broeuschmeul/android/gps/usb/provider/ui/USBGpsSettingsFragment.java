@@ -24,6 +24,7 @@ package org.broeuschmeul.android.gps.usb.provider.ui;
 
 import java.util.HashMap;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -196,6 +197,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onAttach(Activity context) {
         super.onAttach(context);
 
