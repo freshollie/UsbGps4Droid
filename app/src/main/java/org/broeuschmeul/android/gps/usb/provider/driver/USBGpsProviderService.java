@@ -333,11 +333,6 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
 
             } else {
                 endTrack();
-                if (sharedPreferences.getBoolean(PREF_TRACK_RECORDING, true)) {
-                    edit.putBoolean(PREF_TRACK_RECORDING, false);
-                    edit.apply();
-                }
-
             }
 
         } else {
