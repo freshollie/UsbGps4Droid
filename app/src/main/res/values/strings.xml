@@ -96,11 +96,12 @@
     <string name="msg_gps_provider_stopped_by_problem">"Cannot start: %s"</string>
     <string name="msg_two_many_connection_problems">Too many connection problems</string>
     <string name="msg_gps_provider_disabled">GPS is disabled</string>
+    <string name="msg_gps_provider_cant_connect">Unable to connect to device</string>
 
     <string name="msg_mock_location_disabled">Mock locations disabled in settings</string>
     <string name="msg_mock_location_disabled_full">Mock locations disabled in settings\nClick here to enable mock locations</string>
     <string name="msg_mock_location_disabled_full_dialog_text">Mock locations disabled in settings\nOpen mock location settings?</string>
-    <string name="msg_gps_unavaible">Cannot connect to USB GPS</string>
+    <string name="msg_usb_provider_device_not_connected">Device not connected</string>
     <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
     <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
     <string name="msg_nmea_recording_already_started">GPS track recording... is already on</string>
