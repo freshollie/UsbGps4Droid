@@ -201,10 +201,11 @@ public class USBGpsManager {
 
             // Finds an endpoint for the device by looking through all the device endpoints
             // And finding which one supports
-            Log.d(LOG_TAG, "Searching endpoints, found " + String.valueOf(endpointIn));
+            Log.d(LOG_TAG, "Searching endpoints, found " + String.valueOf(i));
 
-            while (i > 1) {
-                UsbEndpoint curEndpoint = intf.getEndpoint(--i);
+            for(i = i - 1; i > -1; i--) {
+                UsbEndpoint curEndpoint = intf.getEndpoint(i);
+                Log.d(LOG_TAG, "Endpoint direction: " + String.valueOf(curEndpoint.getDirection()));
                 if (curEndpoint.getDirection() == UsbConstants.USB_DIR_IN) {
                     Log.d(LOG_TAG, "Found IN Endpoint: " + String.valueOf(curEndpoint.getType()));
                     if (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
@@ -220,7 +221,7 @@ public class USBGpsManager {
                 }
 
                 if ((endpointIn != null) && (endpointOut != null)) {
-                    i = 0;
+                    break;
                 }
             }
 
