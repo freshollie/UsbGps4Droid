@@ -20,6 +20,10 @@ This app has only been tested on 2 of my devices, running 5.1 and 6.0. Any issue
 
 The current updates include:
 
+### 2.1.3
+- Fixed endpoint check algorithm to work for devices with multiple interfaces or only 1 endpoint
+- Updated NMEA parser to work with all types of NMEA
+
 ### 2.1.2
 - Changed transfer request timeout
 - Added GPS time to info activity

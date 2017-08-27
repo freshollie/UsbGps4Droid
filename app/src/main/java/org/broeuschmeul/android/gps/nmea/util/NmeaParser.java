@@ -340,8 +340,13 @@ public class NmeaParser {
                 splitter.setString(sentence);
                 String command = splitter.next();
 
-                switch (command) {
-                    case "GPGGA": {
+                if (command.length() == 5) {
+                    // If the command length is not 5, safe to assume we got
+                    // bad data
+                    command = command.substring(2);
+
+                    switch (command) {
+                        case "GGA": {
                         /* $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
 
                             Where:
@@ -368,21 +373,21 @@ public class NmeaParser {
                                  *47          the checksum data, always begins with *
                          */
 
-                        // UTC time of fix HHmmss.S
-                        String time = splitter.next();
-                        lastSentenceTime = time;
+                            // UTC time of fix HHmmss.S
+                            String time = splitter.next();
+                            lastSentenceTime = time;
 
-                        // latitude ddmm.M
-                        String lat = splitter.next();
+                            // latitude ddmm.M
+                            String lat = splitter.next();
 
-                        // direction (N/S)
-                        String latDir = splitter.next();
+                            // direction (N/S)
+                            String latDir = splitter.next();
 
-                        // longitude dddmm.M
-                        String lon = splitter.next();
+                            // longitude dddmm.M
+                            String lon = splitter.next();
 
-                        // direction (E/W)
-                        String lonDir = splitter.next();
+                            // direction (E/W)
+                            String lonDir = splitter.next();
 
                         /* fix quality:
                             0= invalid
@@ -395,90 +400,90 @@ public class NmeaParser {
                             7 = Manual input mode
                             8 = Simulation mode
                          */
-                        String quality = splitter.next();
+                            String quality = splitter.next();
 
-                        // Number of satellites being tracked
-                        String nbSat = splitter.next();
+                            // Number of satellites being tracked
+                            String nbSat = splitter.next();
 
-                        // Horizontal dilution of position (float)
-                        String hdop = splitter.next();
+                            // Horizontal dilution of position (float)
+                            String hdop = splitter.next();
 
-                        // Altitude, Meters, above mean sea level
-                        String alt = splitter.next();
+                            // Altitude, Meters, above mean sea level
+                            String alt = splitter.next();
 
-                        // Height of geoid (mean sea level) above WGS84 ellipsoid
-                        String geoAlt = splitter.next();
+                            // Height of geoid (mean sea level) above WGS84 ellipsoid
+                            String geoAlt = splitter.next();
 
-                        // time in seconds since last DGPS update
-                        // DGPS station ID number
-                        if (quality != null && !quality.equals("") && !quality.equals("0")) {
-                            if (this.mockStatus != LocationProvider.AVAILABLE) {
-                                long updateTime = parseNmeaTime(time);
-                                notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
-                            }
-
-                            if (!time.equals(fixTime)) {
-                                notifyFix(fix);
-                                fix = new Location(mockLocationProvider);
-                                fixTime = time;
-                                fixTimestamp = parseNmeaTime(time);
-                                fix.setTime(fixTimestamp);
-
-                                Bundle bundle = fix.getExtras();
-                                if (bundle == null) {
-                                    bundle = new Bundle();
+                            // time in seconds since last DGPS update
+                            // DGPS station ID number
+                            if (quality != null && !quality.equals("") && !quality.equals("0")) {
+                                if (this.mockStatus != LocationProvider.AVAILABLE) {
+                                    long updateTime = parseNmeaTime(time);
+                                    notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
                                 }
 
-                                bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
-                                fix.setExtras(bundle);
+                                if (!time.equals(fixTime)) {
+                                    notifyFix(fix);
+                                    fix = new Location(mockLocationProvider);
+                                    fixTime = time;
+                                    fixTimestamp = parseNmeaTime(time);
+                                    fix.setTime(fixTimestamp);
 
-                                //Log.v(LOG_TAG, "Fix: "+fix);
-                            }
+                                    Bundle bundle = fix.getExtras();
+                                    if (bundle == null) {
+                                        bundle = new Bundle();
+                                    }
 
-                            if (lat != null && !lat.equals("")) {
-                                fix.setLatitude(parseNmeaLatitude(lat, latDir));
-                            }
+                                    bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
+                                    fix.setExtras(bundle);
 
-                            if (lon != null && !lon.equals("")) {
-                                fix.setLongitude(parseNmeaLongitude(lon, lonDir));
-                            }
-
-                            if (hdop != null && !hdop.equals("")) {
-                                fix.setAccuracy(Float.parseFloat(hdop) * precision);
-                            }
-
-                            if (alt != null && !alt.equals("")) {
-                                fix.setAltitude(Double.parseDouble(alt));
-                            }
-
-                            if (nbSat != null && !nbSat.equals("")) {
-
-                                Bundle bundle = fix.getExtras();
-                                if (bundle == null) {
-                                    bundle = new Bundle();
+                                    //Log.v(LOG_TAG, "Fix: "+fix);
                                 }
 
-                                bundle.putInt(SATELLITE_KEY, Integer.parseInt(nbSat));
-                                fix.setExtras(bundle);
+                                if (lat != null && !lat.equals("")) {
+                                    fix.setLatitude(parseNmeaLatitude(lat, latDir));
+                                }
+
+                                if (lon != null && !lon.equals("")) {
+                                    fix.setLongitude(parseNmeaLongitude(lon, lonDir));
+                                }
+
+                                if (hdop != null && !hdop.equals("")) {
+                                    fix.setAccuracy(Float.parseFloat(hdop) * precision);
+                                }
+
+                                if (alt != null && !alt.equals("")) {
+                                    fix.setAltitude(Double.parseDouble(alt));
+                                }
+
+                                if (nbSat != null && !nbSat.equals("")) {
+
+                                    Bundle bundle = fix.getExtras();
+                                    if (bundle == null) {
+                                        bundle = new Bundle();
+                                    }
+
+                                    bundle.putInt(SATELLITE_KEY, Integer.parseInt(nbSat));
+                                    fix.setExtras(bundle);
+                                }
+
+                                //Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
+                                hasGGA = true;
+
+                                if (hasRMC) {
+                                    notifyFix(fix);
+                                }
+
+                            } else if (quality != null && quality.equals("0")) {
+                                if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
+                                    long updateTime = parseNmeaTime(time);
+                                    notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+                                }
                             }
 
-                            //Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
-                            hasGGA = true;
-
-                            if (hasRMC) {
-                                notifyFix(fix);
-                            }
-
-                        } else if (quality != null && quality.equals("0")) {
-                            if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
-                                long updateTime = parseNmeaTime(time);
-                                notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
-                            }
+                            break;
                         }
-
-                        break;
-                    }
-                    case "GPRMC": {
+                        case "RMC": {
                         /* $GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
 
                            Where:
@@ -494,96 +499,96 @@ public class NmeaParser {
                              *6A          The checksum data, always begins with *
                         */
 
-                        // UTC time of fix HHmmss.S
-                        String time = splitter.next();
-                        lastSentenceTime = time;
+                            // UTC time of fix HHmmss.S
+                            String time = splitter.next();
+                            lastSentenceTime = time;
 
-                        // fix status (A/V)
-                        String status = splitter.next();
+                            // fix status (A/V)
+                            String status = splitter.next();
 
-                        // latitude ddmm.M
-                        String lat = splitter.next();
+                            // latitude ddmm.M
+                            String lat = splitter.next();
 
-                        // direction (N/S)
-                        String latDir = splitter.next();
+                            // direction (N/S)
+                            String latDir = splitter.next();
 
-                        // longitude dddmm.M
-                        String lon = splitter.next();
+                            // longitude dddmm.M
+                            String lon = splitter.next();
 
-                        // direction (E/W)
-                        String lonDir = splitter.next();
+                            // direction (E/W)
+                            String lonDir = splitter.next();
 
-                        // Speed over the ground in knots
-                        String speed = splitter.next();
+                            // Speed over the ground in knots
+                            String speed = splitter.next();
 
-                        // Track angle in degrees True
-                        String bearing = splitter.next();
+                            // Track angle in degrees True
+                            String bearing = splitter.next();
 
-                        // UTC date of fix DDMMYY
-                        String date = splitter.next();
+                            // UTC date of fix DDMMYY
+                            String date = splitter.next();
 
-                        // Magnetic Variation ddd.D
-                        String magn = splitter.next();
+                            // Magnetic Variation ddd.D
+                            String magn = splitter.next();
 
-                        // Magnetic variation direction (E/W)
-                        String magnDir = splitter.next();
+                            // Magnetic variation direction (E/W)
+                            String magnDir = splitter.next();
 
-                        // for NMEA 0183 version 3.00 active the Mode indicator field is added
-                        // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
-                        if (status != null && !status.equals("") && status.equals("A")) {
-                            if (this.mockStatus != LocationProvider.AVAILABLE) {
-                                long updateTime = parseNmeaTime(time);
-                                notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
-                            }
-
-                            if (!time.equals(fixTime)) {
-                                notifyFix(fix);
-                                fix = new Location(mockLocationProvider);
-                                fixTime = time;
-                                fixTimestamp = parseNmeaTime(time);
-                                fix.setTime(fixTimestamp);
-
-                                Bundle bundle = fix.getExtras();
-                                if (bundle == null) {
-                                    bundle = new Bundle();
+                            // for NMEA 0183 version 3.00 active the Mode indicator field is added
+                            // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
+                            if (status != null && !status.equals("") && status.equals("A")) {
+                                if (this.mockStatus != LocationProvider.AVAILABLE) {
+                                    long updateTime = parseNmeaTime(time);
+                                    notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
                                 }
 
-                                bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
-                                fix.setExtras(bundle);
+                                if (!time.equals(fixTime)) {
+                                    notifyFix(fix);
+                                    fix = new Location(mockLocationProvider);
+                                    fixTime = time;
+                                    fixTimestamp = parseNmeaTime(time);
+                                    fix.setTime(fixTimestamp);
 
-                                //Log.v(LOG_TAG, "Fix: "+fix);
+                                    Bundle bundle = fix.getExtras();
+                                    if (bundle == null) {
+                                        bundle = new Bundle();
+                                    }
+
+                                    bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
+                                    fix.setExtras(bundle);
+
+                                    //Log.v(LOG_TAG, "Fix: "+fix);
+                                }
+
+                                if (lat != null && !lat.equals("")) {
+                                    fix.setLatitude(parseNmeaLatitude(lat, latDir));
+                                }
+
+                                if (lon != null && !lon.equals("")) {
+                                    fix.setLongitude(parseNmeaLongitude(lon, lonDir));
+                                }
+
+                                if (speed != null && !speed.equals("")) {
+                                    fix.setSpeed(parseNmeaSpeed(speed, "N"));
+                                }
+
+                                if (bearing != null && !bearing.equals("")) {
+                                    fix.setBearing(Float.parseFloat(bearing));
+                                }
+                                //	Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
+                                hasRMC = true;
+                                if (hasGGA) {
+                                    notifyFix(fix);
+                                }
+                            } else if (status != null && status.equals("V")) {
+                                if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
+                                    long updateTime = parseNmeaTime(time);
+                                    notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+                                }
                             }
 
-                            if (lat != null && !lat.equals("")) {
-                                fix.setLatitude(parseNmeaLatitude(lat, latDir));
-                            }
-
-                            if (lon != null && !lon.equals("")) {
-                                fix.setLongitude(parseNmeaLongitude(lon, lonDir));
-                            }
-
-                            if (speed != null && !speed.equals("")) {
-                                fix.setSpeed(parseNmeaSpeed(speed, "N"));
-                            }
-
-                            if (bearing != null && !bearing.equals("")) {
-                                fix.setBearing(Float.parseFloat(bearing));
-                            }
-                            //	Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
-                            hasRMC = true;
-                            if (hasGGA) {
-                                notifyFix(fix);
-                            }
-                        } else if (status != null && status.equals("V")) {
-                            if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
-                                long updateTime = parseNmeaTime(time);
-                                notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
-                            }
+                            break;
                         }
-
-                        break;
-                    }
-                    case "GPGSA": {
+                        case "GSA": {
                         /*  $GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39
 
                             Where:
@@ -598,29 +603,29 @@ public class NmeaParser {
                                  2.1      Vertical dilution of precision (VDOP)
                                  *39      the checksum data, always begins with *
                          */
-                        // mode : A Auto selection of 2D or 3D fix / M = manual
-                        String mode = splitter.next();
+                            // mode : A Auto selection of 2D or 3D fix / M = manual
+                            String mode = splitter.next();
 
-                        // fix type  : 1 - no fix / 2 - 2D / 3 - 3D
-                        String fixType = splitter.next();
+                            // fix type  : 1 - no fix / 2 - 2D / 3 - 3D
+                            String fixType = splitter.next();
 
-                        // discard PRNs of satellites used for fix (space for 12)
-                        for (int i = 0; ((i < 12) && (!"1".equals(fixType))); i++) {
-                            splitter.next();
+                            // discard PRNs of satellites used for fix (space for 12)
+                            for (int i = 0; ((i < 12) && (!"1".equals(fixType))); i++) {
+                                splitter.next();
+                            }
+
+                            // Position dilution of precision (float)
+                            String pdop = splitter.next();
+
+                            // Horizontal dilution of precision (float)
+                            String hdop = splitter.next();
+
+                            // Vertical dilution of precision (float)
+                            String vdop = splitter.next();
+
+                            break;
                         }
-
-                        // Position dilution of precision (float)
-                        String pdop = splitter.next();
-
-                        // Horizontal dilution of precision (float)
-                        String hdop = splitter.next();
-
-                        // Vertical dilution of precision (float)
-                        String vdop = splitter.next();
-
-                        break;
-                    }
-                    case "GPVTG": {
+                        case "VTG": {
                     /*  $GPVTG,054.7,T,034.4,M,005.5,N,010.2,K*48
 
                         where:
@@ -631,35 +636,35 @@ public class NmeaParser {
                                 010.2,K      Ground speed, Kilometers per hour
                                 *48          Checksum
                      */
-                        // Track angle in degrees True
-                        String bearing = splitter.next();
+                            // Track angle in degrees True
+                            String bearing = splitter.next();
 
-                        // T
-                        splitter.next();
+                            // T
+                            splitter.next();
 
-                        // Magnetic track made good
-                        String magn = splitter.next();
+                            // Magnetic track made good
+                            String magn = splitter.next();
 
-                        // M
-                        splitter.next();
+                            // M
+                            splitter.next();
 
-                        // Speed over the ground in knots
-                        String speedKnots = splitter.next();
+                            // Speed over the ground in knots
+                            String speedKnots = splitter.next();
 
-                        // N
-                        splitter.next();
+                            // N
+                            splitter.next();
 
-                        // Speed over the ground in Kilometers per hour
-                        String speedKm = splitter.next();
+                            // Speed over the ground in Kilometers per hour
+                            String speedKm = splitter.next();
 
-                        // K
-                        splitter.next();
-                        // for NMEA 0183 version 3.00 active the Mode indicator field is added
-                        // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator)
+                            // K
+                            splitter.next();
+                            // for NMEA 0183 version 3.00 active the Mode indicator field is added
+                            // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator)
 
-                        break;
-                    }
-                    case "GPGLL": {
+                            break;
+                        }
+                        case "GLL": {
                     /*  $GPGLL,4916.45,N,12311.12,W,225444,A,*1D
 
                         Where:
@@ -670,36 +675,40 @@ public class NmeaParser {
                              A            Data Active or V (void)
                              *iD          checksum data
                      */
-                        // latitude ddmm.M
-                        String lat = splitter.next();
-                        // direction (N/S)
-                        String latDir = splitter.next();
-                        // longitude dddmm.M
-                        String lon = splitter.next();
-                        // direction (E/W)
-                        String lonDir = splitter.next();
-                        // UTC time of fix HHmmss.S
-                        String time = splitter.next();
-                        lastSentenceTime = time;
+                            // latitude ddmm.M
+                            String lat = splitter.next();
+                            // direction (N/S)
+                            String latDir = splitter.next();
+                            // longitude dddmm.M
+                            String lon = splitter.next();
+                            // direction (E/W)
+                            String lonDir = splitter.next();
+                            // UTC time of fix HHmmss.S
+                            String time = splitter.next();
+                            lastSentenceTime = time;
 
-                        // fix status (A/V)
-                        String status = splitter.next();
-                        // for NMEA 0183 version 3.00 active the Mode indicator field is added
-                        // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
-                        break;
+                            // fix status (A/V)
+                            String status = splitter.next();
+                            // for NMEA 0183 version 3.00 active the Mode indicator field is added
+                            // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
+                            break;
+                        }
                     }
+
+                    return nmeaSentence;
                 }
             } else {
-                // As we have received some awful data, it is safe to assume we have missed the
-                // current fix, so reset all of the current values and restart
                 Log.e(TAG, "Sentence invalid, checksums don't match");
-                hasGGA = false;
-                hasRMC = false;
-                fixTime = null;
-                return null;
             }
+        } else {
+            Log.e(TAG, "Sentence invalid");
         }
-        return nmeaSentence;
+        // As we have received some awful data, it is safe to assume we have missed the
+        // current fix, so reset all of the current values and restart
+        hasGGA = false;
+        hasRMC = false;
+        fixTime = null;
+        return null;
     }
 
     public double parseNmeaLatitude(String lat, String orientation) {
