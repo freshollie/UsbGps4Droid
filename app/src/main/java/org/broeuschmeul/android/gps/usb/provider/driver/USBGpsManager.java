@@ -183,6 +183,18 @@ public class USBGpsManager {
         public ConnectedGps(UsbDevice device, String deviceSpeed) {
             this.gpsDev = null;
             this.gpsUsbDev = device;
+
+            int interfaceCount = device.getInterfaceCount();
+
+            Log.d(LOG_TAG, "Searching interfaces, found " + String.valueOf(interfaceCount));
+
+            while (interfaceCount > 1) {
+                --interfaceCount;
+                Log.d(LOG_TAG, "Checking interface " + String.valueOf(interfaceCount));
+                UsbInterface foundInterface = device.getInterface(interfaceCount);
+                Log.d(LOG_TAG, "Found interface " + String.valueOf(foundInterface.getInterfaceClass()));
+            }
+
             intf = device.getInterface(0);
             int i = intf.getEndpointCount();
             endpointIn = null;
