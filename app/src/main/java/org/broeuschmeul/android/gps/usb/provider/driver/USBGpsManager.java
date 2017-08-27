@@ -154,8 +154,8 @@ public class USBGpsManager {
         private final File gpsDev;
         private final UsbDevice gpsUsbDev;
         private final UsbInterface intf;
-        private UsbEndpoint endpointIn = null;
-        private UsbEndpoint endpointOut = null;
+        private UsbEndpoint endpointIn;
+        private UsbEndpoint endpointOut;
         private final UsbDeviceConnection connection;
         private boolean closed = false;
         /**
@@ -183,31 +183,70 @@ public class USBGpsManager {
         public ConnectedGps(UsbDevice device, String deviceSpeed) {
             this.gpsDev = null;
             this.gpsUsbDev = device;
-            intf = device.getInterface(0);
-            int i = intf.getEndpointCount();
-            endpointIn = null;
-            while (i > 1) {
-                UsbEndpoint curEndpoint = intf.getEndpoint(--i);
-                if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_IN)
-                        && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
-                    endpointIn = curEndpoint;
+
+            Log.d(LOG_TAG, "Searching interfaces, found " + String.valueOf(device.getInterfaceCount()));
+
+            UsbInterface foundInterface = null;
+
+            for (int j = 0;  j < device.getInterfaceCount();  j++) {
+                Log.d(LOG_TAG, "Checking interface number " + String.valueOf(j));
+                UsbInterface deviceInterface = device.getInterface(j);
+                Log.d(LOG_TAG, "Found interface of class " + String.valueOf(deviceInterface.getInterfaceClass()));
+
+                // Finds an endpoint for the device by looking through all the device endpoints
+                // And finding which one supports
+
+                Log.d(LOG_TAG, "Searching endpoints of interface, found " + String.valueOf(deviceInterface.getEndpointCount()));
+
+                UsbEndpoint foundInEndpoint = null;
+                UsbEndpoint foundOutEndpoint = null;
+
+                for (int i = deviceInterface.getEndpointCount() - 1; i > -1; i--) {
+                    Log.d(LOG_TAG, "Checking endpoint number " + String.valueOf(i));
+
+                    UsbEndpoint interfaceEndpoint = deviceInterface.getEndpoint(i);
+
+                    if (interfaceEndpoint.getDirection() == UsbConstants.USB_DIR_IN) {
+                        Log.d(LOG_TAG, "Found IN Endpoint of type: " + String.valueOf(interfaceEndpoint.getType()));
+                        if (interfaceEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                            Log.d(LOG_TAG, "Is correct in endpoint");
+                            foundInEndpoint = interfaceEndpoint;
+                        }
+                    }
+                    if (interfaceEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
+                        Log.d(LOG_TAG, "Found OUT Endpoint of type: " + String.valueOf(interfaceEndpoint.getType()));
+                        if (interfaceEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                            Log.d(LOG_TAG, "Is correct out endpoint");
+                            foundOutEndpoint = interfaceEndpoint;
+                        }
+                    }
+
+                    if ((foundInEndpoint != null) && (foundOutEndpoint != null)) {
+                        endpointIn = foundInEndpoint;
+                        endpointOut = foundOutEndpoint;
+                        break;
+                    }
                 }
-                if ((curEndpoint.getDirection() == UsbConstants.USB_DIR_OUT)
-                        && (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
-                    endpointOut = curEndpoint;
-                }
+
                 if ((endpointIn != null) && (endpointOut != null)) {
-                    i = 0;
+                    foundInterface = deviceInterface;
+                    break;
                 }
             }
+
+            intf = foundInterface;
 //            endpointIn = intf.getEndpoint(2);
             final int TIMEOUT = 100;
 //            final int TIMEOUT = 0;
             connection = usbManager.openDevice(device);
-            boolean resclaim = false;
-            Log.d(LOG_TAG, "claiming interface");
-            resclaim = connection.claimInterface(intf, true);
-            Log.d(LOG_TAG, "data claim " + resclaim);
+
+            if (intf != null) {
+                Log.d(LOG_TAG, "claiming interface");
+                boolean resclaim = connection.claimInterface(intf, true);
+
+
+                Log.d(LOG_TAG, "data claim " + resclaim);
+            }
 
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -441,6 +480,15 @@ public class USBGpsManager {
             in = tmpIn;
             out = tmpOut;
             out2 = tmpOut2;
+
+            // We couldn't find an endpoint
+            if (endpointIn == null || endpointOut == null) {
+                Log.e(LOG_TAG, "We couldn't find an endpoint for the device, notifying");
+                disable(R.string.msg_gps_provider_cant_connect);
+                close();
+                return;
+            }
+
             final int[] speedList = {Integer.valueOf(deviceSpeed), 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
 //            final List<String> speedList = Arrays.asList(new String[]{"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"});
             final byte[] data = {(byte) 0xC0, 0x12, 0x00, 0x00, 0x00, 0x00, 0x08};
@@ -686,16 +734,21 @@ public class USBGpsManager {
                     if (BuildConfig.DEBUG || debug)
                         Log.d(LOG_TAG, "releasing usb interface for connection: " + connection);
 
-                    boolean released = connection.releaseInterface(intf);
+                    boolean released = false;
+                    if (intf != null) {
+                        released = connection.releaseInterface(intf);
+                    }
 
                     if (released) {
                         if (BuildConfig.DEBUG || debug)
                             Log.d(LOG_TAG, "usb interface released for connection: " + connection);
 
-                    } else {
+                    } else if (intf != null) {
                         if (BuildConfig.DEBUG || debug)
                             Log.d(LOG_TAG, "unable to release usb interface for connection: " + connection);
-
+                    } else {
+                        if (BuildConfig.DEBUG || debug)
+                            Log.d(LOG_TAG, "no interface to release");
                     }
 
                     if (BuildConfig.DEBUG || debug)
@@ -887,8 +940,10 @@ public class USBGpsManager {
 
         Log.v(LOG_TAG, "starting usb reading task");
         connectedGps = new ConnectedGps(device, deviceSpeed);
-        connectionAndReadingPool.execute(connectedGps);
-        Log.v(LOG_TAG, "usb reading thread started");
+        if (isEnabled()) {
+            connectionAndReadingPool.execute(connectedGps);
+            Log.v(LOG_TAG, "usb reading thread started");
+        }
     }
 
     private UsbDevice getDeviceFromAttached() {
@@ -970,7 +1025,7 @@ public class USBGpsManager {
 
                                         } else {
                                             Log.e(LOG_TAG, "Error while establishing connection: no device - " + gpsVendorId + ": " + gpsProductId);
-                                            disable(R.string.msg_gps_unavaible);
+                                            disable(R.string.msg_usb_provider_device_not_connected);
                                         }
                                     } else {
                                         Log.e(LOG_TAG, "Device not connected");
@@ -1015,7 +1070,7 @@ public class USBGpsManager {
 
                 if (!this.enabled) {
                     Log.e(LOG_TAG, "Error while establishing connection: no device");
-                    disable(R.string.msg_gps_unavaible);
+                    disable(R.string.msg_usb_provider_device_not_connected);
                 }
         }
         return this.enabled;
@@ -1068,8 +1123,8 @@ public class USBGpsManager {
      * It will:
      * <ul>
      * <li>close the connection with the bluetooth device</li>
-     * <li>disable the Mock Location Provider used for the bluetooth GPS</li>
-     * <li>stop the BlueGPS4Droid service</li>
+     * <li>disable the Mock Location Provider used for the Usb GPS</li>
+     * <li>stop the UsbGPS4Droid service</li>
      * </ul>
      * The reasonId parameter indicates the reason to close the bluetooth provider.
      * If its value is zero, it's a normal shutdown (normally, initiated by the user).
@@ -1079,13 +1134,13 @@ public class USBGpsManager {
      * @param reasonId the reason to close the bluetooth provider.
      */
     public synchronized void disable(int reasonId) {
-        Log.d(LOG_TAG, "disabling Bluetooth GPS manager reason: " + callingService.getString(reasonId));
+        Log.d(LOG_TAG, "disabling USB GPS manager reason: " + callingService.getString(reasonId));
         setDisableReason(reasonId);
         disable();
     }
 
     /**
-     * Disables the bluetooth GPS provider.
+     * Disables the Usb GPS provider.
      * <p>
      * It will:
      * <ul>
@@ -1115,6 +1170,7 @@ public class USBGpsManager {
                                     )
                             );
 
+            // Make the correct notification to direct the user to the correct setting
             if (getDisableReason() == R.string.msg_mock_location_disabled) {
                 PendingIntent mockLocationsSettingsIntent =
                         PendingIntent.getActivity(
