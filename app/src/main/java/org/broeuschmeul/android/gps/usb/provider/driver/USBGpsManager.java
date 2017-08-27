@@ -1123,8 +1123,8 @@ public class USBGpsManager {
      * It will:
      * <ul>
      * <li>close the connection with the bluetooth device</li>
-     * <li>disable the Mock Location Provider used for the bluetooth GPS</li>
-     * <li>stop the BlueGPS4Droid service</li>
+     * <li>disable the Mock Location Provider used for the Usb GPS</li>
+     * <li>stop the UsbGPS4Droid service</li>
      * </ul>
      * The reasonId parameter indicates the reason to close the bluetooth provider.
      * If its value is zero, it's a normal shutdown (normally, initiated by the user).
@@ -1134,13 +1134,13 @@ public class USBGpsManager {
      * @param reasonId the reason to close the bluetooth provider.
      */
     public synchronized void disable(int reasonId) {
-        Log.d(LOG_TAG, "disabling Bluetooth GPS manager reason: " + callingService.getString(reasonId));
+        Log.d(LOG_TAG, "disabling USB GPS manager reason: " + callingService.getString(reasonId));
         setDisableReason(reasonId);
         disable();
     }
 
     /**
-     * Disables the bluetooth GPS provider.
+     * Disables the Usb GPS provider.
      * <p>
      * It will:
      * <ul>
