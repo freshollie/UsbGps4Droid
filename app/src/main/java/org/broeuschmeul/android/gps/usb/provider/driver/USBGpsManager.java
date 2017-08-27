@@ -184,55 +184,69 @@ public class USBGpsManager {
             this.gpsDev = null;
             this.gpsUsbDev = device;
 
-            int interfaceCount = device.getInterfaceCount();
+            Log.d(LOG_TAG, "Searching interfaces, found " + String.valueOf(device.getInterfaceCount()));
 
-            Log.d(LOG_TAG, "Searching interfaces, found " + String.valueOf(interfaceCount));
+            UsbInterface foundInterface = null;
 
-            while (interfaceCount > 1) {
-                --interfaceCount;
-                Log.d(LOG_TAG, "Checking interface " + String.valueOf(interfaceCount));
-                UsbInterface foundInterface = device.getInterface(interfaceCount);
-                Log.d(LOG_TAG, "Found interface " + String.valueOf(foundInterface.getInterfaceClass()));
-            }
+            for (int j = 0;  j < device.getInterfaceCount();  j++) {
+                Log.d(LOG_TAG, "Checking interface number " + String.valueOf(j));
+                UsbInterface deviceInterface = device.getInterface(j);
+                Log.d(LOG_TAG, "Found interface of class " + String.valueOf(deviceInterface.getInterfaceClass()));
 
-            intf = device.getInterface(0);
-            int i = intf.getEndpointCount();
-            endpointIn = null;
+                // Finds an endpoint for the device by looking through all the device endpoints
+                // And finding which one supports
 
-            // Finds an endpoint for the device by looking through all the device endpoints
-            // And finding which one supports
-            Log.d(LOG_TAG, "Searching endpoints, found " + String.valueOf(i));
+                Log.d(LOG_TAG, "Searching endpoints of interface, found " + String.valueOf(deviceInterface.getEndpointCount()));
 
-            for(i = i - 1; i > -1; i--) {
-                UsbEndpoint curEndpoint = intf.getEndpoint(i);
-                Log.d(LOG_TAG, "Endpoint direction: " + String.valueOf(curEndpoint.getDirection()));
-                if (curEndpoint.getDirection() == UsbConstants.USB_DIR_IN) {
-                    Log.d(LOG_TAG, "Found IN Endpoint: " + String.valueOf(curEndpoint.getType()));
-                    if (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
-                        endpointIn = curEndpoint;
+                UsbEndpoint foundInEndpoint = null;
+                UsbEndpoint foundOutEndpoint = null;
+
+                for (int i = deviceInterface.getEndpointCount() - 1; i > -1; i--) {
+                    Log.d(LOG_TAG, "Checking endpoint number " + String.valueOf(i));
+
+                    UsbEndpoint interfaceEndpoint = deviceInterface.getEndpoint(i);
+
+                    if (interfaceEndpoint.getDirection() == UsbConstants.USB_DIR_IN) {
+                        Log.d(LOG_TAG, "Found IN Endpoint of type: " + String.valueOf(interfaceEndpoint.getType()));
+                        if (interfaceEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                            Log.d(LOG_TAG, "Is correct in endpoint");
+                            foundInEndpoint = interfaceEndpoint;
+                        }
                     }
-                    endpointIn = curEndpoint;
-                }
-                if (curEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
-                    Log.d(LOG_TAG, "Found OUT Endpoint: " + String.valueOf(curEndpoint.getType()));
-                    if (curEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
-                        endpointOut = curEndpoint;
+                    if (interfaceEndpoint.getDirection() == UsbConstants.USB_DIR_OUT) {
+                        Log.d(LOG_TAG, "Found OUT Endpoint of type: " + String.valueOf(interfaceEndpoint.getType()));
+                        if (interfaceEndpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                            Log.d(LOG_TAG, "Is correct out endpoint");
+                            foundOutEndpoint = interfaceEndpoint;
+                        }
+                    }
+
+                    if ((foundInEndpoint != null) && (foundOutEndpoint != null)) {
+                        endpointIn = foundInEndpoint;
+                        endpointOut = foundOutEndpoint;
+                        break;
                     }
                 }
 
                 if ((endpointIn != null) && (endpointOut != null)) {
+                    foundInterface = deviceInterface;
                     break;
                 }
             }
 
+            intf = foundInterface;
 //            endpointIn = intf.getEndpoint(2);
             final int TIMEOUT = 100;
 //            final int TIMEOUT = 0;
             connection = usbManager.openDevice(device);
-            boolean resclaim = false;
-            Log.d(LOG_TAG, "claiming interface");
-            resclaim = connection.claimInterface(intf, true);
-            Log.d(LOG_TAG, "data claim " + resclaim);
+
+            if (intf != null) {
+                Log.d(LOG_TAG, "claiming interface");
+                boolean resclaim = connection.claimInterface(intf, true);
+
+
+                Log.d(LOG_TAG, "data claim " + resclaim);
+            }
 
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -720,16 +734,21 @@ public class USBGpsManager {
                     if (BuildConfig.DEBUG || debug)
                         Log.d(LOG_TAG, "releasing usb interface for connection: " + connection);
 
-                    boolean released = connection.releaseInterface(intf);
+                    boolean released = false;
+                    if (intf != null) {
+                        released = connection.releaseInterface(intf);
+                    }
 
                     if (released) {
                         if (BuildConfig.DEBUG || debug)
                             Log.d(LOG_TAG, "usb interface released for connection: " + connection);
 
-                    } else {
+                    } else if (intf != null) {
                         if (BuildConfig.DEBUG || debug)
                             Log.d(LOG_TAG, "unable to release usb interface for connection: " + connection);
-
+                    } else {
+                        if (BuildConfig.DEBUG || debug)
+                            Log.d(LOG_TAG, "no interface to release");
                     }
 
                     if (BuildConfig.DEBUG || debug)
