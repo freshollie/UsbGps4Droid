@@ -19,6 +19,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
+import org.broeuschmeul.android.gps.nmea.util.USBGpsSatellite;
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
@@ -147,7 +148,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             lon = df.format(location.getLongitude());
             elevation = String.valueOf(location.getAltitude());
             gpsTime = String.valueOf(location.getTime());
-            systemTime = String.valueOf(location.getExtras().getLong(NmeaParser.SYSTEM_TIME_FIX));
+            systemTime = String.valueOf(location.getExtras().getLong(NmeaParser.SYSTEM_TIME_FIX_KEY));
         }
 
         numSatellites.setText(
@@ -215,13 +216,18 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     }
 
     @Override
-    public void onNewSentence(String sentence) {
+    public void onNmeaReceived(String sentence) {
         updateLog();
     }
 
     @Override
     public void onLocationNotified(Location location) {
         updateData();
+    }
+
+    @Override
+    public void onSatelittesUpdated(USBGpsSatellite[] satellites) {
+
     }
 
     @Override

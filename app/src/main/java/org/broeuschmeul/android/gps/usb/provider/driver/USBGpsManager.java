@@ -100,13 +100,6 @@ public class USBGpsManager {
     private static final String ACTION_USB_PERMISSION =
             "org.broeuschmeul.android.gps.usb.provider.driver.USBGpsManager.USB_PERMISSION";
 
-    /**
-     * Used to listen for nmea updates from UsbGpsManager
-     */
-    public interface NmeaListener {
-        void onNmeaReceived(long timestamp, String nmea);
-    }
-
     private final BroadcastReceiver permissionAndDetachReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
@@ -771,9 +764,6 @@ public class USBGpsManager {
     private ExecutorService notificationPool;
     private ScheduledExecutorService connectionAndReadingPool;
 
-    private final List<NmeaListener> nmeaListeners =
-            Collections.synchronizedList(new LinkedList<NmeaListener>());
-
     private LocationManager locationManager;
     private SharedPreferences sharedPreferences;
     private ConnectedGps connectedGps;
@@ -1253,7 +1243,6 @@ public class USBGpsManager {
             };
 
             notificationPool.execute(closeAndShutdown);
-            nmeaListeners.clear();
             disableMockLocationProvider();
             notificationPool.shutdown();
             callingService.stopSelf();
@@ -1352,32 +1341,6 @@ public class USBGpsManager {
     }
 
     /**
-     * Adds an NMEA listener.
-     * In fact, it delegates to the NMEA parser.
-     *
-     * @param listener a {@link NmeaListener} object to register
-     * @return true if the listener was successfully added
-     */
-    public boolean addNmeaListener(NmeaListener listener) {
-        if (!nmeaListeners.contains(listener)) {
-            Log.d(LOG_TAG, "adding new NMEA listener");
-            nmeaListeners.add(listener);
-        }
-        return true;
-    }
-
-    /**
-     * Removes an NMEA listener.
-     * In fact, it delegates to the NMEA parser.
-     *
-     * @param listener a {@link NmeaListener} object to remove
-     */
-    public void removeNmeaListener(NmeaListener listener) {
-        Log.d(LOG_TAG, "removing NMEA listener");
-        nmeaListeners.remove(listener);
-    }
-
-    /**
      * Sets the system time to the given UTC time value
      * @param time UTC value HHmmss.SSS
      */
@@ -1419,7 +1382,7 @@ public class USBGpsManager {
     private boolean notifyNmeaSentence(final String nmeaSentence) {
         boolean res = false;
         if (enabled) {
-            Log.v(LOG_TAG, "parsing and notifying NMEA sentence: " + nmeaSentence);
+            Log.v(LOG_TAG, "parsing NMEA sentence: " + nmeaSentence);
             String sentence = null;
             try {
                 if (shouldSetTime && !timeSetAlready) {
@@ -1443,29 +1406,12 @@ public class USBGpsManager {
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Sentence not parsable");
                 Log.e(LOG_TAG, nmeaSentence);
+                sentence = null;
                 e.printStackTrace();
             }
-            final String recognizedSentence = sentence;
-            final long timestamp = System.currentTimeMillis();
-            if (recognizedSentence != null) {
+
+            if (sentence != null) {
                 res = true;
-                Log.v(LOG_TAG, "notifying NMEA sentence: " + recognizedSentence);
-
-
-                ((USBGpsApplication) appContext).notifyNewSentence(
-                        recognizedSentence.replaceAll("(\\r|\\n)", "")
-                );
-
-                synchronized (nmeaListeners) {
-                    for (final NmeaListener listener : nmeaListeners) {
-                        notificationPool.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.onNmeaReceived(timestamp, recognizedSentence);
-                            }
-                        });
-                    }
-                }
             }
         }
         return res;

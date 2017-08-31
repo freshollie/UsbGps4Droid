@@ -3,7 +3,8 @@ package org.broeuschmeul.android.gps.usb.provider;
 import android.app.Application;
 import android.location.Location;
 import android.os.Handler;
-import android.os.SystemClock;
+
+import org.broeuschmeul.android.gps.nmea.util.USBGpsSatellite;
 
 import java.util.ArrayList;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 public class USBGpsApplication extends Application {
     private static boolean locationAsked = true;
 
-    private int LOG_SIZE = 100;
+    private int MAX_LOG_SIZE = 100;
 
     private final ArrayList<ServiceDataListener> serviceDataListeners = new ArrayList<>();
     private Location lastLocation;
@@ -23,8 +24,9 @@ public class USBGpsApplication extends Application {
     private Handler mainHandler;
 
     public interface ServiceDataListener {
-        void onNewSentence(String sentence);
+        void onNmeaReceived(String sentence);
         void onLocationNotified(Location location);
+        void onSatelittesUpdated(USBGpsSatellite[] satellites);
     }
 
     @Override
@@ -33,7 +35,6 @@ public class USBGpsApplication extends Application {
         mainHandler = new Handler(getMainLooper());
         super.onCreate();
     }
-
 
     public static void setLocationAsked() {
         locationAsked = true;
@@ -64,7 +65,7 @@ public class USBGpsApplication extends Application {
     }
 
     public void notifyNewSentence(final String sentence) {
-        if (sentenceLog.size() > LOG_SIZE) {
+        if (sentenceLog.size() > MAX_LOG_SIZE) {
             sentenceLog.remove(0);
         }
 
@@ -75,7 +76,7 @@ public class USBGpsApplication extends Application {
                 @Override
                 public void run() {
                     for (ServiceDataListener dataListener: serviceDataListeners) {
-                        dataListener.onNewSentence(sentence);
+                        dataListener.onNmeaReceived(sentence);
                     }
                 }
             });
@@ -96,5 +97,9 @@ public class USBGpsApplication extends Application {
             });
 
         }
+    }
+
+    public void notifySatellitesUpdated(USBGpsSatellite[] satellites) {
+
     }
 }

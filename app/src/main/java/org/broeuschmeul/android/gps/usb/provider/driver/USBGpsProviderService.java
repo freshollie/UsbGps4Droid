@@ -47,7 +47,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -57,8 +56,10 @@ import android.util.Log;
 import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
 
+import org.broeuschmeul.android.gps.nmea.util.USBGpsSatellite;
 import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
 import org.broeuschmeul.android.gps.usb.provider.R;
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
 import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
 
@@ -68,7 +69,7 @@ import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
  * @author Herbert von Broeuschmeul &
  * @author Oliver Bell
  */
-public class USBGpsProviderService extends Service implements USBGpsManager.NmeaListener, LocationListener {
+public class USBGpsProviderService extends Service implements USBGpsApplication.ServiceDataListener, LocationListener {
 
     public static final String ACTION_START_TRACK_RECORDING =
             "org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.START_TRACK_RECORDING";
@@ -242,7 +243,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
 
         } else if (ACTION_STOP_TRACK_RECORDING.equals(intent.getAction())) {
             if (gpsManager != null) {
-                gpsManager.removeNmeaListener(this);
+                ((USBGpsApplication) getApplication()).registerServiceDataListener(this);
                 endTrack();
                 showToast(this.getString(R.string.msg_nmea_recording_stopped));
             }
@@ -282,7 +283,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
             } else {
                 showToast(R.string.msg_gps_provider_stopped);
             }
-            manager.removeNmeaListener(this);
+            ((USBGpsApplication) getApplication()).unregisterServiceDataListener(this);
             manager.disableMockLocationProvider();
             manager.disable();
         }
@@ -315,7 +316,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
             if (gpsManager != null) {
                 if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     beginTrack();
-                    gpsManager.addNmeaListener(this);
+                    ((USBGpsApplication) getApplication()).registerServiceDataListener(this);
                     if (!sharedPreferences.getBoolean(PREF_TRACK_RECORDING, false)) {
                         edit.putBoolean(PREF_TRACK_RECORDING, true);
                         edit.apply();
@@ -411,9 +412,8 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-        Log.i(LOG_TAG, "The GPS has been disabled.....stopping the NMEA tracker service.");
-        stopSelf();
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
     }
 
     @Override
@@ -422,12 +422,23 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
+    public void onProviderDisabled(String provider) {
+        Log.i(LOG_TAG, "The GPS has been disabled.....stopping the NMEA tracker service.");
+        stopSelf();
+    }
+
+    @Override
+    public void onNmeaReceived(String sentence) {
+        addNMEAString(sentence);
+    }
+
+    @Override
+    public void onLocationNotified(Location location) {
 
     }
 
     @Override
-    public void onNmeaReceived(long timestamp, String data) {
-        addNMEAString(data);
+    public void onSatelittesUpdated(USBGpsSatellite[] satellites) {
+
     }
 }

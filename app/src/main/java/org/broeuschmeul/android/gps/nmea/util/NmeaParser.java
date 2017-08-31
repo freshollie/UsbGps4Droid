@@ -23,6 +23,7 @@ package org.broeuschmeul.android.gps.nmea.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -50,7 +51,7 @@ import static android.content.ContentValues.TAG;
  * It manage also the Mock Location Provider (enable/disable/fix & status notification)
  * and can compute the the checksum of a NMEA sentence.
  *
- * @author Herbert von Broeuschmeul
+ * @author Herbert von Broeuschmeul & Oliver Bell
  */
 public class NmeaParser {
     /**
@@ -59,7 +60,9 @@ public class NmeaParser {
     private static final String LOG_TAG = NmeaParser.class.getSimpleName();
 
     public static final String SATELLITE_KEY = "satellites";
-    public static final String SYSTEM_TIME_FIX = "system_time_fix";
+    public static final String SYSTEM_TIME_FIX_KEY = "system_time_fix";
+
+    private ArrayList<USBGpsSatellite> sattilites;
 
     private Context appContext;
 
@@ -86,6 +89,7 @@ public class NmeaParser {
     public NmeaParser(float precision, Context context) {
         this.precision = precision;
         this.appContext = context;
+        this.sattilites = new ArrayList<>();
     }
 
     public void setLocationManager(LocationManager lm) {
@@ -434,7 +438,7 @@ public class NmeaParser {
                                         bundle = new Bundle();
                                     }
 
-                                    bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
+                                    bundle.putLong(SYSTEM_TIME_FIX_KEY, System.currentTimeMillis());
                                     fix.setExtras(bundle);
 
                                     //Log.v(LOG_TAG, "Fix: "+fix);
@@ -553,7 +557,7 @@ public class NmeaParser {
                                         bundle = new Bundle();
                                     }
 
-                                    bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
+                                    bundle.putLong(SYSTEM_TIME_FIX_KEY, System.currentTimeMillis());
                                     fix.setExtras(bundle);
 
                                     //Log.v(LOG_TAG, "Fix: "+fix);
@@ -625,17 +629,37 @@ public class NmeaParser {
 
                             break;
                         }
-                        case "VTG": {
-                    /*  $GPVTG,054.7,T,034.4,M,005.5,N,010.2,K*48
+                        case "GSV": {
+                        /*  $GPGSV,2,1,08,01,40,083,46,02,17,308,41,12,07,344,39,14,22,228,45*75
 
-                        where:
-                                VTG          Track made good and ground speed
-                                054.7,T      True track made good (degrees)
-                                034.4,M      Magnetic track made good
-                                005.5,N      Ground speed, knots
-                                010.2,K      Ground speed, Kilometers per hour
-                                *48          Checksum
-                     */
+                            Where:
+                                  GSV          Satellites in view
+                                  2            Number of sentences for full data
+                                  1            sentence 1 of 2
+                                  08           Number of satellites in view
+
+                                  01           Satellite PRN number
+                                  40           Elevation, degrees
+                                  083          Azimuth, degrees
+                                  46           SNR - higher is better
+                                       for up to 4 satellites per sentence
+                                  *75          the checksum data, always begins with *
+
+                         */
+                            int numStellites = 0;
+
+                        }
+                        case "VTG": {
+                        /*  $GPVTG,054.7,T,034.4,M,005.5,N,010.2,K*48
+
+                            where:
+                                    VTG          Track made good and ground speed
+                                    054.7,T      True track made good (degrees)
+                                    034.4,M      Magnetic track made good
+                                    005.5,N      Ground speed, knots
+                                    010.2,K      Ground speed, Kilometers per hour
+                                    *48          Checksum
+                         */
                             // Track angle in degrees True
                             String bearing = splitter.next();
 
@@ -665,16 +689,16 @@ public class NmeaParser {
                             break;
                         }
                         case "GLL": {
-                    /*  $GPGLL,4916.45,N,12311.12,W,225444,A,*1D
+                        /*  $GPGLL,4916.45,N,12311.12,W,225444,A,*1D
 
-                        Where:
-                             GLL          Geographic position, Latitude and Longitude
-                             4916.46,N    Latitude 49 deg. 16.45 min. North
-                             12311.12,W   Longitude 123 deg. 11.12 min. West
-                             225444       Fix taken at 22:54:44 UTC
-                             A            Data Active or V (void)
-                             *iD          checksum data
-                     */
+                            Where:
+                                 GLL          Geographic position, Latitude and Longitude
+                                 4916.46,N    Latitude 49 deg. 16.45 min. North
+                                 12311.12,W   Longitude 123 deg. 11.12 min. West
+                                 225444       Fix taken at 22:54:44 UTC
+                                 A            Data Active or V (void)
+                                 *iD          checksum data
+                         */
                             // latitude ddmm.M
                             String lat = splitter.next();
                             // direction (N/S)
@@ -694,6 +718,10 @@ public class NmeaParser {
                             break;
                         }
                     }
+
+                    // This sentence is valid so let notify the app
+                    ((USBGpsApplication) appContext)
+                            .notifyNewSentence(nmeaSentence.replaceAll("(\\r|\\n)", ""));
 
                     return nmeaSentence;
                 }
