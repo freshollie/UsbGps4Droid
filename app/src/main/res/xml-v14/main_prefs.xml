@@ -123,5 +123,9 @@
         android:summaryOff="@string/pref_toast_logging_summary_off"
         android:defaultValue="false"
         />
+    <Preference
+        android:title="Launch GPS status utility"
+        android:key="launchGpsTest"
+        />
 
 </PreferenceScreen>

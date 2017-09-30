@@ -646,7 +646,25 @@ public class NmeaParser {
                                   *75          the checksum data, always begins with *
 
                          */
-                            int numStellites = 0;
+                            int allSatellites = Integer.valueOf(splitter.next());
+
+                            int numSentences = Integer.valueOf(splitter.next());
+
+                            int sentenceNum = Integer.valueOf(splitter.next());
+
+                            int numSatellitesInSentence = Integer.valueOf(splitter.next());
+
+                            if (sentenceNum == 1) {
+                                sattilites.clear();
+                            }
+
+                            for (int i = 0; i < numSatellitesInSentence; i++) {
+                                int satellitePRN = Integer.parseInt(splitter.next());
+
+                                int satelliteElevation = Integer.parseInt(splitter.next());
+
+                                int satelliteAzimuth = Integer.parseInt(splitter.next());
+                            }
 
                         }
                         case "VTG": {

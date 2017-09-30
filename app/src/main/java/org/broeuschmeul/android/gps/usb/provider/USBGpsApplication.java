@@ -21,6 +21,8 @@ public class USBGpsApplication extends Application {
     private Location lastLocation;
     private ArrayList<String> sentenceLog = new ArrayList<>();
 
+    private USBGpsSatellite[] lastSatelliteList;
+
     private Handler mainHandler;
 
     public interface ServiceDataListener {
@@ -31,6 +33,7 @@ public class USBGpsApplication extends Application {
 
     @Override
     public void onCreate() {
+        com.android.gpstest.Application.initalise(this);
         locationAsked = false;
         mainHandler = new Handler(getMainLooper());
         super.onCreate();
@@ -80,7 +83,6 @@ public class USBGpsApplication extends Application {
                     }
                 }
             });
-
         }
     }
 
@@ -99,7 +101,23 @@ public class USBGpsApplication extends Application {
         }
     }
 
-    public void notifySatellitesUpdated(USBGpsSatellite[] satellites) {
+    public void notifySatellitesUpdated(final USBGpsSatellite[] satellites) {
+        lastSatelliteList = satellites;
+        synchronized (serviceDataListeners) {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (ServiceDataListener dataListener: serviceDataListeners) {
+                        dataListener.onSatelittesUpdated(satellites);
+                    }
+                }
+            });
+        }
+    }
 
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        com.android.gpstest.Application.terminate();
     }
 }

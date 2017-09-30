@@ -24,7 +24,6 @@ package org.broeuschmeul.android.gps.usb.provider.ui;
 
 import java.util.HashMap;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -114,7 +113,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
     private String deviceName = "";
     private Handler mainHandler;
 
-    private PreferenceScreenListener callback;
+    private PreferenceScreenListener preferenceScreenParent;
 
     public interface PreferenceScreenListener {
         void onNestedScreenClicked(PreferenceFragment preferenceFragment);
@@ -155,8 +154,8 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (callback != null) {
-                            callback.onNestedScreenClicked(new ProviderPreferences());
+                        if (preferenceScreenParent != null) {
+                            preferenceScreenParent.onNestedScreenClicked(new ProviderPreferences());
                         }
                         return false;
                     }
@@ -166,8 +165,8 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (callback != null) {
-                            callback.onNestedScreenClicked(new SirfPreferences());
+                        if (preferenceScreenParent != null) {
+                            preferenceScreenParent.onNestedScreenClicked(new SirfPreferences());
                         }
                         return false;
                     }
@@ -177,9 +176,23 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (callback != null) {
-                            callback.onNestedScreenClicked(new RecordingPreferences());
+                        if (preferenceScreenParent != null) {
+                            preferenceScreenParent.onNestedScreenClicked(new RecordingPreferences());
                         }
+                        return false;
+                    }
+                });
+
+        findPreference("launchGpsTest")
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        startActivity(
+                                new Intent(
+                                        getActivity(),
+                                        com.android.gpstest.GpsTestActivity.class
+                                )
+                        );
                         return false;
                     }
                 });
@@ -190,7 +203,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         super.onAttach(context);
 
         if (context instanceof PreferenceScreenListener) {
-            callback = (PreferenceScreenListener) context;
+            preferenceScreenParent = (PreferenceScreenListener) context;
         } else {
             throw new IllegalStateException("Owner must implement PreferenceScreenListener interface");
         }
@@ -202,7 +215,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         super.onAttach(context);
 
         if (context instanceof PreferenceScreenListener) {
-            callback = (PreferenceScreenListener) context;
+            preferenceScreenParent = (PreferenceScreenListener) context;
         } else {
             throw new IllegalStateException("Owner must implement PreferenceScreenListener interface");
         }

@@ -1,0 +1,4 @@
+[submodule "gpstest"]
+	path = gpstest
+	url = https://github.com/freshollie/gpstest.git
+	branch = master
