@@ -8,7 +8,7 @@ UsbGps4Droid is a USB GPS provider application for the Android operating system,
 providing GPS support for devices back to android 3.1
 
 
-[Download latest release](../releases)
+[Download latest release](../../releases)
 
 
 
@@ -22,7 +22,7 @@ which automatically starts this application's background service when my car sta
 
 The application is designed to work with any SiRF USB GPS device, however it has been 
 tested as working with [GlobalSat BU-353-S4](http://usglobalsat.com/p-688-bu-353-s4.aspx) and
-[a device based on the UBLOX LEA-M8P chip](../issues/7).
+[a device based on the UBLOX LEA-M8P chip](../../issues/7).
 
 ## Features
 - Android 6.0+ Permission handling
@@ -53,7 +53,7 @@ and following the tutoial.
 
 ### Disclaimer
 This app has only been tested on 2 of my devices, running Android 5.1 and 6.0. Any issues with 
-this app on your device, please create a  [github issue](../issues) and I will resolve the 
+this app on your device, please create a  [github issue](../../issues) and I will resolve the 
 problem as soon as possible.
 
 ### Service behaviour 
