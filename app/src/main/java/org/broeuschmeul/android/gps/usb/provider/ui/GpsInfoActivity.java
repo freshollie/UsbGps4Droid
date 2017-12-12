@@ -24,6 +24,9 @@ import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Preferences activity was deprecated and so now we make a preferences
@@ -146,8 +149,12 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             lat = df.format(location.getLatitude());
             lon = df.format(location.getLongitude());
             elevation = String.valueOf(location.getAltitude());
-            gpsTime = String.valueOf(location.getTime());
-            systemTime = String.valueOf(location.getExtras().getLong(NmeaParser.SYSTEM_TIME_FIX));
+
+            gpsTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
+                    .format(new Date(location.getTime()));
+
+            systemTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
+                    .format(new Date(location.getExtras().getLong(NmeaParser.SYSTEM_TIME_FIX)));
         }
 
         numSatellites.setText(
