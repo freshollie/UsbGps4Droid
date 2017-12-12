@@ -175,5 +175,8 @@
     <string name="warning_set_time_needs_su">Set time function needs SU permission</string>
     <string name="warning_no_developer_options">Developer options need to be enabled first</string>
     <string name="gps_time_placeholder">Gps Time: %1$s\nSys Time: %2$s</string>
+    <string name="button_open_mock_location_settings">Open mock location settings</string>
+    <string name="error_location_permission_required">Location permission is required for UsbGps to function</string>
+    <string name="error_storage_permission_required">In order to write a track file, the app needs storage permission</string>
 
 </resources>
