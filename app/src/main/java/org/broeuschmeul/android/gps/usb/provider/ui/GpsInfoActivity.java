@@ -7,15 +7,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
@@ -50,20 +48,20 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView elevationText;
     private TextView logText;
     private TextView timeText;
+    private ScrollView logTextScroller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (isDoublePane()) {
+        if (isDoublePanel()) {
             savedInstanceState = null;
+        }
+        super.onCreate(savedInstanceState);
+
+        if (isDoublePanel()) {
             setContentView(R.layout.activity_info_double);
         } else {
             setContentView(R.layout.activity_info);
         }
-
-        super.onCreate(savedInstanceState);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -71,13 +69,13 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
         setupUI();
 
-        if (isDoublePane()) {
+        if (isDoublePanel()) {
             showSettingsFragment(R.id.settings_holder, false);
         }
     }
 
     private void setupUI() {
-        if (!isDoublePane()) {
+        if (!isDoublePanel()) {
             startSwitch = (SwitchCompat) findViewById(R.id.service_start_switch);
             startSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -97,11 +95,10 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         timeText = (TextView) findViewById(R.id.gps_time_text);
 
         logText = (TextView) findViewById(R.id.log_box);
-        logText.setMovementMethod(new ScrollingMovementMethod());
-
+        logTextScroller = (ScrollView) findViewById(R.id.log_box_scroller);
     }
 
-    private boolean isDoublePane() {
+    private boolean isDoublePanel() {
         return (getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE &&
                 getResources()
@@ -113,7 +110,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         boolean running =
                 sharedPreferences.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false);
 
-        if (!isDoublePane()) {
+        if (!isDoublePanel()) {
             startSwitch.setChecked(
                     running
             );
@@ -159,23 +156,24 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         updateLog();
     }
 
-    public void updateGpsTime() {
-
-    }
-
     public void updateLog() {
-        logText.scrollTo(0, 0);
-        logText.setText(TextUtils.join("\n", application.getSentenceLog()));
-        Layout layout = logText.getLayout();
-        if (layout != null) {
-            int lineTop = layout.getLineTop(logText.getLineCount());
-            final int scrollAmount = lineTop + logText.getPaddingTop()
-                    + logText.getPaddingBottom() - logText.getBottom() + logText.getTop();
-            if (scrollAmount > 0) {
-                logText.scrollBy(0, scrollAmount);
-            } else {
-                logText.scrollTo(0, 0);
-            }
+
+        boolean atBottom = (
+                logText.getBottom() - (
+                        logTextScroller.getHeight() +
+                                logTextScroller.getScrollY()
+                )
+        ) == 0;
+
+        logText.setText(TextUtils.join("\n", application.getLogLines()));
+
+        if (atBottom) {
+            logText.post(new Runnable() {
+                @Override
+                public void run() {
+                    logTextScroller.fullScroll(View.FOCUS_DOWN);
+                }
+            });
         }
     }
 
@@ -196,7 +194,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isDoublePane()) {
+        if (!isDoublePanel()) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.menu_main, menu);
         }

@@ -30,8 +30,9 @@
     <string name="pref_gps_location_provider_title">Location provider options</string>
     <string name="pref_gps_location_provider_summary">Usb GPS will replace internal GPS</string>
     <string name="pref_replace_std_gps_title">Replace internal GPS</string>
-    <string name="pref_replace_std_gps_summary_on">Usb GPS will replace internal GPS</string>
-    <string name="pref_replace_std_gps_summary_off">Usb GPS will use a new location provider</string>
+
+    <string name="pref_replace_std_gps_summary">Disable the internal GPS and </string>
+
     <string name="pref_force_enable_provider_title">Auto-enable location provider</string>
     <string name="pref_force_enable_provider_summary_on">Auto-enable the location provider, even if it has been disabled</string>
     <string name="pref_force_enable_provider_summary_off">Auto-enable the location provider only if it doesn\'t exist yet</string>
@@ -40,8 +41,7 @@
     <string name="pref_connection_retries_title">Connection retry number</string>
     <string name="pref_connection_retries_summary">Number of attempts before exiting: %s</string>
     <string name="pref_recording_title">Enable/Disable NMEA log</string>
-    <string name="pref_recording_summary_off">Track recording is off</string>
-    <string name="pref_recording_summary_on">Track recording is on</string>
+    <string name="pref_recording_summary">Record the USB GPS Location data</string>
     <string name="pref_recording_params_title">Recording parameters</string>
     <string name="pref_trackfile_prefix_title">Trackfiles prefix</string>
     <string name="pref_trackfile_prefix_summary">Select the prefix for the track files</string>
@@ -55,8 +55,7 @@
     <string name="pref_about_summary"></string>
 
     <string name="pref_sirf_gps_title">SiRF GPS</string>
-    <string name="pref_sirf_gps_summary_on">"Use SiRF Options"</string>
-    <string name="pref_sirf_gps_summary_off">"Don't use SiRF Options"</string>
+    <string name="pref_sirf_gps_summary">Enable SiRF Options</string>
     <string name="pref_sirf_nmea_category_title">Choice of NMEA sentences</string>
     <string name="pref_sirf_gps_category_title">GPS operation</string>
     <string name="pref_enable_gga_title">Enable NMEA GGA</string>
@@ -117,19 +116,21 @@
     <string name="service_closed_because_connection_problem_notification">"Reason: %s"</string>
 
     <string name="about_title">About</string>
-    <string name="about_version">UsbGPS4Droid version</string>
-    <string name="about_copyright_1">Copyright (C) 2010-2013 Herbert von Broeuschmeul</string>
-    <string name="about_copyright_2">Copyright (C) 2010-2013 BluetoothGPS4Droid Project</string>
-    <string name="about_copyright_3">Copyright (C) 2011-2013 UsbGPS4Droid Project</string>
-    <string name="about_app_desc">Usb GPS for Android is an application for using an external usb GPS on Android devices. Originally written by Herbert, and updated by
-        Oliver Bell to work on devices up to Marshmallow
+    <string name="about_version">UsbGPS4Droid %s</string>
+    <string name="about_copyright_1">Copyright (C) 2015-2017 Oliver Bell</string>
+    <string name="about_copyright_2">Copyright (C) 2010-2013 Herbert von Broeuschmeul</string>
+    <string name="about_copyright_3">Copyright (C) 2010-2013 BluetoothGPS4Droid Project</string>
+    <string name="about_copyright_4">Copyright (C) 2011-2013 UsbGPS4Droid Project</string>
+    <string name="about_app_desc">Usb GPS for Android is an application
+                                    for using an external usb GPS on Android devices.
     </string>
     <string name="about_license">It is open source software 
     	distributed free of charge under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html"><b>GNU General Public License</b></a>.
     </string>
-    <string name="about_sources">The source code is available from Git repository on the project website: 
+    <string name="about_sources">The source code is available here:
         https://github.com/freshollie/UsbGps4Droid
     </string>
+
     <string name="msg_no_location_permission">No permission given for device location. Click here to enable.</string>
 
     <string-array name="pref_gps_device_speed_values">
@@ -147,8 +148,7 @@
     <string name="title_activity_settings">Usb Gps Settings</string>
 
     <string name="pref_toast_logging_title">Show Toasts</string>
-    <string name="pref_toast_logging_summary_on">Debug toast messages will be shown</string>
-    <string name="pref_toast_logging_summary_off">Debug toast messages will not be shown</string>
+    <string name="pref_toast_logging_summary">Show debug toast messages on USB Gps status changes</string>
 
     <string name="number_of_satellites_placeholder">Number of satellites: %s</string>
     <string name="accuracy_placeholder">Accuracy: %s</string>
@@ -178,5 +178,8 @@
     <string name="button_open_mock_location_settings">Open mock location settings</string>
     <string name="error_location_permission_required">Location permission is required for UsbGps to function</string>
     <string name="error_storage_permission_required">In order to write a track file, the app needs storage permission</string>
+    <string name="settings_button_title">Settings</string>
+    <string name="pref_start_on_boot_summary">If enabled, the USB GPS service will be automatically started on boot</string>
+    <string name="pref_set_time_summary">Set the system time from the received GPS time</string>
 
 </resources>

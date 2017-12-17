@@ -1,170 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.GpsInfoActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.GpsInfoActivity">
+    android:layout_margin="5dp"
+    >
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
+    <android.support.v7.widget.CardView
+        android:id="@+id/switch_card_view"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        app:cardElevation="3dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        >
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
-
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="5dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/switch_card_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:cardElevation="3dp"
-            app:cardUseCompatPadding="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
             >
 
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:text="Enable usbgps service"
+                android:gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/service_start_switch"
+                app:layout_constraintLeft_toLeftOf="parent"
+                />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:text="Enable usbgps service"
-                    android:gravity="center_vertical"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@id/service_start_switch"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    />
-
-                <android.support.v7.widget.SwitchCompat
-                    android:id="@+id/service_start_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    />
-
-            </android.support.constraint.ConstraintLayout>
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/info_card"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:cardElevation="3dp"
-            app:cardUseCompatPadding="true"
-            app:layout_constraintTop_toBottomOf="@id/switch_card_view"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            >
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/service_start_switch"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp">
+                android:layout_margin="5dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                />
 
-                <TextView
-                    android:id="@+id/num_satellites_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/number_of_satellites_placeholder"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    app:layout_constraintTop_toTopOf="parent"
-                    />
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.CardView>
 
-                <TextView
-                    android:id="@+id/accuracy_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/accuracy_placeholder"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    app:layout_constraintTop_toBottomOf="@id/num_satellites_text"
-                    />
+    <android.support.v7.widget.CardView
+        android:id="@+id/info_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardElevation="3dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toBottomOf="@id/switch_card_view"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        >
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
 
-                <TextView
-                    android:id="@+id/location_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/location_placeholder"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    app:layout_constraintTop_toBottomOf="@id/accuracy_text"
-                    />
+            <TextView
+                android:id="@+id/num_satellites_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/number_of_satellites_placeholder"
+                android:textAppearance="?android:textAppearanceMedium"
+                app:layout_constraintTop_toTopOf="parent"
+                />
 
-                <TextView
-                    android:id="@+id/elevation_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/elevation_placeholder"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    app:layout_constraintTop_toBottomOf="@id/location_text"
-                    />
+            <TextView
+                android:id="@+id/accuracy_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/accuracy_placeholder"
+                android:textAppearance="?android:textAppearanceMedium"
+                app:layout_constraintTop_toBottomOf="@id/num_satellites_text"
+                />
 
-                <TextView
-                    android:id="@+id/gps_time_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/location_text"
-                    android:text="@string/gps_time_placeholder"
-                    app:layout_constraintTop_toBottomOf="@id/location_text"
-                    app:layout_constraintRight_toRightOf="parent"
-                    />
+            <TextView
+                android:id="@+id/location_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/location_placeholder"
+                android:textAppearance="?android:textAppearanceMedium"
+                app:layout_constraintTop_toBottomOf="@id/accuracy_text"
+                />
 
-                <ImageView
-                    android:id="@+id/app_logo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:scaleType="fitXY"
-                    android:layout_alignParentTop="true"
-                    android:src="@mipmap/ic_launcher"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    />
+            <TextView
+                android:id="@+id/elevation_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/elevation_placeholder"
+                android:textAppearance="?android:textAppearanceMedium"
+                app:layout_constraintTop_toBottomOf="@id/location_text"
+                />
 
-            </android.support.constraint.ConstraintLayout>
-        </android.support.v7.widget.CardView>
+            <TextView
+                android:id="@+id/gps_time_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/location_text"
+                android:text="@string/gps_time_placeholder"
+                app:layout_constraintTop_toBottomOf="@id/location_text"
+                app:layout_constraintRight_toRightOf="parent"
+                />
 
-        <android.support.v7.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:cardElevation="3dp"
-            app:cardUseCompatPadding="true"
-            app:layout_constraintTop_toBottomOf="@id/info_card"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
+            <ImageView
+                android:id="@+id/app_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:layout_alignParentTop="true"
+                android:src="@mipmap/ic_launcher"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                />
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginRight="2dp"
+        app:cardElevation="3dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toBottomOf="@id/info_card"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        >
+        <ScrollView
+            android:id="@+id/log_box_scroller"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:fillViewport="true"
             >
             <TextView
                 android:id="@+id/log_box"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="10dp"
-                android:background="@color/backgroundDarker"
-                android:maxLines = "100"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:maxLines="100"
                 android:gravity="bottom"
                 android:scrollbars="vertical"
                 android:textSize="11sp"
                 />
-        </android.support.v7.widget.CardView>
-    </android.support.constraint.ConstraintLayout>
-</android.support.design.widget.CoordinatorLayout>
+        </ScrollView>
+    </android.support.v7.widget.CardView>
+</android.support.constraint.ConstraintLayout>

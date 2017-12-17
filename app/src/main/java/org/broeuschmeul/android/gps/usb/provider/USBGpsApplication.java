@@ -3,7 +3,7 @@ package org.broeuschmeul.android.gps.usb.provider;
 import android.app.Application;
 import android.location.Location;
 import android.os.Handler;
-import android.os.SystemClock;
+import android.support.v7.app.AppCompatDelegate;
 
 import java.util.ArrayList;
 
@@ -18,9 +18,13 @@ public class USBGpsApplication extends Application {
 
     private final ArrayList<ServiceDataListener> serviceDataListeners = new ArrayList<>();
     private Location lastLocation;
-    private ArrayList<String> sentenceLog = new ArrayList<>();
+    private ArrayList<String> logLines = new ArrayList<>();
 
     private Handler mainHandler;
+
+    static {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+    }
 
     public interface ServiceDataListener {
         void onNewSentence(String sentence);
@@ -31,6 +35,9 @@ public class USBGpsApplication extends Application {
     public void onCreate() {
         locationAsked = false;
         mainHandler = new Handler(getMainLooper());
+        for (int i = 0; i < LOG_SIZE; i++) {
+            logLines.add("");
+        }
         super.onCreate();
     }
 
@@ -47,8 +54,8 @@ public class USBGpsApplication extends Application {
         locationAsked = false;
     }
 
-    public String[] getSentenceLog() {
-        return sentenceLog.toArray(new String[sentenceLog.size()]);
+    public String[] getLogLines() {
+        return logLines.toArray(new String[logLines.size()]);
     }
 
     public Location getLastLocation() {
@@ -64,11 +71,11 @@ public class USBGpsApplication extends Application {
     }
 
     public void notifyNewSentence(final String sentence) {
-        if (sentenceLog.size() > LOG_SIZE) {
-            sentenceLog.remove(0);
+        if (logLines.size() > LOG_SIZE) {
+            logLines.remove(0);
         }
 
-        sentenceLog.add(sentence);
+        logLines.add(sentence);
 
         synchronized (serviceDataListeners) {
             mainHandler.post(new Runnable() {
