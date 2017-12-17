@@ -20,9 +20,6 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- *
- */
 package org.broeuschmeul.android.gps.usb.provider.driver;
 
 import java.io.BufferedWriter;
@@ -71,17 +68,17 @@ import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
 public class USBGpsProviderService extends Service implements USBGpsManager.NmeaListener, LocationListener {
 
     public static final String ACTION_START_TRACK_RECORDING =
-            "org.broeuschmeul.android.gps.usb.provider.driver.action.START_TRACK_RECORDING";
+            "org.broeuschmeul.android.gps.usb.provider.action.START_TRACK_RECORDING";
     public static final String ACTION_STOP_TRACK_RECORDING =
-            "org.broeuschmeul.android.gps.usb.provider.driver.action.STOP_TRACK_RECORDING";
+            "org.broeuschmeul.android.gps.usb.provider.action.STOP_TRACK_RECORDING";
     public static final String ACTION_START_GPS_PROVIDER =
-            "org.broeuschmeul.android.gps.usb.provider.driver.action.START_GPS_PROVIDER";
+            "org.broeuschmeul.android.gps.usb.provider.action.START_GPS_PROVIDER";
     public static final String ACTION_STOP_GPS_PROVIDER =
-            "org.broeuschmeul.android.gps.usb.provider.driver.action.STOP_GPS_PROVIDER";
+            "org.broeuschmeul.android.gps.usb.provider.action.STOP_GPS_PROVIDER";
     public static final String ACTION_CONFIGURE_SIRF_GPS =
-            "org.broeuschmeul.android.gps.usb.provider.driver.action.CONFIGURE_SIRF_GPS";
+            "org.broeuschmeul.android.gps.usb.provider.action.CONFIGURE_SIRF_GPS";
     public static final String ACTION_ENABLE_SIRF_GPS =
-            "org.broeuschmeul.android.gps.usb.provider.driver.action.ENABLE_SIRF_GPS";
+            "org.broeuschmeul.android.gps.usb.provider.action.ENABLE_SIRF_GPS";
 
     public static final String PREF_START_GPS_PROVIDER = "startGps";
     public static final String PREF_START_ON_BOOT = "startOnBoot";

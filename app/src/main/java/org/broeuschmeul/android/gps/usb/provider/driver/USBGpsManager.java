@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Oliver Bell
+ * Copyright (C) 2016, 2017 Oliver Bell
  * Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
  * Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
  * Copyright (C) 2011, 2012 UsbGPS4Droid Project

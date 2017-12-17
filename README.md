@@ -3,12 +3,9 @@
 # UsbGps4Droid - A USB GPS provider for Android 
 
 UsbGps4Droid is a USB GPS provider application for the Android operating system,
-providing GPS support for devices back to android 3.1
-
+providing GPS support for devices down to android 4.0
 
 [Download latest release](../../releases)
-
-
 
 ## About
 The application provides location updates to Android which allows devices without 
@@ -55,49 +52,30 @@ this app on your device, please create a  [github issue](../../issues) and I wil
 problem as soon as possible.
 
 ### Service behaviour 
-The application works with any SiRF USB GPS receiver. The application's background service can 
-be set to start when the device turns on. Currently the application does not automatically start
-when the GPS device is plugged into the Android device, but this might be fixed in the future.
+The application's background service can be set to start when the device turns on. 
+Currently the service does not automatically start when the GPS device is plugged 
+into the Android device due to more unwanted usb popups.
 
-(Intents to start the background service using an intent will be open soon)
+For now the background service can be manually started with a start service intent.
 
-For now the background service can be manually started in the background via shell as root. 
-(Which can be done through tasker)
+```java
+Intent intent = new Intent();
+intent.setComponent(
+	new Component(
+		"org.broeuschmeul.android.gps.usb.provider",
+		"org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService"
+	)
+)
+intent.setAction("org.broeuschmeul.android.gps.usb.provider.action.START_GPS_PROVIDER")
+```
+
+Or via a shell command as root.
 
 ```bash
-am startservice -a org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.START_GPS_PROVIDER
+am startservice -a org.broeuschmeul.android.gps.usb.provider.driver.action.START_GPS_PROVIDER
 ```
 
 The background service will automatically close itself when the USB device is disconnected for too long.
-
-## Change log
-The current updates include:
-
-### 2.1.3
-- Fixed endpoint check algorithm to work for devices with multiple interfaces or only 1 endpoint
-- Updated NMEA parser to work with all types of NMEA
-
-### 2.1.2
-- Changed transfer request timeout
-- Added GPS time to info activity
-
-### 2.1.1
-- Fixed bug which would hang the service if the device was not responding the transfer requests
-
-### 2.1
-- Added option to start service on bootup
-- Added option to set the system clock to the gps clock (10 seconds after connecting the clock will be set)
-- Other code fixes
-
-### 2.0
-- Added information interface which shows the log of information being received from the GPS device.
-- Updated device selection settings
-- Fix to algorithm to pick the correct device from the USB device list
-- Fix to connection baud rate settings
-- Updated NMEA recording to be enabled to start when service starts.
-- Fixed auto-reconnecting
-- Dialog popups in app for problems
-- Compatibility down to android 3.1
 
 ## Contributing
 

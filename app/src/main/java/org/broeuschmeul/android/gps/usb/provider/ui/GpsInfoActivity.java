@@ -29,13 +29,10 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Preferences activity was deprecated and so now we make a preferences
- * fragment and make an activity to display that fragment.
- * <p>
- * All this activity does is display the fragment, the fragment handles
- * everything else.
- * <p>
  * Created by Oliver Bell 5/12/15
+ *
+ * This activity displays a log, as well as the GPS info. If the users device is
+ * large enough and in landscape, the settings fragment will be shown alongside
  */
 
 public class GpsInfoActivity extends USBGpsBaseActivity implements
@@ -52,26 +49,18 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView locationText;
     private TextView elevationText;
     private TextView logText;
-    private boolean doublePane;
     private TextView timeText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        doublePane = false;
-
-        if (isLargeScreen()) {
-            if (getResources().getConfiguration().orientation ==
-                    Configuration.ORIENTATION_LANDSCAPE) {
-                doublePane = true;
-            }
-        }
-
-        if (doublePane) {
+        if (isDoublePane()) {
             savedInstanceState = null;
             setContentView(R.layout.activity_info_double);
         } else {
             setContentView(R.layout.activity_info);
         }
+
+        super.onCreate(savedInstanceState);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -82,25 +71,24 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
         setupUI();
 
-        super.onCreate(savedInstanceState);
-
-        if (doublePane) {
+        if (isDoublePane()) {
             showSettingsFragment(R.id.settings_holder, false);
-            findViewById(R.id.switch_card_view).setVisibility(View.GONE);
         }
     }
 
     private void setupUI() {
-        startSwitch = (SwitchCompat) findViewById(R.id.service_start_switch);
-        startSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sharedPreferences
-                        .edit()
-                        .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, isChecked)
-                        .apply();
-            }
-        });
+        if (!isDoublePane()) {
+            startSwitch = (SwitchCompat) findViewById(R.id.service_start_switch);
+            startSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    sharedPreferences
+                            .edit()
+                            .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, isChecked)
+                            .apply();
+                }
+            });
+        }
 
         numSatellites = (TextView) findViewById(R.id.num_satellites_text);
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
@@ -113,19 +101,23 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
     }
 
-    private boolean isLargeScreen() {
+    private boolean isDoublePane() {
         return (getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE &&
+                getResources()
+                        .getConfiguration()
+                        .orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     private void updateData() {
-
         boolean running =
                 sharedPreferences.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false);
 
-        startSwitch.setChecked(
-                running
-        );
+        if (!isDoublePane()) {
+            startSwitch.setChecked(
+                    running
+            );
+        }
 
         String accuracyValue = "N/A";
         String numSatellitesValue = "N/A";
@@ -204,7 +196,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!doublePane) {
+        if (!isDoublePane()) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.menu_main, menu);
         }

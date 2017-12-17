@@ -64,13 +64,7 @@
         <service
             android:name=".driver.USBGpsProviderService"
             android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.START_TRACK_RECORDING" />
-                <action android:name="org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.STOP_TRACK_RECORDING" />
-                <action android:name="org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.START_GPS_PROVIDER" />
-                <action android:name="org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.STOP_GPS_PROVIDER" />
-            </intent-filter>
+            android:exported="true">
         </service>
 
         <activity
