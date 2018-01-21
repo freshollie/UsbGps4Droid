@@ -7,15 +7,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
@@ -25,15 +23,15 @@ import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
- * Preferences activity was deprecated and so now we make a preferences
- * fragment and make an activity to display that fragment.
- * <p>
- * All this activity does is display the fragment, the fragment handles
- * everything else.
- * <p>
  * Created by Oliver Bell 5/12/15
+ *
+ * This activity displays a log, as well as the GPS info. If the users device is
+ * large enough and in landscape, the settings fragment will be shown alongside
  */
 
 public class GpsInfoActivity extends USBGpsBaseActivity implements
@@ -50,29 +48,21 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView locationText;
     private TextView elevationText;
     private TextView logText;
-    private boolean doublePane;
     private TextView timeText;
+    private ScrollView logTextScroller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        doublePane = false;
-
-        if (isLargeScreen()) {
-            if (getResources().getConfiguration().orientation ==
-                    Configuration.ORIENTATION_LANDSCAPE) {
-                doublePane = true;
-            }
-        }
-
-        if (doublePane) {
+        if (isDoublePanel()) {
             savedInstanceState = null;
+        }
+        super.onCreate(savedInstanceState);
+
+        if (isDoublePanel()) {
             setContentView(R.layout.activity_info_double);
         } else {
             setContentView(R.layout.activity_info);
         }
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -80,25 +70,24 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
         setupUI();
 
-        super.onCreate(savedInstanceState);
-
-        if (doublePane) {
+        if (isDoublePanel()) {
             showSettingsFragment(R.id.settings_holder, false);
-            findViewById(R.id.switch_card_view).setVisibility(View.GONE);
         }
     }
 
     private void setupUI() {
-        startSwitch = (SwitchCompat) findViewById(R.id.service_start_switch);
-        startSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sharedPreferences
-                        .edit()
-                        .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, isChecked)
-                        .apply();
-            }
-        });
+        if (!isDoublePanel()) {
+            startSwitch = (SwitchCompat) findViewById(R.id.service_start_switch);
+            startSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    sharedPreferences
+                            .edit()
+                            .putBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, isChecked)
+                            .apply();
+                }
+            });
+        }
 
         numSatellites = (TextView) findViewById(R.id.num_satellites_text);
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
@@ -107,23 +96,26 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         timeText = (TextView) findViewById(R.id.gps_time_text);
 
         logText = (TextView) findViewById(R.id.log_box);
-        logText.setMovementMethod(new ScrollingMovementMethod());
-
+        logTextScroller = (ScrollView) findViewById(R.id.log_box_scroller);
     }
 
-    private boolean isLargeScreen() {
+    private boolean isDoublePanel() {
         return (getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE &&
+                getResources()
+                        .getConfiguration()
+                        .orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     private void updateData() {
-
         boolean running =
                 sharedPreferences.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false);
 
-        startSwitch.setChecked(
-                running
-        );
+        if (!isDoublePanel()) {
+            startSwitch.setChecked(
+                    running
+            );
+        }
 
         String accuracyValue = "N/A";
         String numSatellitesValue = "N/A";
@@ -147,8 +139,12 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             lat = df.format(location.getLatitude());
             lon = df.format(location.getLongitude());
             elevation = String.valueOf(location.getAltitude());
-            gpsTime = String.valueOf(location.getTime());
-            systemTime = String.valueOf(location.getExtras().getLong(NmeaParser.SYSTEM_TIME_FIX_KEY));
+
+            gpsTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
+                    .format(new Date(location.getTime()));
+
+            systemTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
+                    .format(new Date(location.getExtras().getLong(NmeaParser.SYSTEM_TIME_FIX_KEY)));
         }
 
         numSatellites.setText(
@@ -161,23 +157,24 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         updateLog();
     }
 
-    public void updateGpsTime() {
-
-    }
-
     public void updateLog() {
-        logText.scrollTo(0, 0);
-        logText.setText(TextUtils.join("\n", application.getSentenceLog()));
-        Layout layout = logText.getLayout();
-        if (layout != null) {
-            int lineTop = layout.getLineTop(logText.getLineCount());
-            final int scrollAmount = lineTop + logText.getPaddingTop()
-                    + logText.getPaddingBottom() - logText.getBottom() + logText.getTop();
-            if (scrollAmount > 0) {
-                logText.scrollBy(0, scrollAmount);
-            } else {
-                logText.scrollTo(0, 0);
-            }
+
+        boolean atBottom = (
+                logText.getBottom() - (
+                        logTextScroller.getHeight() +
+                                logTextScroller.getScrollY()
+                )
+        ) == 0;
+
+        logText.setText(TextUtils.join("\n", application.getLogLines()));
+
+        if (atBottom) {
+            logText.post(new Runnable() {
+                @Override
+                public void run() {
+                    logTextScroller.fullScroll(View.FOCUS_DOWN);
+                }
+            });
         }
     }
 
@@ -198,7 +195,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!doublePane) {
+        if (!isDoublePanel()) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.menu_main, menu);
         }

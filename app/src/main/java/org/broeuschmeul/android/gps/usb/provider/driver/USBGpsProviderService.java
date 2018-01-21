@@ -20,9 +20,6 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- *
- */
 package org.broeuschmeul.android.gps.usb.provider.driver;
 
 import java.io.BufferedWriter;
@@ -72,17 +69,17 @@ import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
 public class USBGpsProviderService extends Service implements USBGpsApplication.ServiceDataListener, LocationListener {
 
     public static final String ACTION_START_TRACK_RECORDING =
-            "org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.START_TRACK_RECORDING";
+            "org.broeuschmeul.android.gps.usb.provider.action.START_TRACK_RECORDING";
     public static final String ACTION_STOP_TRACK_RECORDING =
-            "org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.STOP_TRACK_RECORDING";
+            "org.broeuschmeul.android.gps.usb.provider.action.STOP_TRACK_RECORDING";
     public static final String ACTION_START_GPS_PROVIDER =
-            "org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.START_GPS_PROVIDER";
+            "org.broeuschmeul.android.gps.usb.provider.action.START_GPS_PROVIDER";
     public static final String ACTION_STOP_GPS_PROVIDER =
-            "org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.STOP_GPS_PROVIDER";
+            "org.broeuschmeul.android.gps.usb.provider.action.STOP_GPS_PROVIDER";
     public static final String ACTION_CONFIGURE_SIRF_GPS =
-            "org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.CONFIGURE_SIRF_GPS";
+            "org.broeuschmeul.android.gps.usb.provider.action.CONFIGURE_SIRF_GPS";
     public static final String ACTION_ENABLE_SIRF_GPS =
-            "org.broeuschmeul.android.gps.usb.provider.driver.usbgpsproviderservice.intent.action.ENABLE_SIRF_GPS";
+            "org.broeuschmeul.android.gps.usb.provider.action.ENABLE_SIRF_GPS";
 
     public static final String PREF_START_GPS_PROVIDER = "startGps";
     public static final String PREF_START_ON_BOOT = "startOnBoot";
@@ -134,14 +131,14 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
         public void onReceive(final Context context, Intent intent) {
             SharedPreferences sharedPreferences =
                     PreferenceManager.getDefaultSharedPreferences(context);
-            Log.v(LOG_TAG, intent.getAction());
+            if (BuildConfig.DEBUG) Log.d(LOG_TAG, intent.getAction());
 
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) &&
                     sharedPreferences.getBoolean(PREF_START_ON_BOOT, false))  {
                 new Handler(context.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Log.v(LOG_TAG, "Boot start");
+                        if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Boot start");
                         context.startService(
                                 new Intent(context, USBGpsProviderService.class)
                                         .setAction(ACTION_START_GPS_PROVIDER)
@@ -176,9 +173,7 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
                 )
         );
 
-        if (BuildConfig.DEBUG) {
-            Log.d(LOG_TAG, "prefs device addr: " + vendorId + " - " + productId);
-        }
+        log("prefs device addr: " + vendorId + " - " + productId);
 
         if (ACTION_START_GPS_PROVIDER.equals(intent.getAction())) {
             if (gpsManager == null) {
@@ -361,7 +356,7 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
         String trackDirName = sharedPreferences.getString(PREF_TRACK_FILE_DIR, this.getString(R.string.defaultTrackFileDirectory));
         String trackFilePrefix = sharedPreferences.getString(PREF_TRACK_FILE_PREFIX, this.getString(R.string.defaultTrackFilePrefix));
         trackFile = new File(trackDirName, trackFilePrefix + fmt.format(new Date()));
-        Log.d(LOG_TAG, "Writing the prelude of the NMEA file: " + trackFile.getAbsolutePath());
+        log("Writing the prelude of the NMEA file: " + trackFile.getAbsolutePath());
         File trackDir = trackFile.getParentFile();
         try {
             if ((!trackDir.mkdirs()) && (!trackDir.isDirectory())) {
@@ -378,7 +373,7 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
 
     private void endTrack() {
         if (trackFile != null && writer != null) {
-            Log.d(LOG_TAG, "Ending the NMEA file: " + trackFile.getAbsolutePath());
+            log("Ending the NMEA file: " + trackFile.getAbsolutePath());
             preludeWritten = false;
             writer.close();
             trackFile = null;
@@ -389,7 +384,7 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
         if (!preludeWritten) {
             beginTrack();
         }
-        Log.v(LOG_TAG, "Adding data in the NMEA file: " + data);
+        log("Adding data in the NMEA file: " + data);
         if (trackFile != null && writer != null) {
             writer.print(data);
         }
@@ -400,9 +395,7 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
      */
     @Override
     public IBinder onBind(Intent intent) {
-        if (BuildConfig.DEBUG) {
-            Log.d(LOG_TAG, "trying access IBinder");
-        }
+        log("trying access IBinder");
         return null;
     }
 
@@ -423,7 +416,7 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
 
     @Override
     public void onProviderDisabled(String provider) {
-        Log.i(LOG_TAG, "The GPS has been disabled.....stopping the NMEA tracker service.");
+        log("The GPS has been disabled.....stopping the NMEA tracker service.");
         stopSelf();
     }
 
@@ -440,5 +433,9 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
     @Override
     public void onSatelittesUpdated(USBGpsSatellite[] satellites) {
 
+    }
+
+    private void log(String message) {
+        if (BuildConfig.DEBUG) Log.d(LOG_TAG, message);
     }
 }

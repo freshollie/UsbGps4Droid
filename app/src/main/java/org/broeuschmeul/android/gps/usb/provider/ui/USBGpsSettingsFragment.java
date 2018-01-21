@@ -27,8 +27,6 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-//import android.bluetooth.BluetoothAdapter;
-//import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,19 +36,20 @@ import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.SwitchPreference;
+import android.support.v7.preference.CheckBoxPreference;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.Preference.OnPreferenceChangeListener;
+import android.support.v14.preference.SwitchPreference;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
@@ -62,7 +61,7 @@ import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
  *
  * @author Herbert von Broeuschmeul
  */
-public class USBGpsSettingsFragment extends PreferenceFragment implements
+public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
         OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 
 
@@ -93,7 +92,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
                 }
             }
 
-            Log.v(TAG, "USB Device Check thread ending");
+            log("USB Device Check thread ending");
         }
     };
 
@@ -107,16 +106,19 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
     public static int DEFAULT_GPS_PRODUCT_ID = 8963;
     public static int DEFAULT_GPS_VENDOR_ID = 1659;
 
-    private SharedPreferences sharedPref;
+    private SharedPreferences sharedPreferences;
+    private ListPreference devicePreference;
+    private ListPreference deviceSpeedPreference;
 
-    private UsbManager usbManager = null;
-    private String deviceName = "";
+    private UsbManager usbManager;
+    private ActivityManager activityManager;
+
     private Handler mainHandler;
 
     private PreferenceScreenListener preferenceScreenParent;
 
     public interface PreferenceScreenListener {
-        void onNestedScreenClicked(PreferenceFragment preferenceFragment);
+        void onNestedScreenClicked(PreferenceFragmentCompat preferenceFragment);
     }
 
     /**
@@ -125,27 +127,31 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
-
-        mainHandler = new Handler(getActivity().getMainLooper());
-
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.main_prefs);
 
-        findPreference(USBGpsProviderService.PREF_GPS_DEVICE).setOnPreferenceChangeListener(this);
+        devicePreference = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE);
+        deviceSpeedPreference = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE_SPEED);
+        devicePreference.setOnPreferenceChangeListener(this);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
+        activityManager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        mainHandler = new Handler(getActivity().getMainLooper());
 
         setupNestedPreferences();
-
-        sharedPref.registerOnSharedPreferenceChangeListener(this);
     }
 
     private void setupNestedPreferences() {
         findPreference(USBGpsProviderService.PREF_ABOUT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                USBGpsSettingsFragment.this.displayAboutDialog();
+                displayAboutDialog();
                 return true;
             }
         });
@@ -264,8 +270,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
      * This checks if the service is running from the running preferences list
      */
     private boolean isServiceRunning() {
-        ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+        for (ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
             if (USBGpsProviderService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
@@ -277,23 +282,26 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
      * Updates the device summary based on the connected devices.
      */
     private void updateDevicePreferenceSummary() {
-        ListPreference prefDevices = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE);
+        if (devicePreference != null) {
+            devicePreference.setValue("current");
 
-        prefDevices.setValue("current");
-
-        prefDevices.setSummary(getString(R.string.pref_gps_device_summary, getSelectedDeviceSummary()));
-
-        ListPreference prefDeviceSpeed = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE_SPEED);
-        prefDeviceSpeed.setSummary(getString(R.string.pref_gps_device_speed_summary, sharedPref.getString(USBGpsProviderService.PREF_GPS_DEVICE_SPEED, getString(R.string.defaultGpsDeviceSpeed))));
+            devicePreference.setSummary(getString(R.string.pref_gps_device_summary, getSelectedDeviceSummary()));
+            deviceSpeedPreference.setSummary(getString(
+                    R.string.pref_gps_device_speed_summary,
+                    sharedPreferences.getString(
+                            USBGpsProviderService.PREF_GPS_DEVICE_SPEED, getString(R.string.defaultGpsDeviceSpeed))
+                    )
+            );
+        }
     }
 
     /**
      * Gets a summary of the current select product and vendor ids
      */
     private String getSelectedDeviceSummary() {
-        int productId = sharedPref.getInt(
+        int productId = sharedPreferences.getInt(
                 USBGpsProviderService.PREF_GPS_DEVICE_PRODUCT_ID, DEFAULT_GPS_PRODUCT_ID);
-        int vendorId = sharedPref.getInt(
+        int vendorId = sharedPreferences.getInt(
                 USBGpsProviderService.PREF_GPS_DEVICE_VENDOR_ID, DEFAULT_GPS_VENDOR_ID);
 
         String deviceDisplayedName = "Device not connected - " + vendorId + ": " + productId;
@@ -320,8 +328,6 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
      * Updates the list of available devices in the list preference
      */
     private void updateDevicesList() {
-        ListPreference prefDevices = (ListPreference) findPreference(USBGpsProviderService.PREF_GPS_DEVICE);
-
         HashMap<String, UsbDevice> connectedUsbDevices = usbManager.getDeviceList();
         String[] entryValues = new String[connectedUsbDevices.size()];
         String[] entries = new String[connectedUsbDevices.size()];
@@ -344,8 +350,8 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
             i++;
         }
 
-        prefDevices.setEntryValues(entryValues);
-        prefDevices.setEntries(entries);
+        devicePreference.setEntryValues(entryValues);
+        devicePreference.setEntries(entries);
     }
 
     /**
@@ -354,7 +360,7 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
     private void updateDevicePreferenceList() {
         Preference pref;
 
-        String mockProvider = sharedPref.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
+        String mockProvider = sharedPreferences.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
 
         // update usb device summary
         updateDevicePreferenceSummary();
@@ -363,18 +369,18 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         updateDevicesList();
 
         pref = findPreference(USBGpsProviderService.PREF_GPS_LOCATION_PROVIDER);
-        if (sharedPref.getBoolean(USBGpsProviderService.PREF_REPLACE_STD_GPS, true)) {
+        if (sharedPreferences.getBoolean(USBGpsProviderService.PREF_REPLACE_STD_GPS, true)) {
             String s = getString(R.string.pref_gps_location_provider_summary);
             pref.setSummary(s);
-            Log.v(TAG, "loc. provider: " + s);
+            log("loc. provider: " + s);
         } else {
             String s = getString(R.string.pref_mock_gps_name_summary, mockProvider);
             pref.setSummary(s);
-            Log.v(TAG, "loc. provider: " + s);
+            log("loc. provider: " + s);
         }
 
-        BaseAdapter adapter = (BaseAdapter) getPreferenceScreen().getRootAdapter();
-        adapter.notifyDataSetChanged();
+        //BaseAdapter adapter = (BaseAdapter) getPreferenceScreen().getRootAdapter();
+        //adapter.notifyDataSetChanged();
     }
 
     private void displayAboutDialog() {
@@ -382,18 +388,24 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         // we need this to enable html links
         TextView textView = (TextView) messageView.findViewById(R.id.about_license);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
+
         // When linking text, force to always use default color. This works
         // around a pressed color state bug.
         int defaultColor = textView.getTextColors().getDefaultColor();
         textView.setTextColor(defaultColor);
+
         textView = (TextView) messageView.findViewById(R.id.about_sources);
         textView.setTextColor(defaultColor);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.about_title);
-        builder.setIcon(R.drawable.gplv3_icon);
-        builder.setView(messageView);
-        builder.show();
+        textView = (TextView) messageView.findViewById(R.id.about_version_text);
+        textView.setText(
+                getString(R.string.about_version, getString(R.string.version_name)));
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.about_title)
+                .setIcon(R.drawable.gplv3_icon)
+                .setView(messageView)
+                .show();
     }
 
     @Override
@@ -402,12 +414,12 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         if (preference.getKey().equals(USBGpsProviderService.PREF_GPS_DEVICE)) {
             String deviceName = (String) newValue;
 
-            Log.v(TAG, "Device clicked: " + newValue);
+            log("Device clicked: " + newValue);
 
             if (!deviceName.isEmpty() && usbManager.getDeviceList().keySet().contains(deviceName)) {
                 UsbDevice device = usbManager.getDeviceList().get(deviceName);
 
-                SharedPreferences.Editor editor = sharedPref.edit();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
 
                 editor.putInt(getString(R.string.pref_gps_device_product_id_key),
                         device.getProductId());
@@ -428,52 +440,29 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
 
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
-        Log.v(TAG, "Shared preferences changed: " + key);
+        log("Shared preferences changed: " + key);
 
-        switch (key) {
+        switch(key) {
             case USBGpsProviderService.PREF_START_GPS_PROVIDER: {
                 boolean val = sharedPreferences.getBoolean(key, false);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    SwitchPreference pref = (SwitchPreference)
-                            findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
+                SwitchPreference pref = (SwitchPreference)
+                        findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
 
-                    if (pref.isChecked() != val) {
-                        pref.setChecked(val);
-                        return;
-                    }
-
-                } else {
-                    CheckBoxPreference pref = (CheckBoxPreference)
-                            findPreference(USBGpsProviderService.PREF_START_GPS_PROVIDER);
-
-                    if (pref.isChecked() != val) {
-                        pref.setChecked(val);
-                        return;
-                    }
+                if (pref.isChecked() != val) {
+                    pref.setChecked(val);
+                    return;
                 }
                 break;
             }
 
             case USBGpsProviderService.PREF_TRACK_RECORDING: {
                 boolean val = sharedPreferences.getBoolean(key, false);
+                SwitchPreference pref = (SwitchPreference)
+                        findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    SwitchPreference pref = (SwitchPreference)
-                            findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
-
-                    if (pref.isChecked() != val) {
-                        pref.setChecked(val);
-                        return;
-                    }
-
-                } else {
-                    CheckBoxPreference pref = (CheckBoxPreference)
-                            findPreference(USBGpsProviderService.PREF_TRACK_RECORDING);
-
-                    if (pref.isChecked() != val) {
-                        pref.setChecked(val);
-                        return;
-                    }
+                if (pref.isChecked() != val) {
+                    pref.setChecked(val);
+                    return;
                 }
                 break;
             }
@@ -525,23 +514,28 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
 
     @Override
     public void onDestroy() {
-        sharedPref.unregisterOnSharedPreferenceChangeListener(this);
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
     }
 
-    public static class ProviderPreferences extends PreferenceFragment {
+    public static class ProviderPreferences extends PreferenceFragmentCompat {
         SharedPreferences sharedPreferences;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
+        }
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             sharedPreferences = getPreferenceManager().getSharedPreferences();
 
             addPreferencesFromResource(R.xml.provider_prefs);
             updatePreferenceDetails();
         }
 
-        public void updatePreferenceDetails() {
+        private void updatePreferenceDetails() {
 
             String mockProvider = sharedPreferences.getString(USBGpsProviderService.PREF_MOCK_GPS_NAME, getString(R.string.defaultMockGpsName));
 
@@ -555,12 +549,17 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         }
     }
 
-    public static class SirfPreferences extends PreferenceFragment implements OnSharedPreferenceChangeListener {
+    public static class SirfPreferences extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
         SharedPreferences sharedPreferences;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
+        }
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             sharedPreferences = getPreferenceManager().getSharedPreferences();
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
             addPreferencesFromResource(R.xml.sirf_prefs);
@@ -597,12 +596,21 @@ public class USBGpsSettingsFragment extends PreferenceFragment implements
         }
     }
 
-    public static class RecordingPreferences extends PreferenceFragment {
+    public static class RecordingPreferences extends PreferenceFragmentCompat {
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
+        }
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             addPreferencesFromResource(R.xml.recording_prefs);
         }
+    }
+
+    private void log(String message) {
+        if (BuildConfig.DEBUG) Log.d(TAG, message);
     }
 }

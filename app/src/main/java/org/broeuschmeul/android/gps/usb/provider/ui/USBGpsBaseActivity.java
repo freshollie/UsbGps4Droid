@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
@@ -40,8 +41,11 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
         USBGpsSettingsFragment.PreferenceScreenListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final String TAG_NESTED = "NESTED_PREFERENCE_SCREEN";
+
     private SharedPreferences sharedPreferences;
-    private String TAG_NESTED = "NESTED_PREFERENCE_SCREEN";
+    private NotificationManager notificationManager;
+    private ActivityManager activityManager;
 
     private boolean shouldInitialise = true;
 
@@ -55,7 +59,10 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 
         if (savedInstanceState != null) {
             shouldInitialise = false;
@@ -69,8 +76,6 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                         LOCATION_REQUEST);
             }
         }
-
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -99,7 +104,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
         resSettingsHolder = whereId;
         // Opens the root fragment if its the first time opening
         if (shouldInitialise) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(whereId, new USBGpsSettingsFragment())
                     .commit();
         }
@@ -109,8 +114,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
     }
 
     private void clearStopNotification() {
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancel(R.string.service_closed_because_connection_problem_notification_title);
+        notificationManager.cancel(R.string.service_closed_because_connection_problem_notification_title);
     }
 
     private void showStopDialog() {
@@ -126,7 +130,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                                         getString(R.string.msg_mock_location_disabled)
                                 )
                         )
-                        .setPositiveButton("Open mock location settings",
+                        .setPositiveButton(R.string.button_open_mock_location_settings,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -204,7 +208,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                         .apply();
 
                 new AlertDialog.Builder(this)
-                        .setMessage("Location permission is required for UsbGps to function")
+                        .setMessage(R.string.error_location_permission_required)
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
 
@@ -224,7 +228,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
 
                 new AlertDialog.Builder(this)
                         .setMessage(
-                                "In order to write a track file, the app need storage permission"
+                                R.string.error_storage_permission_required
                         )
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
@@ -238,8 +242,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
      * This checks if the service is running from the running preferences list
      */
     public boolean isServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+        for (ActivityManager.RunningServiceInfo service: activityManager.getRunningServices(Integer.MAX_VALUE)) {
             if (USBGpsProviderService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
@@ -336,12 +339,12 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
      * Makes that fragment the now visible fragment
      */
     @Override
-    public void onNestedScreenClicked(PreferenceFragment preferenceFragment) {
+    public void onNestedScreenClicked(PreferenceFragmentCompat preferenceFragment) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .replace(resSettingsHolder, preferenceFragment, TAG_NESTED)
                 .addToBackStack(TAG_NESTED)
                 .commit();
