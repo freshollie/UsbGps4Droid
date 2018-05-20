@@ -50,6 +50,8 @@ import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.android.gpstest.GpsTestActivity;
+
 import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
@@ -206,7 +208,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                         startActivity(
                                 new Intent(
                                         getActivity(),
-                                        com.android.gpstest.GpsTestActivity.class
+                                        GpsTestActivity.class
                                 )
                         );
                         return false;

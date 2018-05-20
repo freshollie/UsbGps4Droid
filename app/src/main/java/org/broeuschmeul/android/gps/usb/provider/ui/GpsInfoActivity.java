@@ -35,7 +35,7 @@ import java.util.Locale;
  */
 
 public class GpsInfoActivity extends USBGpsBaseActivity implements
-        USBGpsApplication.ServiceDataListener {
+        USBGpsApplication.UsbGpsDataListener {
 
     private SharedPreferences sharedPreferences;
     private static final String TAG = GpsInfoActivity.class.getSimpleName();
@@ -166,7 +166,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
                 )
         ) == 0;
 
-        logText.setText(TextUtils.join("\n", application.getLogLines()));
+        logText.setText(TextUtils.join("\n", application.getNmeaSentenceLog()));
 
         if (atBottom) {
             logText.post(new Runnable() {
@@ -223,7 +223,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     }
 
     @Override
-    public void onSatelittesUpdated(USBGpsSatellite[] satellites) {
+    public void onSatellitesUpdated(USBGpsSatellite[] satellites) {
 
     }
 

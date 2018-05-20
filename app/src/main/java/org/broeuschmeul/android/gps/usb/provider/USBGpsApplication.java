@@ -20,22 +20,18 @@ public class USBGpsApplication extends Application {
 
     private int MAX_LOG_SIZE = 100;
 
-    private final ArrayList<ServiceDataListener> serviceDataListeners = new ArrayList<>();
+    private final ArrayList<UsbGpsDataListener> dataListeners = new ArrayList<>();
     private Location lastLocation;
-    private ArrayList<String> logLines = new ArrayList<>();
+    private ArrayList<String> nmeaSentenceLog = new ArrayList<>();
 
-    private USBGpsSatellite[] lastSatelliteList;
+    private USBGpsSatellite[] lastSatelliteList = new USBGpsSatellite[0];
 
     private Handler mainHandler;
 
-    static {
-
-    }
-
-    public interface ServiceDataListener {
+    public interface UsbGpsDataListener {
         void onNmeaReceived(String sentence);
         void onLocationNotified(Location location);
-        void onSatelittesUpdated(USBGpsSatellite[] satellites);
+        void onSatellitesUpdated(USBGpsSatellite[] satellites);
     }
 
     private void setupDaynightMode() {
@@ -50,12 +46,11 @@ public class USBGpsApplication extends Application {
 
     @Override
     public void onCreate() {
-        com.android.gpstest.Application.initalise(this);
         setupDaynightMode();
         locationAsked = false;
         mainHandler = new Handler(getMainLooper());
         for (int i = 0; i < MAX_LOG_SIZE; i++) {
-            logLines.add("");
+            nmeaSentenceLog.add("");
         }
         super.onCreate();
     }
@@ -72,34 +67,38 @@ public class USBGpsApplication extends Application {
         locationAsked = false;
     }
 
-    public String[] getLogLines() {
-        return logLines.toArray(new String[logLines.size()]);
+    public String[] getNmeaSentenceLog() {
+        return nmeaSentenceLog.toArray(new String[nmeaSentenceLog.size()]);
+    }
+
+    public USBGpsSatellite[] getLastSatelliteList() {
+        return lastSatelliteList;
     }
 
     public Location getLastLocation() {
         return lastLocation;
     }
 
-    public void registerServiceDataListener(ServiceDataListener listener) {
-        serviceDataListeners.add(listener);
+    public void registerServiceDataListener(UsbGpsDataListener listener) {
+        dataListeners.add(listener);
     }
 
-    public void unregisterServiceDataListener(ServiceDataListener listener) {
-        serviceDataListeners.remove(listener);
+    public void unregisterServiceDataListener(UsbGpsDataListener listener) {
+        dataListeners.remove(listener);
     }
 
     public void notifyNewSentence(final String sentence) {
-        if (logLines.size() > MAX_LOG_SIZE) {
-            logLines.remove(0);
+        if (nmeaSentenceLog.size() > MAX_LOG_SIZE) {
+            nmeaSentenceLog.remove(0);
         }
 
-        logLines.add(sentence);
+        nmeaSentenceLog.add(sentence);
 
-        synchronized (serviceDataListeners) {
+        synchronized (dataListeners) {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    for (ServiceDataListener dataListener: serviceDataListeners) {
+                    for (UsbGpsDataListener dataListener: dataListeners) {
                         dataListener.onNmeaReceived(sentence);
                     }
                 }
@@ -109,11 +108,11 @@ public class USBGpsApplication extends Application {
 
     public void notifyNewLocation(final Location location) {
         lastLocation = location;
-        synchronized (serviceDataListeners) {
+        synchronized (dataListeners) {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    for (ServiceDataListener dataListener: serviceDataListeners) {
+                    for (UsbGpsDataListener dataListener: dataListeners) {
                         dataListener.onLocationNotified(location);
                     }
                 }
@@ -124,12 +123,12 @@ public class USBGpsApplication extends Application {
 
     public void notifySatellitesUpdated(final USBGpsSatellite[] satellites) {
         lastSatelliteList = satellites;
-        synchronized (serviceDataListeners) {
+        synchronized (dataListeners) {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    for (ServiceDataListener dataListener: serviceDataListeners) {
-                        dataListener.onSatelittesUpdated(satellites);
+                    for (UsbGpsDataListener dataListener: dataListeners) {
+                        dataListener.onSatellitesUpdated(satellites);
                     }
                 }
             });
@@ -139,6 +138,5 @@ public class USBGpsApplication extends Application {
     @Override
     public void onTerminate() {
         super.onTerminate();
-        com.android.gpstest.Application.terminate();
     }
 }

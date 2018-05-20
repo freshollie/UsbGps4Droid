@@ -61,7 +61,9 @@ public class NmeaParser {
     public static final String SATELLITE_KEY = "satellites";
     public static final String SYSTEM_TIME_FIX_KEY = "system_time_fix";
 
-    private ArrayList<USBGpsSatellite> sattilites;
+    private ArrayList<USBGpsSatellite> satellites;
+    // Keep track of the current sentence number to make sure we receive all satellites
+    private int satelliteSentenceNum = 0;
 
     private Context appContext;
 
@@ -88,7 +90,7 @@ public class NmeaParser {
     public NmeaParser(float precision, Context context) {
         this.precision = precision;
         this.appContext = context;
-        this.sattilites = new ArrayList<>();
+        this.satellites = new ArrayList<>();
     }
 
     public void setLocationManager(LocationManager lm) {
@@ -249,6 +251,14 @@ public class NmeaParser {
         return mockLocationProvider;
     }
 
+    private void onAllSatellitesReceived() {
+        USBGpsSatellite[] satellitesArray = satellites.toArray(new USBGpsSatellite[satellites.size()]);
+        log("Received data for " + String.valueOf(satellitesArray.length) + " satellites, notifying");
+
+        ((USBGpsApplication) appContext).notifySatellitesUpdated(satellitesArray);
+        satellites.clear();
+    }
+
     /**
      * Notifies a new location fix to the MockLocationProvider
      * @param fix the location
@@ -275,8 +285,8 @@ public class NmeaParser {
                 } catch (IllegalArgumentException e) {
                     log("Tried to notify a fix that was incomplete");
                     log("Accuracy = " + Float.toString(fix.getAccuracy()));
-
                 }
+
                 log("New Fix notified to Location Manager: " + mockLocationProvider);
 
             } else {
@@ -634,6 +644,7 @@ public class NmeaParser {
                             break;
                         }
                         case "GSV": {
+                            // We are receiving satellite information
                         /*  $GPGSV,2,1,08,01,40,083,46,02,17,308,41,12,07,344,39,14,22,228,45*75
 
                             Where:
@@ -650,25 +661,58 @@ public class NmeaParser {
                                   *75          the checksum data, always begins with *
 
                          */
-                            int allSatellites = Integer.valueOf(splitter.next());
-
                             int numSentences = Integer.valueOf(splitter.next());
 
                             int sentenceNum = Integer.valueOf(splitter.next());
 
-                            int numSatellitesInSentence = Integer.valueOf(splitter.next());
+                            satelliteSentenceNum++;
 
+                            log("Parsing satellite sentence: " + String.valueOf(sentenceNum));
+
+                            // If this is the first sentence then
                             if (sentenceNum == 1) {
-                                sattilites.clear();
+                                satelliteSentenceNum = 1;
+                                satellites.clear();
                             }
 
-                            for (int i = 0; i < numSatellitesInSentence; i++) {
-                                int satellitePRN = Integer.parseInt(splitter.next());
-
-                                int satelliteElevation = Integer.parseInt(splitter.next());
-
-                                int satelliteAzimuth = Integer.parseInt(splitter.next());
+                            if (satelliteSentenceNum != sentenceNum) {
+                                // Something has gone wrong, we are missing a sentence
+                                satelliteSentenceNum = -1;
+                                break;
                             }
+
+                            for (int i = 0; i < 4; i++) {
+                                String prnString = splitter.next();
+
+                                // We got to the checksum, end of list
+                                if (prnString.contains("*")) {
+                                    break;
+                                }
+
+                                int satellitePRN;
+                                if (prnString.equals("")) {
+                                    satellitePRN = -1;
+                                } else {
+                                    satellitePRN = Integer.parseInt(prnString);
+                                }
+
+                                USBGpsSatellite satellite = new USBGpsSatellite(satellitePRN);
+
+                                satellite.elevation = Integer.parseInt(splitter.next());
+                                satellite.azimuth = Integer.parseInt(splitter.next());
+                                satellite.snr = Integer.parseInt(splitter.next());
+
+                                satellites.add(satellite);
+
+                                if (!splitter.hasNext()) {
+                                    break;
+                                }
+                            }
+
+                            if (sentenceNum == numSentences) {
+                                onAllSatellitesReceived();
+                            }
+                            break;
 
                         }
                         case "VTG": {

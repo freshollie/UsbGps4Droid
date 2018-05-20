@@ -66,7 +66,7 @@ import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
  * @author Herbert von Broeuschmeul &
  * @author Oliver Bell
  */
-public class USBGpsProviderService extends Service implements USBGpsApplication.ServiceDataListener, LocationListener {
+public class USBGpsProviderService extends Service implements USBGpsApplication.UsbGpsDataListener, LocationListener {
 
     public static final String ACTION_START_TRACK_RECORDING =
             "org.broeuschmeul.android.gps.usb.provider.action.START_TRACK_RECORDING";
@@ -431,7 +431,7 @@ public class USBGpsProviderService extends Service implements USBGpsApplication.
     }
 
     @Override
-    public void onSatelittesUpdated(USBGpsSatellite[] satellites) {
+    public void onSatellitesUpdated(USBGpsSatellite[] satellites) {
 
     }
 
