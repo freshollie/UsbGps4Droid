@@ -36,6 +36,7 @@ import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
@@ -117,6 +118,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
 
     private PreferenceScreenListener callback;
 
+    // Used to allow for nested preference screens in an android fragment
     public interface PreferenceScreenListener {
         void onNestedScreenClicked(PreferenceFragmentCompat preferenceFragment);
     }
@@ -145,6 +147,14 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
         mainHandler = new Handler(getActivity().getMainLooper());
 
         setupNestedPreferences();
+    }
+
+    private void onDaynightModeChanged(boolean on) {
+        AppCompatDelegate.setDefaultNightMode(on ?
+                AppCompatDelegate.MODE_NIGHT_AUTO:
+                AppCompatDelegate.MODE_NIGHT_YES
+        );
+        getActivity().recreate();
     }
 
     private void setupNestedPreferences() {
@@ -186,6 +196,15 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                             callback.onNestedScreenClicked(new RecordingPreferences());
                         }
                         return false;
+                    }
+                });
+
+        findPreference(getString(R.string.pref_daynight_theme_key))
+                .setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        onDaynightModeChanged((boolean) newValue);
+                        return true;
                     }
                 });
     }
@@ -496,7 +515,6 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                     }
                 }
                 break;
-
         }
     }
 

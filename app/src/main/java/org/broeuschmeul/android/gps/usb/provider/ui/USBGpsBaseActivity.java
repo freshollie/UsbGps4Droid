@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -57,6 +56,8 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
 
     private boolean homeAsUp = false;
 
+    private boolean lastDaynightSetting = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,10 +77,29 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                         LOCATION_REQUEST);
             }
         }
+
+        lastDaynightSetting = getDaynightSetting();
+
+    }
+
+    private boolean getDaynightSetting() {
+        return sharedPreferences.getBoolean(getString(R.string.pref_daynight_theme_key), false);
+    }
+
+    /**
+     * Recreate the activity if we resume but the daynight setting has changed
+     * @return
+     */
+    private void handleDaynightSettingChange() {
+        boolean newDaynightSetting = getDaynightSetting();
+        if (lastDaynightSetting != newDaynightSetting) {
+            recreate();
+        }
     }
 
     @Override
     public void onResume() {
+        handleDaynightSettingChange();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         // Basically check the service is really running
         if (!isServiceRunning()) {

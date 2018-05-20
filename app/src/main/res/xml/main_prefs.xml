@@ -127,5 +127,11 @@
         android:summary="@string/pref_toast_logging_summary"
         android:defaultValue="false"
         />
+    <SwitchPreference
+        android:key="@string/pref_daynight_theme_key"
+        android:title="@string/pref_daynight_theme_title"
+        android:summary="@string/pref_daynight_theme_summary"
+        android:defaultValue="true"
+        />
 
 </PreferenceScreen>

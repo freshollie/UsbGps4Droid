@@ -1,8 +1,10 @@
 package org.broeuschmeul.android.gps.usb.provider;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatDelegate;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class USBGpsApplication extends Application {
     private Handler mainHandler;
 
     static {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+
     }
 
     public interface ServiceDataListener {
@@ -31,8 +33,19 @@ public class USBGpsApplication extends Application {
         void onLocationNotified(Location location);
     }
 
+    private void setupDaynightMode() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean on = preferences.getBoolean(getString(R.string.pref_daynight_theme_key), false);
+
+        AppCompatDelegate.setDefaultNightMode(on ?
+                        AppCompatDelegate.MODE_NIGHT_AUTO:
+                        AppCompatDelegate.MODE_NIGHT_YES
+        );
+    }
+
     @Override
     public void onCreate() {
+        setupDaynightMode();
         locationAsked = false;
         mainHandler = new Handler(getMainLooper());
         for (int i = 0; i < LOG_SIZE; i++) {
