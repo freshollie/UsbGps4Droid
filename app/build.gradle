@@ -7,8 +7,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 27
 
-        versionCode 197
-        versionName "beta-v2.1.5"
+        versionCode 200
+        versionName "v2.2.0-beta"
         vectorDrawables.useSupportLibrary = true
 
         setProperty("archivesBaseName", "UsbGps4Droid-$versionName")
