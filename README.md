@@ -72,7 +72,7 @@ intent.setAction("org.broeuschmeul.android.gps.usb.provider.action.START_GPS_PRO
 Or via a shell command as root.
 
 ```bash
-am startservice -a org.broeuschmeul.android.gps.usb.provider.driver.action.START_GPS_PROVIDER
+am startservice -a org.broeuschmeul.android.gps.usb.provider.action.START_GPS_PROVIDER -n org.broeuschmeul.android.gps.usb.provider/.driver.USBGpsProviderService
 ```
 
 The background service will automatically close itself when the USB device is disconnected for too long.
