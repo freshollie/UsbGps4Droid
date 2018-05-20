@@ -372,7 +372,6 @@ public class NmeaParser {
 
                             // UTC time of fix HHmmss.S
                             String time = splitter.next();
-                            lastSentenceTime = time;
 
                             // latitude ddmm.M
                             String lat = splitter.next();
@@ -410,6 +409,10 @@ public class NmeaParser {
 
                             // Height of geoid (mean sea level) above WGS84 ellipsoid
                             String geoAlt = splitter.next();
+
+                            if (time != null && !time.equals("")) {
+                                lastSentenceTime = time;
+                            }
 
                             // time in seconds since last DGPS update
                             // DGPS station ID number
@@ -498,7 +501,6 @@ public class NmeaParser {
 
                             // UTC time of fix HHmmss.S
                             String time = splitter.next();
-                            lastSentenceTime = time;
 
                             // fix status (A/V)
                             String status = splitter.next();
@@ -530,15 +532,20 @@ public class NmeaParser {
                             // Magnetic variation direction (E/W)
                             String magnDir = splitter.next();
 
+                            if (time != null && !time.equals("")) {
+                                lastSentenceTime = time;
+                            }
+
                             // for NMEA 0183 version 3.00 active the Mode indicator field is added
                             // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
                             if (status != null && !status.equals("") && status.equals("A")) {
-                                if (this.mockStatus != LocationProvider.AVAILABLE) {
+                                if (this.mockStatus != LocationProvider.AVAILABLE &&
+                                        time != null && !time.equals("")) {
                                     long updateTime = parseNmeaTime(time);
                                     notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
                                 }
 
-                                if (!time.equals(fixTime)) {
+                                if (time != null && !time.equals("") && !time.equals(fixTime)) {
                                     notifyFix(fix);
                                     fix = new Location(mockLocationProvider);
                                     fixTime = time;
@@ -576,11 +583,11 @@ public class NmeaParser {
                                 if (hasGGA) {
                                     notifyFix(fix);
                                 }
-                            } else if (status != null && status.equals("V")) {
-                                if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
-                                    long updateTime = parseNmeaTime(time);
-                                    notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
-                                }
+                            } else if (status != null && status.equals("V") &&
+                                    this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE &&
+                                    time != null && !time.equals("")) {
+                                long updateTime = parseNmeaTime(time);
+                                notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
                             }
 
                             break;
@@ -674,18 +681,26 @@ public class NmeaParser {
                      */
                             // latitude ddmm.M
                             String lat = splitter.next();
+
                             // direction (N/S)
                             String latDir = splitter.next();
+
                             // longitude dddmm.M
                             String lon = splitter.next();
+
                             // direction (E/W)
                             String lonDir = splitter.next();
+
                             // UTC time of fix HHmmss.S
                             String time = splitter.next();
-                            lastSentenceTime = time;
 
                             // fix status (A/V)
                             String status = splitter.next();
+
+                            if (time != null && !time.equals("")) {
+                                lastSentenceTime = time;
+                            }
+
                             // for NMEA 0183 version 3.00 active the Mode indicator field is added
                             // Mode indicator, (A=autonomous, D=differential, E=Estimated, N=not valid, S=Simulator )
                             break;

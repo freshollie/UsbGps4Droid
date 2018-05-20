@@ -86,7 +86,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                 }
 
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -238,7 +238,9 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                 }
             });
         }
+
         updateDevicePreferenceList();
+        updateDevicesList();
         super.onResume();
     }
 
