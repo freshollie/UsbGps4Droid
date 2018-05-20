@@ -4,11 +4,9 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Handler;
-<<<<<<< HEAD
 import org.broeuschmeul.android.gps.nmea.util.USBGpsSatellite;
-=======
+
 import android.preference.PreferenceManager;
->>>>>>> development
 import android.support.v7.app.AppCompatDelegate;
 
 import java.util.ArrayList;
