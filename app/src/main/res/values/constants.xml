@@ -96,4 +96,46 @@
     <string name="sirf_bin_dgps_ext_on">85020000000000</string>
     <string name="sirf_bin_dgps_sbas_on">85010000000000</string>
     <string name="sirf_software_version">8400</string>
+
+    <!-- GPS-Test Strings -->
+    <!-- Preference keys -->
+    <string name="pref_key_map_category">map_category</string>
+    <string name="pref_key_map_type">map_type</string>
+    <string name="pref_key_tilt_map_with_sensors">tilt_map</string>
+    <string name="pref_key_rotate_map_with_compass">rotate_map</string>
+
+    <string name="pref_key_gps_category">gps_category</string>
+    <string name="pref_key_auto_start_gps">auto_start_gps</string>
+    <string name="pref_key_gps_min_time">gps_min_time</string>
+    <string name="pref_key_gps_min_distance">gps_min_distance</string>
+    <string name="pref_key_use_gnss_apis">use_gnss_apis</string>
+
+    <string name="pref_key_display_category">display_category</string>
+    <string name="pref_key_keep_screen_on">keep_screen_on</string>
+    <string name="pref_key_true_north">true_north</string>
+
+    <string name="pref_key_android_monitor_category">android_monitor_category</string>
+    <string name="pref_key_nmea_output">nmea_output</string>
+    <string name="pref_key_nmea_timestamp_output">nmea_timestamp_output</string>
+    <string name="pref_key_measurement_output">measurement_output</string>
+    <string name="pref_key_navigation_message_output">navigation_message_output</string>
+
+    <string name="pref_key_about_category">about_category</string>
+    <string name="pref_key_showed_v2_tutorial">showed_v2_tutorial</string>
+    <string name="pref_key_analyze_gps_accuracy">analyze_gps_accuracy</string>
+
+    <!-- Default preference values -->
+    <string name="pref_gps_min_time_default_sec">1</string>
+    <string name="pref_gps_min_distance_default_meters">0</string>
+
+    <!-- Commands sent to the LocationManager -->
+    <string name="delete_aiding_data_command">delete_aiding_data</string>
+    <string name="force_time_injection_command">force_time_injection</string>
+    <string name="force_xtra_injection_command">force_xtra_injection</string>
+
+    <string name="gps_benchmark_package_name">com.gpsbenchmark.android</string>
+    <string name="gps_benchmark_url">
+        http://play.google.com/store/apps/details?id=com.gpsbenchmark.android
+    </string>
+
 </resources>

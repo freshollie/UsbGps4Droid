@@ -38,9 +38,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
 import android.view.Window;
@@ -50,6 +52,7 @@ import com.android.gpstest.util.GpsTestUtil;
 import com.android.gpstest.util.MathUtils;
 import com.android.gpstest.view.ViewPagerMapBevelScroll;
 
+import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 
 import java.util.ArrayList;
@@ -59,7 +62,7 @@ import static android.content.Intent.createChooser;
 public class GpsTestActivity extends AppCompatActivity
         implements android.support.v7.app.ActionBar.TabListener, SensorEventListener {
 
-    private static final String TAG = "GpsTestActivity";
+    private static final String TAG = GpsTestActivity.class.getSimpleName();
 
     private static final int WHATSNEW_DIALOG = 1;
 
@@ -67,9 +70,7 @@ public class GpsTestActivity extends AppCompatActivity
 
     private static final int SECONDS_TO_MILLISECONDS = 1000;
 
-    static boolean mIsLargeScreen = false;
-
-    private static GpsTestActivity sInstance;
+    private boolean mIsLargeScreen = false;
 
     // Holds sensor data
     private static float[] mRotationMatrix = new float[16];
@@ -148,21 +149,6 @@ public class GpsTestActivity extends AppCompatActivity
     public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        sInstance = this;
-
-        // Set the default values from the XML file if this is the first
-        // execution of the app
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mProvider = mLocationManager.getProvider(LocationManager.GPS_PROVIDER);
-        if (mProvider == null) {
-            Log.e(TAG, "Unable to get GPS_PROVIDER");
-            Toast.makeText(this, getString(R.string.gps_not_supported),
-                    Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -171,6 +157,7 @@ public class GpsTestActivity extends AppCompatActivity
             setContentView(R.layout.activity_main_large_screen);
             mIsLargeScreen = true;
         } else {
+            mIsLargeScreen = false;
             setContentView(R.layout.activity_main);
         }
 
@@ -391,15 +378,27 @@ public class GpsTestActivity extends AppCompatActivity
     public void onTabReselected(android.support.v7.app.ActionBar.Tab tab, FragmentTransaction ft) {
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void initActionBar(Bundle savedInstanceState) {
         // Set up the action bar.
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(android.support.v7.app.ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setTitle(getApplicationContext().getText(R.string.test_app_title));
+        actionBar.setTitle(getApplicationContext().getText(R.string.test_gps_title));
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // If we don't have a large screen, set up the tabs using the ViewPager
         if (!mIsLargeScreen) {
+            Log.d(TAG, "Setting up tabs");
             //  page adapter contains all the fragment registrations
             mSectionsPagerAdapter =
                     new SectionsPagerAdapter(getSupportFragmentManager(), getApplicationContext());

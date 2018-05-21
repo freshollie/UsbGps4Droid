@@ -82,8 +82,7 @@ public class GpsTestUtil {
     public static boolean isRotationVectorSensorSupported(Context context) {
         SensorManager sensorManager = (SensorManager) context
                 .getSystemService(Context.SENSOR_SERVICE);
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD &&
-                sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null;
+        return sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null;
     }
 
     /**
@@ -93,7 +92,10 @@ public class GpsTestUtil {
      */
     public static boolean isLargeScreen(Context context) {
         return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE &&
+                context.getResources()
+                    .getConfiguration()
+                    .orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     /**

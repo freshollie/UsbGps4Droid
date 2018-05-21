@@ -45,14 +45,18 @@ import com.android.gpstest.util.GnssType;
 import com.android.gpstest.util.GpsTestUtil;
 
 import org.broeuschmeul.android.gps.nmea.util.USBGpsSatellite;
+import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 
-public class GpsSkyFragment extends Fragment implements GpsTestActivity.OrientationChangeListener,
+public class GpsSkyFragment extends Fragment implements
+        GpsTestActivity.OrientationChangeListener,
         USBGpsApplication.UsbGpsDataListener {
 
-    private final static String TAG = "GpsSkyFragment";
+    private final static String TAG = GpsSkyFragment.class.getSimpleName();
 
     // View dimensions, to draw the compass with the correct width and height
     public static int mHeight;
@@ -100,6 +104,7 @@ public class GpsSkyFragment extends Fragment implements GpsTestActivity.Orientat
         );
 
         mSkyView.setStarted();
+        mSkyView.setSats(usbGpsApplication.getLastSatelliteList());
 
         return mSkyView;
     }
@@ -278,6 +283,13 @@ public class GpsSkyFragment extends Fragment implements GpsTestActivity.Orientat
 
         public void setSats(USBGpsSatellite[] satellites) {
             mUseLegacyGnssApi = true;
+
+            Arrays.sort(satellites, new Comparator<USBGpsSatellite>() {
+                @Override
+                public int compare(USBGpsSatellite usbGpsSatellite, USBGpsSatellite t1) {
+                    return usbGpsSatellite.prn - t1.prn;
+                }
+            });
 
             int length = satellites.length;
             mSnrCn0s = new float[length];
@@ -502,17 +514,9 @@ public class GpsSkyFragment extends Fragment implements GpsTestActivity.Orientat
             final float thresholds[];
             final int colors[];
 
-            if (GpsTestUtil.isGnssStatusListenerSupported()) {
-                // Use C/N0 ranges/colors for both C/N0 and SNR on Android 7.0 and higher (see #76)
-                numSteps = mCn0Thresholds.length;
-                thresholds = mCn0Thresholds;
-                colors = mCn0Colors;
-            } else {
-                // Use legacy SNR ranges/colors for Android versions less than Android 7.0 (see #76)
-                numSteps = mSnrThresholds.length;
-                thresholds = mSnrThresholds;
-                colors = mSnrColors;
-            }
+            numSteps = mSnrThresholds.length;
+            thresholds = mSnrThresholds;
+            colors = mSnrColors;
 
             if (snrCn0 <= thresholds[0]) {
                 newPaint.setColor(colors[0]);

@@ -76,11 +76,15 @@
 
         <activity
             android:name=".ui.SettingsActivity"
-            android:label="@string/title_activity_settings">
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".ui.GpsInfoActivity">
         </activity>
 
         <activity
-            android:name="com.android.gpstest.GpsTestActivity">
+            android:name="com.android.gpstest.GpsTestActivity"
+            android:launchMode="singleTask"
+            android:label="@string/test_gps_title"
+            android:parentActivityName=".ui.SettingsActivity">
         </activity>
 
         <meta-data

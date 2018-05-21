@@ -1,1 +1,1 @@
-include ':app', ':gpstest:GPSTest'
+include ':app'

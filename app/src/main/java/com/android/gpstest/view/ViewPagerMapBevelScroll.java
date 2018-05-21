@@ -56,9 +56,6 @@ public class ViewPagerMapBevelScroll extends ViewPager {
             switch (getCurrentItem()) {
                 case SectionsPagerAdapter.GPS_STATUS_FRAGMENT:
                     break;
-                case SectionsPagerAdapter.GPS_MAP_FRAGMENT:
-                    //If we should allow the map swipe, then return false
-                    return !isAllowedMapSwipe(x, dx);
                 case SectionsPagerAdapter.GPS_SKY_FRAGMENT:
                     break;
             }

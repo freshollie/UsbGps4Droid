@@ -22,26 +22,26 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import org.broeuschmeul.android.gps.usb.provider.R;
+
 /**
  * A {@link FragmentStatePagerAdapter} that returns a fragment corresponding to
  * one of the primary sections of the app.
  */
 public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
-    public static final int NUMBER_OF_TABS = 3; // Used to set up TabListener
+    public static final int NUMBER_OF_TABS = 2; // Used to set up TabListener
 
     // Constants for the different fragments that will be displayed in tabs, in numeric order
     public static final int GPS_STATUS_FRAGMENT = 0;
 
-    public static final int GPS_MAP_FRAGMENT = 1;
-
-    public static final int GPS_SKY_FRAGMENT = 2;
+    public static final int GPS_SKY_FRAGMENT = 1;
 
     private Context context;
 
     // Maintain handle to Fragments to avoid recreating them if one already
     // exists
-    Fragment gpsStatus, gpsMap, gpsSky;
+    Fragment gpsStatus, gpsSky;
 
     public SectionsPagerAdapter(FragmentManager fm, Context cntxt) {
         super(fm);
@@ -56,11 +56,6 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
                     gpsStatus = new GpsStatusFragment();
                 }
                 return gpsStatus;
-            case GPS_MAP_FRAGMENT:
-                if (gpsMap == null) {
-                    gpsMap = new GpsMapFragment();
-                }
-                return gpsMap;
             case GPS_SKY_FRAGMENT:
                 if (gpsSky == null) {
                     gpsSky = new GpsSkyFragment();
@@ -80,8 +75,6 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
         switch (position) {
             case GPS_STATUS_FRAGMENT:
                 return context.getString(R.string.gps_status_tab);
-            case GPS_MAP_FRAGMENT:
-                return context.getString(R.string.gps_map_tab);
             case GPS_SKY_FRAGMENT:
                 return context.getString(R.string.gps_sky_tab);
         }

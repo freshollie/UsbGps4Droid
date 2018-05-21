@@ -1,24 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-	Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
-	Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
-	Copyright (C) 2011, 2012 UsbGPS4Droid Project
-	  
-	This file is part of UsbGPS4Droid.
-	
-    UsbGPS4Droid is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    UsbGPS4Droid is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with UsbGPS4Droid.  If not, see http://www.gnu.org/licenses/
-    
--->
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016, 2017, 2018 Oliver Bell
+  ~ Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
+  ~ Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
+  ~ Copyright (C) 2011, 2012 UsbGPS4Droid Project
+  ~
+  ~ This file is part of UsbGPS4Droid.
+  ~
+  ~  UsbGPS4Droid is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ UsbGPS4Droid is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
+  -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/app_name">
@@ -74,6 +75,12 @@
         android:title="@string/pref_set_time_title"
         android:defaultValue="false"
         />
+    <SwitchPreference
+        android:key="@string/pref_daynight_theme_key"
+        android:title="@string/pref_daynight_theme_title"
+        android:summary="@string/pref_daynight_theme_summary"
+        android:defaultValue="true"
+        />
 
     <PreferenceCategory
         android:title="@string/pref_category_sirf_title"
@@ -121,22 +128,11 @@
     <PreferenceCategory
         android:title="@string/pref_category_debug_title"
         />
+
     <SwitchPreference
         android:key="@string/pref_toast_logging_key"
         android:title="@string/pref_toast_logging_title"
         android:summary="@string/pref_toast_logging_summary"
         android:defaultValue="false"
         />
-
-    <Preference
-        android:title="Launch GPS status utility"
-        android:key="launchGpsTest" />
-
-    <SwitchPreference
-        android:key="@string/pref_daynight_theme_key"
-        android:title="@string/pref_daynight_theme_title"
-        android:summary="@string/pref_daynight_theme_summary"
-        android:defaultValue="true"
-        />
-
 </PreferenceScreen>

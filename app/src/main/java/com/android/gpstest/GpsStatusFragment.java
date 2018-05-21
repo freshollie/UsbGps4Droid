@@ -39,7 +39,9 @@ import android.widget.TextView;
 import com.android.gpstest.util.GnssType;
 import com.android.gpstest.util.GpsTestUtil;
 
+import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.nmea.util.USBGpsSatellite;
+import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 
 import java.text.SimpleDateFormat;
@@ -142,6 +144,7 @@ public class GpsStatusFragment extends Fragment implements
         } else {
             mBearingView.setText("");
         }
+        mUsedInFixCount = location.getExtras().getInt(NmeaParser.SATELLITE_KEY);
         updateFixTime();
     }
 
@@ -184,10 +187,15 @@ public class GpsStatusFragment extends Fragment implements
         gridView.setFocusableInTouchMode(false);
 
         activity = (GpsTestActivity) getActivity();
-        activity.registerOrientationChangeListener(this);
+        if (activity != null) {
+            activity.registerOrientationChangeListener(this);
 
-        usbGpsApplication = (USBGpsApplication) activity.getApplication();
-        onSatellitesUpdated(usbGpsApplication.getLastSatelliteList());
+            usbGpsApplication = (USBGpsApplication) activity.getApplication();
+            onSatellitesUpdated(usbGpsApplication.getLastSatelliteList());
+
+            mUseLegacyGnssApi = true;
+            setStarted(true);
+        }
 
         return v;
     }
@@ -246,8 +254,6 @@ public class GpsStatusFragment extends Fragment implements
 
     @Override
     public void onSatellitesUpdated(USBGpsSatellite[] satellites) {
-        mUseLegacyGnssApi = true;
-        setStarted(true);
         updateFixTime();
 
         if (!isFragmentAttached(this)) {
@@ -276,7 +282,6 @@ public class GpsStatusFragment extends Fragment implements
         mUsedInFix = new boolean[length];
 
         mSvCount = 0;
-        mUsedInFixCount = 0;
         for (USBGpsSatellite satellite: satellites) {
             int prn = satellite.prn;
             mPrns[mSvCount] = prn;
@@ -286,9 +291,6 @@ public class GpsStatusFragment extends Fragment implements
             mHasEphemeris[mSvCount] = satellite.ephemeris;
             mHasAlmanac[mSvCount] = satellite.almanac;
             mUsedInFix[mSvCount] = satellite.usedInFix;
-            if (satellite.usedInFix) {
-                mUsedInFixCount++;
-            }
             mSvCount++;
         }
 

@@ -2,6 +2,7 @@ package org.broeuschmeul.android.gps.usb.provider.ui;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
 
 import org.broeuschmeul.android.gps.usb.provider.R;
@@ -12,7 +13,7 @@ public class SettingsActivity extends USBGpsBaseActivity {
         super.onCreate(savedInstanceState);
 
         if (isDoublePanelAvailable()) {
-            finish();
+            NavUtils.navigateUpFromSameTask(this);
             return;
         }
 

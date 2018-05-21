@@ -128,7 +128,7 @@ public class USBGpsApplication extends Application {
                 @Override
                 public void run() {
                     for (UsbGpsDataListener dataListener: dataListeners) {
-                        dataListener.onSatellitesUpdated(satellites);
+                        dataListener.onSatellitesUpdated(satellites.clone());
                     }
                 }
             });

@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.util.Log;
 import android.view.MenuItem;
 
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
@@ -40,7 +41,9 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
         USBGpsSettingsFragment.PreferenceScreenListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG_NESTED = "NESTED_PREFERENCE_SCREEN";
+    private static final String TAG = USBGpsBaseActivity.class.getSimpleName();
+
+    private static final String NESTED_FRAGMENT_TAG = "NESTED_PREFERENCE_SCREEN";
 
     private SharedPreferences sharedPreferences;
     private NotificationManager notificationManager;
@@ -54,7 +57,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
     private static final int LOCATION_REQUEST = 238472383;
     private static final int STORAGE_REQUEST = 8972842;
 
-    private boolean homeAsUp = false;
+    private boolean homeAsUpOnRootScreen = false;
 
     private boolean lastDaynightSetting = false;
 
@@ -129,7 +132,7 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
                     .commit();
         }
 
-        this.homeAsUp = homeAsUp;
+        this.homeAsUpOnRootScreen = homeAsUp;
 
     }
 
@@ -365,8 +368,8 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         getSupportFragmentManager().beginTransaction()
-                .replace(resSettingsHolder, preferenceFragment, TAG_NESTED)
-                .addToBackStack(TAG_NESTED)
+                .replace(resSettingsHolder, preferenceFragment, NESTED_FRAGMENT_TAG)
+                .addToBackStack(NESTED_FRAGMENT_TAG)
                 .commit();
     }
 
@@ -374,14 +377,14 @@ public abstract class USBGpsBaseActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         // this if statement is necessary to navigate through nested and main fragments
-        if (getFragmentManager().getBackStackEntryCount() == 0) {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
             super.onBackPressed();
         } else {
             ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
-                actionBar.setDisplayHomeAsUpEnabled(homeAsUp);
+                actionBar.setDisplayHomeAsUpEnabled(homeAsUpOnRootScreen);
             }
-            getFragmentManager().popBackStack();
+            getSupportFragmentManager().popBackStack();
         }
     }
 

@@ -22,6 +22,7 @@
 
 <resources>
     <string name="app_name">UsbGps</string>
+    <string name="test_gps_title">Satellite Analysis</string>
 
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Usb GPS is off</string>
@@ -117,7 +118,7 @@
 
     <string name="about_title">About</string>
     <string name="about_version">UsbGPS4Droid %s</string>
-    <string name="about_copyright_1">Copyright (C) 2015-2017 Oliver Bell</string>
+    <string name="about_copyright_1">Copyright (C) 2015-2018 Oliver Bell</string>
     <string name="about_copyright_2">Copyright (C) 2010-2013 Herbert von Broeuschmeul</string>
     <string name="about_copyright_3">Copyright (C) 2010-2013 BluetoothGPS4Droid Project</string>
     <string name="about_copyright_4">Copyright (C) 2011-2013 UsbGPS4Droid Project</string>
@@ -184,5 +185,55 @@
     <string name="pref_daynight_theme_title">Automatic day-night app theme</string>
     <string name="pref_daynight_theme_summary">Show light theme during daytime and dark theme at night</string>
     <string name="pref_daynight_theme_key">dayNightMode</string>
+
+    <!-- GpsTest Strings -->
+    <string name="gps_status_tab">Status</string>
+    <string name="gps_sky_tab">Sky</string>
+
+    <string name="zoom_in">Zoom In</string>
+    <string name="zoom_out">Zoom Out</string>
+    <string name="mode_map">Map</string>
+    <string name="mode_satellite">Satellite</string>
+
+    <string name="gps_latitude_label">Lat:</string>
+    <string name="gps_latitude_value">%1$.7f\u00B0</string>
+    <string name="gps_longitude_label">Long:</string>
+    <string name="gps_longitude_value">%1$.7f\u00B0</string>
+    <string name="gps_fix_time_label">Time:</string>
+    <string name="gps_ttff_label">TTFF:</string>
+    <string name="gps_altitude_label">Alt:</string>
+    <string name="gps_altitude_value">%1$.1f m</string>
+    <string name="gps_altitude_msl_label">Alt (MSL):</string>
+    <string name="gps_altitude_msl_value">%1$.1f m</string>
+    <string name="gps_accuracy_label">Acc:</string>
+    <string name="gps_accuracy_value">%1$.1f m</string>
+    <string name="gps_speed_label">Speed:</string>
+    <string name="gps_speed_value">%1$.1f m/sec</string>
+    <string name="gps_bearing_label">Bearing:</string>
+    <string name="gps_bearing_value">%1$.1f\u00B0</string>
+    <string name="gps_num_sats_label"># Sats:</string>
+    <string name="gps_num_sats_value">%1$d/%2$d</string>
+    <string name="pdop_label">PDOP:</string>
+    <string name="hvdop_label">H/V DOP:</string>
+    <string name="hvdop_value">%1$.1f/%2$.1f</string>
+
+    <string name="gps_prn_column_label">ID</string>
+    <string name="gps_flag_image_label">GNSS</string>
+    <string name="gps_snr_column_label">SNR</string>
+    <string name="gps_cn0_column_label">C/N0</string>
+    <string name="gps_elevation_column_label">Elev</string>
+    <string name="gps_elevation_column_value">%1$s\u00B0</string>
+    <string name="gps_azimuth_column_label">Azim</string>
+    <string name="gps_azimuth_column_value">%1$s\u00B0</string>
+    <string name="gps_flags_column_label">Flags</string>
+    <string name="gps_not_supported">GPS not supported. Exiting app&#8230;</string>
+    <string name="install">Install</string>
+    <string name="no_thanks">No thanks</string>
+    <string name="please_install_google_maps">The Map tab requires Google Maps</string>
+    <string name="pref_launch_analysis">launchAnalysis</string>
+    <string name="pref_launch_analysis_title">View Satellite analysis</string>
+    <string name="details_not_available_title">Enable GSV</string>
+    <string name="details_not_available_summary">More GPS information requires SiRF and GSV sentences to be enabled.\n\nPlease see SiRF settings</string>
+    <string name="device_not_connected_summary">Device not connected -</string>
 
 </resources>

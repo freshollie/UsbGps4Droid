@@ -73,6 +73,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
         @Override
         public void run() {
             int lastNum = usbManager.getDeviceList().values().size();
+            log("USB Device Check thread starting");
 
             while (!Thread.interrupted()) {
                 int newNum = usbManager.getDeviceList().values().size();
@@ -156,7 +157,10 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                 AppCompatDelegate.MODE_NIGHT_AUTO:
                 AppCompatDelegate.MODE_NIGHT_YES
         );
-        getActivity().recreate();
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.recreate();
+        }
     }
 
     private void setupNestedPreferences() {
@@ -197,20 +201,6 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                         if (preferenceScreenParent != null) {
                             preferenceScreenParent.onNestedScreenClicked(new RecordingPreferences());
                         }
-                        return false;
-                    }
-                });
-
-        findPreference("launchGpsTest")
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        startActivity(
-                                new Intent(
-                                        getActivity(),
-                                        GpsTestActivity.class
-                                )
-                        );
                         return false;
                     }
                 });
@@ -278,19 +268,6 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
     }
 
     /**
-     * If the service is killed then the shared preference for the service is never updated.
-     * This checks if the service is running from the running preferences list
-     */
-    private boolean isServiceRunning() {
-        for (ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
-            if (USBGpsProviderService.class.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Updates the device summary based on the connected devices.
      */
     private void updateDevicePreferenceSummary() {
@@ -307,33 +284,57 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
         }
     }
 
+    private int getSelectedProductId() {
+        return sharedPreferences.getInt(
+                USBGpsProviderService.PREF_GPS_DEVICE_PRODUCT_ID, DEFAULT_GPS_PRODUCT_ID
+        );
+    }
+
+    private int getSelectedVendorId() {
+        return sharedPreferences.getInt(
+                USBGpsProviderService.PREF_GPS_DEVICE_VENDOR_ID, DEFAULT_GPS_VENDOR_ID);
+    }
+
+    /**
+     * Try and get the selected usb device from currently connected USB devices
+     * @return UsbDevice
+     */
+    private UsbDevice getSelectedDevice() {
+        int productId = getSelectedProductId();
+        int vendorId = getSelectedVendorId();
+
+        for (UsbDevice usbDevice : usbManager.getDeviceList().values()) {
+            if (usbDevice.getVendorId() == vendorId && usbDevice.getProductId() == productId) {
+                return usbDevice;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Gets a summary of the current select product and vendor ids
      */
     private String getSelectedDeviceSummary() {
-        int productId = sharedPreferences.getInt(
-                USBGpsProviderService.PREF_GPS_DEVICE_PRODUCT_ID, DEFAULT_GPS_PRODUCT_ID);
-        int vendorId = sharedPreferences.getInt(
-                USBGpsProviderService.PREF_GPS_DEVICE_VENDOR_ID, DEFAULT_GPS_VENDOR_ID);
+        UsbDevice device = getSelectedDevice();
 
-        String deviceDisplayedName = "Device not connected - " + vendorId + ": " + productId;
-
-        for (UsbDevice usbDevice: usbManager.getDeviceList().values()) {
-            if (usbDevice.getVendorId() == vendorId && usbDevice.getProductId() == productId) {
-                deviceDisplayedName =
-                        "USB " + usbDevice.getDeviceProtocol() + " " + usbDevice.getDeviceName() +
-                                " | " + vendorId + ": " + productId;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    deviceDisplayedName = usbDevice.getManufacturerName() + usbDevice.getProductName() +
-                            " | " + vendorId + ": " + productId;
-                }
-
-                break;
-            }
+        if (device == null) {
+            return getString(R.string.device_not_connected_summary) + getSelectedVendorId() + ": " + getSelectedProductId();
+        } else {
+            return getSummaryForDevice(device);
         }
+    }
 
-        return deviceDisplayedName;
+    private String getSummaryForDevice(UsbDevice device) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return device.getManufacturerName()
+                    + device.getProductName() + " - "
+                    + device.getVendorId() + ": " + device.getVendorId();
+        } else {
+            return "USB " + device.getDeviceProtocol() + " "
+                    + device.getDeviceName() + " - "
+                    + device.getVendorId() + ": " + device.getProductId();
+        }
     }
 
     /**
@@ -348,17 +349,8 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
         // Loop through usb devices
         for (UsbDevice device : connectedUsbDevices.values()) {
             // Add the name and address to the ListPreference entities and entyValues
-
-            String entryValue = device.getDeviceName() +
-                    " - " + device.getVendorId() + " : " + device.getProductId();
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                entryValue = device.getManufacturerName() + " " + device.getProductName() +
-                        " - " + device.getVendorId() + " : " + device.getProductId();
-            }
-
             entryValues[i] = device.getDeviceName();
-            entries[i] = entryValue;
+            entries[i] = getSummaryForDevice(device);
             i++;
         }
 
