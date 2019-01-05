@@ -7,7 +7,7 @@
 [Download latest release](../../releases)
 
 ## 変更点
-・パッケージ名をcom.microntek.*に変更
+・パッケージ名をcom.microntek.*に変更  
   MTCManagerによるキル対策
 
 ・NMEAを読込む機能を廃止して、UBXを読込んで疑似ロケーションに反映するように変更
