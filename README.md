@@ -7,44 +7,48 @@
 [Download latest release](../../releases)
 
 ## 変更点
-・NMEAを読込む機能を廃止して、UBXを読込んで疑似ロケーションに反映するように変更
-・対応しているUBXバイナリは以下の通り
-  UBX-HNR-PVT
-  UBX-NAV-PVT
-  UBX-NAV-ODO
-  UBX-NAV-SVINFO
-  UBX-NAV-SLAS
-  UBX-ESF-STATUS
- 
-・以下の設定項目を追加
-  UBX-HNR-PVTの使用可否設定
-  UBX-CFG-HNRの設定
-  UBX-NAV-ODORESETの有効無効
-  疑似ロケーションの速度への反映有無
+・パッケージ名をcom.microntek.*に変更
+  MTCManagerによるキル対策
 
-・上部には以下の情報を追加
-　測位状態
-　進行方位
-　センサーの状態
-　SLASの状態
+・NMEAを読込む機能を廃止して、UBXを読込んで疑似ロケーションに反映するように変更
+
+・対応しているUBXバイナリは以下の通り  
+  UBX-HNR-PVT  
+  UBX-NAV-PVT  
+  UBX-NAV-ODO  
+  UBX-NAV-SVINFO  
+  UBX-NAV-SLAS  
+  UBX-ESF-STATUS  
  
-・下部のNMEA出力部にはUBX-NAV-SVINFOの情報を出力するように変更
-　グラフが緑の状態の物は測位に使用しています。
+・以下の設定項目を追加  
+  UBX-HNR-PVTの使用可否設定  
+  UBX-CFG-HNRの設定  
+  UBX-NAV-ODORESETの有効無効  
+  疑似ロケーションの速度への反映有無  
+
+・上部には以下の情報を追加  
+  測位状態  
+  進行方位  
+  センサーの状態  
+  SLASの状態  
  
-・Dasaita製中華ナビ（PX5)に向けてレイアウトを調整しています。
-　他の端末ではレイアウトが崩れるかもしれません。
+・下部のNMEA出力部にはUBX-NAV-SVINFOの情報を出力するように変更  
+  グラフが緑の状態の物は測位に使用しています。  
+ 
+・Dasaita製中華ナビ（PX5)に向けてレイアウトを調整しています。  
+  他の端末ではレイアウトが崩れるかもしれません。  
   
 ## 動作確認環境
-・Android
- 　Nexus7 2013(Android6.0)
-   Dasaita Android Head Unit(Android8.0)
+・Android  
+   Nexus7 2013(Android6.0)  
+   Dasaita Android Head Unit(Android8.0)  
    
-・USBGPS
-　DROTEK Ublox NEO-M8U GPS + LIS3MDL compass (XL)
+・USBGPS  
+  DROTEK Ublox NEO-M8U GPS + LIS3MDL compass (XL)  
 
 ## その他
-・NEO-M8U側はUBXのみ出力するように変更することを推奨します。
-・UBX-NAV-ODOはデフォルトでは無効になっているのでODOメータの表示が必要な場合は有効化してください。
-・NEO-M8U向けですが、U-bloxのM8シリーズなら使えるはずです。
+・NEO-M8U側はUBXのみ出力するように変更することを推奨します。  
+・UBX-NAV-ODOはデフォルトでは無効になっているのでODOメータの表示が必要な場合は有効化してください。  
+・NEO-M8U向けですが、U-bloxのM8シリーズなら使えるはずです。  
 
 `GPL v3`
