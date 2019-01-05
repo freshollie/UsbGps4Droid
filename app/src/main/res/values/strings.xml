@@ -21,7 +21,7 @@
 -->
 
 <resources>
-    <string name="app_name">UsbGps</string>
+    <string name="app_name">UsbGps For u-blox NEO-M8U</string>
 
     <string name="pref_start_gps_title">Start/Stop GPS</string>
     <string name="pref_start_gps_summary_off">Usb GPS is off</string>
@@ -40,7 +40,7 @@
     <string name="pref_mock_gps_name_summary">Usb GPS name: %s</string>
     <string name="pref_connection_retries_title">Connection retry number</string>
     <string name="pref_connection_retries_summary">Number of attempts before exiting: %s</string>
-    <string name="pref_recording_title">Enable/Disable NMEA log</string>
+    <string name="pref_recording_title">Enable/Disable UBX log</string>
     <string name="pref_recording_summary">Record the USB GPS Location data</string>
     <string name="pref_recording_params_title">Recording parameters</string>
     <string name="pref_trackfile_prefix_title">Trackfiles prefix</string>
@@ -89,6 +89,17 @@
     <string name="pref_enable_static_navigation_summary_off">Static Navigation disabled</string>
     <string name="pref_enable_static_navigation_summary_on">Static Navigation enabled</string>
 
+    <string name="pref_ubx_hnr_title">Use UBX-HNR-PVT</string>
+    <string name="pref_ubx_hnr_summary">Use HighNavigationRate(only:u-blox M8U/M8L)</string>
+    <string name="pref_use_speed_title">Use Ground Speed (2-D)</string>
+    <string name="pref_use_speed_summary">For some navigation software. Ex)Yahoo! car navigation system.</string>
+    <string name="pref_ubx_cfg_hnr_title">config UBX-CFG-HNR</string>
+    <string name="pref_ubx_cfg_hnr_summary">Set HighNavRateValue.(Max:30 Disable:-1)</string>
+    <string name="pref_ubx_cfg_hnr_key">highNavRate</string>
+    <string name="pref_ubx_resetodo_title">config UBX-NAV-RESETODO</string>
+    <string name="pref_ubx_resetodo_summary">Send ODO reset at startup.</string>
+    <string name="pref_ubx_resetodo_key">resetOdo</string>
+
     <string name="msg_gps_provider_started">Usb GPS... started</string>
     <string name="msg_gps_provider_stopped">Usb GPS... stopped</string>
     <string name="msg_gps_provider_already_started">Usb GPS... is already on</string>
@@ -101,12 +112,12 @@
     <string name="msg_mock_location_disabled_full">Mock locations disabled in settings\nClick here to enable mock locations</string>
     <string name="msg_mock_location_disabled_full_dialog_text">Mock locations disabled in settings\nOpen mock location settings?</string>
     <string name="msg_usb_provider_device_not_connected">Device not connected</string>
-    <string name="msg_nmea_recording_started">GPS NMEA recording... started</string>
-    <string name="msg_nmea_recording_stopped">GPS NMEA recording... stopped</string>
+    <string name="msg_nmea_recording_started">GPS UBX recording... started</string>
+    <string name="msg_nmea_recording_stopped">GPS UBX recording... stopped</string>
     <string name="msg_nmea_recording_already_started">GPS track recording... is already on</string>
     <string name="foreground_service_started_notification_title">UsbGps</string>
     <string name="foreground_gps_provider_started_notification">UsbGps service started</string>
-    <string name="foreground_nmea_recording_started_notification">UsbGps NMEA recording service started</string>
+    <string name="foreground_nmea_recording_started_notification">UsbGps UBX recording service started</string>
     <string name="connection_problem_notification_title">UsbGps: connection problem</string>
     <plurals name="connection_problem_notification">
         <item quantity="one">Will retry one more time before closing</item>
@@ -121,6 +132,7 @@
     <string name="about_copyright_2">Copyright (C) 2010-2013 Herbert von Broeuschmeul</string>
     <string name="about_copyright_3">Copyright (C) 2010-2013 BluetoothGPS4Droid Project</string>
     <string name="about_copyright_4">Copyright (C) 2011-2013 UsbGPS4Droid Project</string>
+    <string name="about_copyright_5">Copyright (C) 2018-2019 Kamabokoz</string>
     <string name="about_app_desc">Usb GPS for Android is an application
                                     for using an external usb GPS on Android devices.
     </string>
@@ -128,7 +140,7 @@
     	distributed free of charge under the terms of the <a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html"><b>GNU General Public License</b></a>.
     </string>
     <string name="about_sources">The source code is available here:
-        https://github.com/freshollie/UsbGps4Droid
+        https://github.com/kamabokoz/UsbGps4Droid
     </string>
 
     <string name="msg_no_location_permission">No permission given for device location. Click here to enable.</string>
@@ -150,10 +162,15 @@
     <string name="pref_toast_logging_title">Show Toasts</string>
     <string name="pref_toast_logging_summary">Show debug toast messages on USB Gps status changes</string>
 
-    <string name="number_of_satellites_placeholder">Number of satellites: %s</string>
+    <string name="number_of_satellites_placeholder">Used SV: %s</string>
     <string name="accuracy_placeholder">Accuracy: %s</string>
     <string name="location_placeholder">Location: Lat %1$s, Lon %2$s</string>
     <string name="elevation_placeholder">Altitude: %s</string>
+    <string name="fix_status_placeholder">Fix Status: %s</string>
+    <string name="slas_placeholder">SLAS: %s</string>
+    <string name="sensor_placeholder">Sensor: %s</string>
+    <string name="course_placeholder">Course: %s</string>
+    <string name="odo_placeholder">Odo: Current %1$skm, Total %2$skm</string>
 
     <string name="info_activity_title">UsbGps - Overview</string>
 
@@ -164,7 +181,8 @@
     <string name="pref_category_device_title">Device</string>
     <string name="pref_category_service_title">Service</string>
     <string name="pref_category_sirf_title">SiRF</string>
-    <string name="pref_category_nmea_log_title">NMEA Log</string>
+    <string name="pref_category_ubx_title">UBX</string>
+    <string name="pref_category_nmea_log_title">UBX Log</string>
     <string name="pref_category_debug_title">Debug</string>
     <string name="pref_category_other">Other</string>
     <string name="pref_set_time_key">setTime</string>

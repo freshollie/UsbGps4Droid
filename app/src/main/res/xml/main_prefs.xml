@@ -76,25 +76,30 @@
         />
 
     <PreferenceCategory
-        android:title="@string/pref_category_sirf_title"
+        android:title="@string/pref_category_ubx_title"
         />
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="false"
         android:disableDependentsState="false"
         android:enabled="true"
-        android:key="@string/pref_sirf_gps_key"
+        android:key="@string/pref_ubx_hnr_key"
         android:persistent="true"
-        android:summary="@string/pref_sirf_gps_summary"
-        android:title="@string/pref_sirf_gps_title" />
-
-    <Preference
-        android:dependency="@string/pref_sirf_gps_key"
-        android:orderingFromXml="true"
-        android:shouldDisableView="true"
-        android:title="@string/pref_start_gps_params_title"
-        android:key="@string/pref_sirf_screen_key"
+        android:summary="@string/pref_ubx_hnr_summary"
+        android:title="@string/pref_ubx_hnr_title" />
+    <EditTextPreference
+        android:key="@string/pref_ubx_cfg_hnr_key"
+        android:title="@string/pref_ubx_cfg_hnr_title"
+        android:summary="@string/pref_ubx_cfg_hnr_summary"
+        android:defaultValue="10"
         />
-
+    <SwitchPreference
+        android:defaultValue="false"
+        android:disableDependentsState="false"
+        android:enabled="true"
+        android:key="@string/pref_ubx_resetodo_key"
+        android:persistent="true"
+        android:summary="@string/pref_ubx_resetodo_summary"
+        android:title="@string/pref_ubx_resetodo_title" />
     <PreferenceCategory
         android:title="@string/pref_category_nmea_log_title"
         />

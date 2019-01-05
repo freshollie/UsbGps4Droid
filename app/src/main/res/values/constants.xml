@@ -57,9 +57,12 @@
     <string name="pref_sirf_enable_nmea_key">enableNMEA</string>
     <string name="pref_sirf_enable_static_navigation_key">enableStaticNavigation</string>
 
+    <string name="pref_ubx_hnr_key">ubxHNR</string>
+    <string name="pref_use_speed_key">useSpeed</string>
+
     <string name="defaultConnectionRetries">5</string>
-    <string name="defaultTrackFileDirectory">/sdcard/nmea</string>
-    <string name="defaultTrackFilePrefix">usbnmeatrack</string>
+    <string name="defaultTrackFileDirectory">/sdcard/ubx</string>
+    <string name="defaultTrackFilePrefix">usb_ubxtrack</string>
     <string name="defaultMockGpsName">usb_gps</string>
     <string name="defaultGpsDevice">/dev/ttyUSB0</string>
     <string name="defaultGpsDeviceSpeed">4800</string>

@@ -26,4 +26,12 @@
         android:key="@string/pref_connection_retries_key"
         android:summary="@string/pref_connection_retries_summary"
         android:title="@string/pref_connection_retries_title" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:disableDependentsState="false"
+        android:enabled="true"
+        android:key="@string/pref_use_speed_key"
+        android:persistent="true"
+        android:summary="@string/pref_use_speed_summary"
+        android:title="@string/pref_use_speed_title" />
 </PreferenceScreen>

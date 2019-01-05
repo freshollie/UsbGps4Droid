@@ -1,10 +1,10 @@
-package org.broeuschmeul.android.gps.usb.provider.ui;
+package com.microntek.android.gps.usb.provider.ui;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
-import org.broeuschmeul.android.gps.usb.provider.R;
+import com.microntek.android.gps.usb.provider.R;
 
 public class SettingsActivity extends USBGpsBaseActivity {
     @Override
@@ -23,10 +23,11 @@ public class SettingsActivity extends USBGpsBaseActivity {
     }
 
     private boolean isDoublePanelAvailable() {
-        return (getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE &&
-                getResources()
-                        .getConfiguration()
-                        .orientation == Configuration.ORIENTATION_LANDSCAPE;
+        return false;
+//        return (getResources().getConfiguration().screenLayout
+//                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE &&
+//                getResources()
+//                        .getConfiguration()
+//                        .orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 }

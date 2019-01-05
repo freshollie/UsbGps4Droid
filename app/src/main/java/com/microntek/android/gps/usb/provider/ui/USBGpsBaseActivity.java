@@ -1,4 +1,4 @@
-package org.broeuschmeul.android.gps.usb.provider.ui;
+package com.microntek.android.gps.usb.provider.ui;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -21,9 +21,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
-import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
-import org.broeuschmeul.android.gps.usb.provider.R;
-import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
+import com.microntek.android.gps.usb.provider.USBGpsApplication;
+import com.microntek.android.gps.usb.provider.R;
+import com.microntek.android.gps.usb.provider.driver.USBGpsProviderService;
 
 /**
  * Created by freshollie on 15/05/17.

@@ -19,7 +19,7 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.nmea.util;
+package com.microntek.android.gps.nmea.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,8 +41,8 @@ import android.text.TextUtils;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.util.Log;
 
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
-import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;;
+import com.microntek.android.gps.usb.provider.BuildConfig;
+import com.microntek.android.gps.usb.provider.USBGpsApplication;;
 
 /**
  * This class is used to parse NMEA sentences an generate the Android Locations when there is a new GPS FIX.

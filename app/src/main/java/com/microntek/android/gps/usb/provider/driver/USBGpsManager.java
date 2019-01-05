@@ -20,13 +20,11 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.usb.provider.driver;
+package com.microntek.android.gps.usb.provider.driver;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -43,13 +41,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
-import org.broeuschmeul.android.gps.sirf.util.SirfUtils;
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
-import org.broeuschmeul.android.gps.usb.provider.R;
-import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
-import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
-import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
+import com.microntek.android.gps.nmea.util.NmeaParser;
+import com.microntek.android.gps.sirf.util.SirfUtils;
+import com.microntek.android.gps.ubx.data.UbxCfgHnr;
+import com.microntek.android.gps.ubx.data.UbxData;
+import com.microntek.android.gps.ubx.data.UbxNavResetOdo;
+import com.microntek.android.gps.ubx.util.UbxFactory;
+import com.microntek.android.gps.ubx.util.UbxParser;
+import com.microntek.android.gps.usb.provider.BuildConfig;
+import com.microntek.android.gps.usb.provider.R;
+import com.microntek.android.gps.usb.provider.USBGpsApplication;
+import com.microntek.android.gps.usb.provider.ui.GpsInfoActivity;
+import com.microntek.android.gps.usb.provider.util.SuperuserManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -99,13 +102,13 @@ public class USBGpsManager {
 
     private UsbManager usbManager = null;
     private static final String ACTION_USB_PERMISSION =
-            "org.broeuschmeul.android.gps.usb.provider.driver.USBGpsManager.USB_PERMISSION";
+            "com.microntek.android.gps.usb.provider.driver.USBGpsManager.USB_PERMISSION";
 
     /**
      * Used to listen for nmea updates from UsbGpsManager
      */
-    public interface NmeaListener {
-        void onNmeaReceived(long timestamp, String nmea);
+    public interface UbxListener {
+        void onUbxReceived(byte[] data);
     }
 
     private final BroadcastReceiver permissionAndDetachReceiver = new BroadcastReceiver() {
@@ -262,7 +265,7 @@ public class USBGpsManager {
 
             tmpIn = new InputStream() {
                 private byte[] buffer = new byte[128];
-                private byte[] usbBuffer = new byte[64];
+                private byte[] usbBuffer = new byte[64]; // HNRが有効だと大きくする必要有り？
                 private byte[] oneByteBuffer = new byte[1];
                 private ByteBuffer bufferWrite = ByteBuffer.wrap(buffer);
                 private ByteBuffer bufferRead = (ByteBuffer) ByteBuffer.wrap(buffer).limit(0);
@@ -283,9 +286,9 @@ public class USBGpsManager {
                         b = -1;
                         Log.e(LOG_TAG, "data read() error code: " + nb);
                     }
-                    if (b <= 0) {
-                        Log.e(LOG_TAG, "data read() error: char " + b);
-                    }
+                    //if (b <= 0) {
+                    //    Log.e(LOG_TAG, "data read() error: char " + b);
+                    //}
                     //if (BuildConfig.DEBUG || debug) Log.d(LOG_TAG, "data: " + b + " char: " + (char)b);
                     return b;
                 }
@@ -333,7 +336,7 @@ public class USBGpsManager {
                     if ((!bufferRead.hasRemaining()) && (!closed)) {
 //                        if (BuildConfig.DEBUG || debug) Log.i(LOG_TAG, "data read buffer empty " + Arrays.toString(usbBuffer));
 
-                        int n = connection.bulkTransfer(endpointIn, usbBuffer, 64, 10000);
+                        int n = connection.bulkTransfer(endpointIn, usbBuffer, usbBuffer.length, 10000);
 
 //                      if (BuildConfig.DEBUG || debug) Log.w(LOG_TAG, "data read: nb: " + n + " " + Arrays.toString(usbBuffer));
 
@@ -630,10 +633,14 @@ public class USBGpsManager {
 
         public void run() {
             try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 128);
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 128);
 
                 // Sentence to read from the device
-                String s;
+                //String s;
+                UbxData ubx = null;
+                byte[] ubxBuff = new byte[1024]; // TODO:仮サイズ
+                UbxFactory factory = new UbxFactory(appContext);
+                int buffPos = -1;
 
                 long now = SystemClock.uptimeMillis();
 
@@ -644,14 +651,94 @@ public class USBGpsManager {
                 while ((enabled) && (now < lastRead + 4000) && (!closed)) {
 
                     try {
-                        s = reader.readLine();
+//                        s = reader.readLine();
+                        // UBXバイナリの読込み（0xB5 0x62から始まるデータ）
+                        int hex;
+                        boolean ubxMsgHeader1 = false;
+                        boolean ubxMsgHeader2 = false;
+                        while((hex = in.read()) != -1) {
+                            hex &= 0xFF;
+                            if(!ubxMsgHeader1){
+                                if(hex == 0xB5) {
+                                    ubxMsgHeader1 = true;
+                                    ubxMsgHeader2 = false;
+                                    buffPos = 0;
+                                    ubxBuff[buffPos] = (byte)hex;
+                                }
+//                                else
+//                                    log("data: not header " + hex);
+                            } else if(ubxMsgHeader1 && !ubxMsgHeader2){
+                                if(hex == 0x62) {
+                                    // UBX確定
+                                    ubxMsgHeader2 = true;
+                                    ubxBuff[++buffPos] = (byte)hex;
+
+                                    // CLASS
+                                    ubxBuff[++buffPos] = (byte)in.read();
+
+                                    // ID
+                                    ubxBuff[++buffPos] = (byte)in.read();
+
+                                    // Len
+                                    ubxBuff[++buffPos] = (byte)in.read();
+                                    ubxBuff[++buffPos] = (byte)in.read();
+
+                                    // ペイロード部分のサイズを計算
+                                    long len = UbxData.byte2hex(ubxBuff, buffPos -1, 2);
+
+                                    // ペイロード
+                                    for(int i = 0; i < len; i++){
+                                        ubxBuff[++buffPos] = (byte)in.read();
+                                    }
+
+                                    // チェックサム
+                                    ubxBuff[++buffPos] = (byte)in.read();
+                                    ubxBuff[++buffPos] = (byte)in.read();
+
+                                    int data_ck_a = ubxBuff[buffPos-1];
+                                    data_ck_a &= 0xFF;
+                                    int data_ck_b = ubxBuff[buffPos];
+                                    data_ck_b &= 0xFF;
+
+                                    int[] ck = UbxData.calcCheckSum(ubxBuff, 2);
+
+                                    // チェックサム不一致の場合は読み飛ばし
+                                    if(ck[0] != data_ck_a || ck[1] != data_ck_b) {
+                                        int cls = ubxBuff[2];
+                                        int id = ubxBuff[3];
+                                        log("data: checksum error calc_ck_a:" + ck[0] + " ck_a:" + data_ck_a + " calc_ck_b:" + ck[1]+ " ck_b:" + data_ck_b + " buffPos:" + buffPos + " class:" + cls + " id:" + id + " len:" + len);
+                                        ubxMsgHeader1 = false;
+                                        continue;
+                                    }
+//                                    else {
+//                                        int cls = ubxBuff[2];
+//                                        int id = ubxBuff[3];
+//                                        log("data: checksum ok calc_ck_a:" + ck_a + " calc_ck_b:" + ck_b+ " class:" + cls + " id:" + id + " len:" + len);
+//                                        ubxMsgHeader1 = false;
+//                                        //continue;
+//                                    }
+                                    ubx = factory.createUbx(Arrays.copyOf(ubxBuff, buffPos + 1));
+                                    log("data: " + ubx.getClass().getName());
+                                    break;
+                                } else {
+                                    // UBXではないので読み飛ばし
+                                    log("data: not header2 " + hex);
+                                    ubxMsgHeader1 = false;
+                                }
+                            }
+
+                        }
                     } catch (IOException e) {
-                        s = null;
+//                        s = null;
+                        ubx = null;
                     }
 
-                    if (s != null) {
+//                    if (s != null) {
+                    if (ubx != null) {
                         //Log.v(LOG_TAG, "data: "+System.currentTimeMillis()+" "+s);
-                        if (notifyNmeaSentence(s + "\r\n")) {
+//                        if (notifyNmeaSentence(s + "\r\n")) {
+                        ubx.logMsg();//debug
+                        if (notifyUbxSentence(ubx)) {
                             ready = true;
 
                             lastRead = SystemClock.uptimeMillis();
@@ -786,13 +873,14 @@ public class USBGpsManager {
     private Service callingService;
     private UsbDevice gpsDev;
 
-    private NmeaParser parser;
+    //private NmeaParser parser;
+    private UbxParser parser;
     private boolean enabled = false;
     private ExecutorService notificationPool;
     private ScheduledExecutorService connectionAndReadingPool;
 
-    private final List<NmeaListener> nmeaListeners =
-            Collections.synchronizedList(new LinkedList<NmeaListener>());
+    private final List<UbxListener> nmeaListeners =
+            Collections.synchronizedList(new LinkedList<UbxListener>());
 
     private LocationManager locationManager;
     private SharedPreferences sharedPreferences;
@@ -831,7 +919,8 @@ public class USBGpsManager {
         this.maxConnectionRetries = maxRetries + 1;
         this.nbRetriesRemaining = maxConnectionRetries;
         this.appContext = callingService.getApplicationContext();
-        this.parser = new NmeaParser(10f, this.appContext);
+        //this.parser = new NmeaParser(10f, this.appContext);
+        this.parser = new UbxParser(this.appContext);
 
         locationManager = (LocationManager) callingService.getSystemService(Context.LOCATION_SERVICE);
 
@@ -1087,6 +1176,10 @@ public class USBGpsManager {
 
                         if (sirfGps) {
                             enableSirfConfig(sharedPreferences);
+                        }
+                        if(true){
+                            // TODO:ほかの設定項目を追加した場合は判定したうえで実行
+                            enableUbxConfig(sharedPreferences);
                         }
                     }
                 }
@@ -1380,10 +1473,10 @@ public class USBGpsManager {
      * Adds an NMEA listener.
      * In fact, it delegates to the NMEA parser.
      *
-     * @param listener a {@link NmeaListener} object to register
+     * @param listener a {@link UbxListener} object to register
      * @return true if the listener was successfully added
      */
-    public boolean addNmeaListener(NmeaListener listener) {
+    public boolean addNmeaListener(UbxListener listener) {
         if (!nmeaListeners.contains(listener)) {
             debugLog("adding new NMEA listener");
             nmeaListeners.add(listener);
@@ -1395,20 +1488,20 @@ public class USBGpsManager {
      * Removes an NMEA listener.
      * In fact, it delegates to the NMEA parser.
      *
-     * @param listener a {@link NmeaListener} object to remove
+     * @param listener a {@link UbxListener} object to remove
      */
-    public void removeNmeaListener(NmeaListener listener) {
+    public void removeNmeaListener(UbxListener listener) {
         debugLog("removing NMEA listener");
         nmeaListeners.remove(listener);
     }
 
     /**
      * Sets the system time to the given UTC time value
-     * @param time UTC value HHmmss.SSS
+     * @param parseTime datelong
      */
     @SuppressLint("SimpleDateFormat")
-    private void setSystemTime(String time) {
-        long parseTime = parser.parseNmeaTime(time);
+    private void setSystemTime(long parseTime) {
+        //long parseTime = parser.parseNmeaTime(time);
 
         Log.v(LOG_TAG, "What?: " + parseTime);
 
@@ -1435,26 +1528,88 @@ public class USBGpsManager {
         }
     }
 
+//    /**
+//     * Notifies the reception of a NMEA sentence from the USB GPS to registered NMEA listeners.
+//     *
+//     * @param nmeaSentence the complete NMEA sentence received from the USB GPS (i.e. $....*XY where XY is the checksum)
+//     * @return true if the input string is a valid NMEA sentence, false otherwise.
+//     */
+//    private boolean notifyNmeaSentence(final String nmeaSentence) {
+//        boolean res = false;
+//        if (enabled) {
+//            log("parsing and notifying NMEA sentence: " + nmeaSentence);
+//            String sentence = null;
+//            try {
+//                if (shouldSetTime && !timeSetAlready) {
+//                    parser.clearLastSentenceTime();
+//                }
+//
+//                sentence = parser.parseNmeaSentence(nmeaSentence);
+//
+//                if (shouldSetTime && !timeSetAlready) {
+//                    if (!parser.getLastSentenceTime().isEmpty()) {
+//                        setSystemTime(parser.getLastSentenceTime());
+//                        timeSetAlready = true;
+//                    }
+//                }
+//
+//            } catch (SecurityException e) {
+//                if (BuildConfig.DEBUG || debug)
+//                    Log.e(LOG_TAG, "error while parsing NMEA sentence: " + nmeaSentence, e);
+//                // a priori Mock Location is disabled
+//                sentence = null;
+//                disable(R.string.msg_mock_location_disabled);
+//            } catch (Exception e) {
+//                if (BuildConfig.DEBUG || debug) {
+//                    Log.e(LOG_TAG, "Sentence not parsable");
+//                    Log.e(LOG_TAG, nmeaSentence);
+//                }
+//                e.printStackTrace();
+//            }
+//            final String recognizedSentence = sentence;
+//            final long timestamp = System.currentTimeMillis();
+//            if (recognizedSentence != null) {
+//                res = true;
+//                log("notifying NMEA sentence: " + recognizedSentence);
+//
+//                ((USBGpsApplication) appContext).notifyNewSentence(
+//                        recognizedSentence.replaceAll("(\\r|\\n)", "")
+//                );
+//
+//                synchronized (nmeaListeners) {
+//                    for (final UbxListener listener : nmeaListeners) {
+//                        notificationPool.execute(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                listener.onUbxReceived(timestamp, recognizedSentence);
+//                            }
+//                        });
+//                    }
+//                }
+//            }
+//        }
+//        return res;
+//    }
+
     /**
-     * Notifies the reception of a NMEA sentence from the USB GPS to registered NMEA listeners.
+     * Notifies the reception of a UBX sentence from the USB GPS to registered UBX listeners.
      *
-     * @param nmeaSentence the complete NMEA sentence received from the USB GPS (i.e. $....*XY where XY is the checksum)
+     * @param ubx the complete UBX sentence received from the USB GPS
      * @return true if the input string is a valid NMEA sentence, false otherwise.
      */
-    private boolean notifyNmeaSentence(final String nmeaSentence) {
+    private boolean notifyUbxSentence(final UbxData ubx) {
         boolean res = false;
         if (enabled) {
-            log("parsing and notifying NMEA sentence: " + nmeaSentence);
-            String sentence = null;
+            //log("parsing and notifying UBX sentence: " + ubx);
             try {
                 if (shouldSetTime && !timeSetAlready) {
                     parser.clearLastSentenceTime();
                 }
 
-                sentence = parser.parseNmeaSentence(nmeaSentence);
+                res = parser.parseUbxSentence(ubx);
 
                 if (shouldSetTime && !timeSetAlready) {
-                    if (!parser.getLastSentenceTime().isEmpty()) {
+                    if (parser.getLastSentenceTime() != -1) {
                         setSystemTime(parser.getLastSentenceTime());
                         timeSetAlready = true;
                     }
@@ -1462,38 +1617,33 @@ public class USBGpsManager {
 
             } catch (SecurityException e) {
                 if (BuildConfig.DEBUG || debug)
-                    Log.e(LOG_TAG, "error while parsing NMEA sentence: " + nmeaSentence, e);
+                    Log.e(LOG_TAG, "error while parsing NMEA sentence: " + ubx, e);
                 // a priori Mock Location is disabled
-                sentence = null;
                 disable(R.string.msg_mock_location_disabled);
             } catch (Exception e) {
                 if (BuildConfig.DEBUG || debug) {
                     Log.e(LOG_TAG, "Sentence not parsable");
-                    Log.e(LOG_TAG, nmeaSentence);
+                    //Log.e(LOG_TAG, ubx);
                 }
                 e.printStackTrace();
             }
-            final String recognizedSentence = sentence;
+
             final long timestamp = System.currentTimeMillis();
-            if (recognizedSentence != null) {
-                res = true;
-                log("notifying NMEA sentence: " + recognizedSentence);
 
-                ((USBGpsApplication) appContext).notifyNewSentence(
-                        recognizedSentence.replaceAll("(\\r|\\n)", "")
-                );
+//             ((USBGpsApplication) appContext).notifyNewSentence(
+//                     recognizedSentence.replaceAll("(\\r|\\n)", "")
+//             );
 
-                synchronized (nmeaListeners) {
-                    for (final NmeaListener listener : nmeaListeners) {
-                        notificationPool.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.onNmeaReceived(timestamp, recognizedSentence);
-                            }
-                        });
-                    }
-                }
-            }
+             synchronized (nmeaListeners) {
+                 for (final UbxListener listener : nmeaListeners) {
+                     notificationPool.execute(new Runnable() {
+                         @Override
+                         public void run() {
+                             listener.onUbxReceived(ubx.getData());
+                         }
+                     });
+                 }
+             }
         }
         return res;
     }
@@ -1725,6 +1875,36 @@ public class USBGpsManager {
                         }
                         if (extra.contains(USBGpsProviderService.PREF_SIRF_ENABLE_RMC)) {
                             enableNmeaRMC(extra.getBoolean(USBGpsProviderService.PREF_SIRF_ENABLE_RMC, true));
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    public void enableUbxConfig(final SharedPreferences extra) {
+        if (isEnabled()) {
+            notificationPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    while ((enabled) && ((!connected) || (connectedGps == null) || (!connectedGps.isReady()))) {
+                        debugLog("writing thread is not ready");
+                        SystemClock.sleep(500);
+                    }
+                    if (isEnabled() && (connected) && (connectedGps != null) && (connectedGps.isReady())) {
+
+                        int hnr = Integer.parseInt(extra.getString(USBGpsProviderService.PREF_UBX_HNR, "-1"));
+
+                        // 負数以外なら設定変更
+                        if(hnr >= 0) {
+                            UbxData ubx = new UbxCfgHnr(hnr);
+                            connectedGps.write(ubx.getData());
+                        }
+
+                        boolean resetOdo = extra.getBoolean(USBGpsProviderService.PREF_UBX_RESETODO, false);
+                        if(resetOdo) {
+                            UbxData ubx = new UbxNavResetOdo();
+                            connectedGps.write(ubx.getData());
                         }
                     }
                 }

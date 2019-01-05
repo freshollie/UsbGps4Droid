@@ -20,11 +20,13 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.usb.provider.driver;
+package com.microntek.android.gps.usb.provider.driver;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -44,7 +46,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -54,10 +55,10 @@ import android.util.Log;
 import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
 
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
-import org.broeuschmeul.android.gps.usb.provider.R;
-import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
-import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
+import com.microntek.android.gps.usb.provider.BuildConfig;
+import com.microntek.android.gps.usb.provider.R;
+import com.microntek.android.gps.usb.provider.ui.GpsInfoActivity;
+import com.microntek.android.gps.usb.provider.ui.USBGpsSettingsFragment;
 
 /**
  * A Service used to replace Android internal GPS with a USB GPS and/or write GPS NMEA data in a File.
@@ -65,20 +66,20 @@ import org.broeuschmeul.android.gps.usb.provider.ui.USBGpsSettingsFragment;
  * @author Herbert von Broeuschmeul &
  * @author Oliver Bell
  */
-public class USBGpsProviderService extends Service implements USBGpsManager.NmeaListener, LocationListener {
+public class USBGpsProviderService extends Service implements USBGpsManager.UbxListener, LocationListener {
 
     public static final String ACTION_START_TRACK_RECORDING =
-            "org.broeuschmeul.android.gps.usb.provider.action.START_TRACK_RECORDING";
+            "com.microntek.android.gps.usb.provider.action.START_TRACK_RECORDING";
     public static final String ACTION_STOP_TRACK_RECORDING =
-            "org.broeuschmeul.android.gps.usb.provider.action.STOP_TRACK_RECORDING";
+            "com.microntek.android.gps.usb.provider.action.STOP_TRACK_RECORDING";
     public static final String ACTION_START_GPS_PROVIDER =
-            "org.broeuschmeul.android.gps.usb.provider.action.START_GPS_PROVIDER";
+            "com.microntek.android.gps.usb.provider.action.START_GPS_PROVIDER";
     public static final String ACTION_STOP_GPS_PROVIDER =
-            "org.broeuschmeul.android.gps.usb.provider.action.STOP_GPS_PROVIDER";
+            "com.microntek.android.gps.usb.provider.action.STOP_GPS_PROVIDER";
     public static final String ACTION_CONFIGURE_SIRF_GPS =
-            "org.broeuschmeul.android.gps.usb.provider.action.CONFIGURE_SIRF_GPS";
+            "com.microntek.android.gps.usb.provider.action.CONFIGURE_SIRF_GPS";
     public static final String ACTION_ENABLE_SIRF_GPS =
-            "org.broeuschmeul.android.gps.usb.provider.action.ENABLE_SIRF_GPS";
+            "com.microntek.android.gps.usb.provider.action.ENABLE_SIRF_GPS";
 
     public static final String PREF_START_GPS_PROVIDER = "startGps";
     public static final String PREF_START_ON_BOOT = "startOnBoot";
@@ -97,6 +98,8 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     public static final String PREF_TOAST_LOGGING = "showToasts";
     public static final String PREF_SET_TIME = "setTime";
     public static final String PREF_ABOUT = "about";
+    public static final String PREF_USE_HNR = "ubxHNR";
+    public static final String PREF_USE_SPEED = "useSpeed";
 
     /**
      * Tag used for log messages
@@ -115,12 +118,19 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
     public static final String PREF_SIRF_ENABLE_STATIC_NAVIGATION = "enableStaticNavigation";
 
+    public static final String PREF_UBX_HNR = "highNavRate";
+    public static final String PREF_UBX_RESETODO = "resetOdo";
+
     private USBGpsManager gpsManager = null;
-    private PrintWriter writer;
+//    private PrintWriter writer;
+    private FileOutputStream writer;
     private File trackFile;
     private boolean preludeWritten = false;
 
     private boolean debugToasts = false;
+
+    //private NotificationManager mNoticeManager;
+    //private Notification.Builder mNoticeBuilder;
 
     /**
      * Will start the service if set so in settings when the device boots
@@ -134,16 +144,20 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
 
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) &&
                     sharedPreferences.getBoolean(PREF_START_ON_BOOT, false))  {
-                new Handler(context.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Boot start");
-                        context.startService(
-                                new Intent(context, USBGpsProviderService.class)
-                                        .setAction(ACTION_START_GPS_PROVIDER)
-                        );
-                    }
-                }, 2000);
+//                new Handler(context.getMainLooper()).postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Boot start");
+//                        context.startService(
+//                                new Intent(context, USBGpsProviderService.class)
+//                                        .setAction(ACTION_START_GPS_PROVIDER)
+//                        );
+//                    }
+//                }, 2000);
+                context.startService(
+                        new Intent(context, USBGpsProviderService.class)
+                                .setAction(ACTION_START_GPS_PROVIDER)
+                );
             }
         }
     }
@@ -213,6 +227,16 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
                             .setContentTitle(getString(R.string.foreground_service_started_notification_title))
                             .setContentText(getString(R.string.foreground_gps_provider_started_notification))
                             .build();
+//                    mNoticeBuilder = new Notification.Builder(this);
+//
+//                    mNoticeBuilder.setOngoing(true);
+//                    mNoticeBuilder.setContentIntent(launchIntent);
+//                    mNoticeBuilder.setSmallIcon(R.drawable.ic_stat_notify);
+//                    mNoticeBuilder.setContentTitle(getString(R.string.foreground_service_started_notification_title));
+//                    mNoticeBuilder.setContentText(getString(R.string.foreground_gps_provider_started_notification));
+//
+//                    mNoticeManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+//                    mNoticeManager.notify(0, mNoticeBuilder.build());
 
                     startForeground(R.string.foreground_gps_provider_started_notification, notification);
 
@@ -349,7 +373,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
 
     private void beginTrack() {
         @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat fmt = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss'.nmea'");
+        SimpleDateFormat fmt = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss'.ubx'");
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String trackDirName = sharedPreferences.getString(PREF_TRACK_FILE_DIR, this.getString(R.string.defaultTrackFileDirectory));
@@ -361,7 +385,8 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
             if ((!trackDir.mkdirs()) && (!trackDir.isDirectory())) {
                 Log.e(LOG_TAG, "Error while creating parent dir of NMEA file: " + trackDir.getAbsolutePath());
             }
-            writer = new PrintWriter(new BufferedWriter(new FileWriter(trackFile)));
+//            writer = new PrintWriter(new BufferedWriter(new FileWriter(trackFile)));
+            writer = new FileOutputStream(trackFile);
             preludeWritten = true;
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error while writing the prelude of the NMEA file: " + trackFile.getAbsolutePath(), e);
@@ -374,18 +399,26 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
         if (trackFile != null && writer != null) {
             log("Ending the NMEA file: " + trackFile.getAbsolutePath());
             preludeWritten = false;
-            writer.close();
+            try {
+                writer.close();
+            }catch (IOException e) {
+                log("IOException: " + trackFile.getAbsolutePath());
+            }
             trackFile = null;
         }
     }
 
-    private void addNMEAString(String data) {
+    private void addUbxLog(byte[] data) {
         if (!preludeWritten) {
             beginTrack();
         }
-        log("Adding data in the NMEA file: " + data);
+        //log("Adding data in the NMEA file: " + data);
         if (trackFile != null && writer != null) {
-            writer.print(data);
+            try {
+                writer.write(data);
+            }catch (IOException e) {
+                log("IOException: " + data);
+            }
         }
     }
 
@@ -420,8 +453,8 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     }
 
     @Override
-    public void onNmeaReceived(long timestamp, String data) {
-        addNMEAString(data);
+    public void onUbxReceived(byte[] data) {
+        addUbxLog(data);
     }
 
     private void log(String message) {

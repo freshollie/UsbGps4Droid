@@ -19,7 +19,7 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.sirf.util;
+package com.microntek.android.gps.sirf.util;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

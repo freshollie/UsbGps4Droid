@@ -20,7 +20,7 @@
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.broeuschmeul.android.gps.usb.provider.ui;
+package com.microntek.android.gps.usb.provider.ui;
 
 import java.util.HashMap;
 
@@ -50,10 +50,10 @@ import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
-import org.broeuschmeul.android.gps.usb.provider.R;
-import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
-import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
+import com.microntek.android.gps.usb.provider.BuildConfig;
+import com.microntek.android.gps.usb.provider.R;
+import com.microntek.android.gps.usb.provider.driver.USBGpsProviderService;
+import com.microntek.android.gps.usb.provider.util.SuperuserManager;
 
 /**
  * A Preference Fragment Class used to configure the provider
@@ -177,16 +177,16 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
                     }
                 });
 
-        findPreference(getString(R.string.pref_sirf_screen_key))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (callback != null) {
-                            callback.onNestedScreenClicked(new SirfPreferences());
-                        }
-                        return false;
-                    }
-                });
+//        findPreference(getString(R.string.pref_sirf_screen_key))
+//                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+//                    @Override
+//                    public boolean onPreferenceClick(Preference preference) {
+//                        if (callback != null) {
+//                            callback.onNestedScreenClicked(new SirfPreferences());
+//                        }
+//                        return false;
+//                    }
+//                });
 
         findPreference(getString(R.string.pref_recording_screen_key))
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
