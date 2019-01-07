@@ -188,7 +188,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
                 int odo1 = location.getExtras().getInt(UbxData.DISTANCE1_STATUS_KEY);
                 if(odo1 > 0) {
-                    double val = (double) (1100 / 1000.0);
+                    double val = (double) (odo1 / 1000.0);
                     odoValue1 = String.format("%1$.1f", val);
                 }
 
