@@ -7,7 +7,7 @@
 [Download latest release](../../releases)
 
 ## 変更点
-・パッケージ名をcom.microntek.*に変更
+・パッケージ名をcom.microntek.*に変更  
   MTCManagerによるキル対策
 
 ・NMEAを読込む機能を廃止して、UBXを読込んで疑似ロケーションに反映するように変更
@@ -50,5 +50,7 @@
 ・NEO-M8U側はUBXのみ出力するように変更することを推奨します。  
 ・UBX-NAV-ODOはデフォルトでは無効になっているのでODOメータの表示が必要な場合は有効化してください。  
 ・NEO-M8U向けですが、U-bloxのM8シリーズなら使えるはずです。  
-
+・USBの権限確認ダイアログは以下を参考にすると回避可能  
+https://stackoverflow.com/questions/13726583/bypass-android-usb-host-permission-confirmation-dialog/30563253#30563253  
+中華ナビのOreo機でSystemUI.apkを書き換える場合は、Malysk氏のカスタムロムを適用するとvdex、odexを気にしなくて良くなるので楽です。  
 `GPL v3`
