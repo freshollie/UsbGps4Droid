@@ -53,3 +53,4 @@ freeline_project_description.json
 
 app/release/
 
+*.bak
