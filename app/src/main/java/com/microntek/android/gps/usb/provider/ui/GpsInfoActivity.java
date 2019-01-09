@@ -164,7 +164,10 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         }
 
         if (location != null) {
-            accuracyValue = String.format("%1$.3fm", location.getAccuracy());
+
+            if(location.hasAccuracy())
+                accuracyValue = String.format("%1$.3fm", location.getAccuracy());
+
             if (location.getExtras() != null) {
                 numSatellitesValue = String.valueOf(location.getExtras().getInt(UbxData.SATELLITE_KEY));
                 switch (location.getExtras().getInt(UbxData.FIX_STATUS_KEY)) {
@@ -202,10 +205,15 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
                 }
 
             }
+
             lat = String.format("%1$.5f", location.getLatitude());
             lon = String.format("%1$.5f", location.getLongitude());
-            elevation = String.format("%1$.3fm", location.getAltitude());
-            course = String.format("%1$.3f°", location.getBearing());
+
+            if(location.hasAltitude())
+                elevation = String.format("%1$.3fm", location.getAltitude());
+
+            if(location.hasBearing())
+                course = String.format("%1$.3f°", location.getBearing());
 
             gpsTime = sdf.format(new Date(location.getTime()));
 
