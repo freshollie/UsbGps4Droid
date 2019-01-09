@@ -100,6 +100,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
     public static final String PREF_ABOUT = "about";
     public static final String PREF_USE_HNR = "ubxHNR";
     public static final String PREF_USE_SPEED = "useSpeed";
+    public static final String PREF_USE_ACCURACY = "useAccuracy";
 
     /**
      * Tag used for log messages

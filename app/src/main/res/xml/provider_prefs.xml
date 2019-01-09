@@ -26,7 +26,7 @@
         android:key="@string/pref_connection_retries_key"
         android:summary="@string/pref_connection_retries_summary"
         android:title="@string/pref_connection_retries_title" />
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:disableDependentsState="false"
         android:enabled="true"
@@ -34,4 +34,12 @@
         android:persistent="true"
         android:summary="@string/pref_use_speed_summary"
         android:title="@string/pref_use_speed_title" />
+    <SwitchPreference
+        android:defaultValue="true"
+        android:disableDependentsState="false"
+        android:enabled="true"
+        android:key="@string/pref_use_accuracy_key"
+        android:persistent="true"
+        android:summary="@string/pref_use_accuracy_summary"
+        android:title="@string/pref_use_accuracy_title" />
 </PreferenceScreen>

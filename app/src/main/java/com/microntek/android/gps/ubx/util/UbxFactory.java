@@ -10,6 +10,7 @@ import com.microntek.android.gps.usb.provider.driver.USBGpsProviderService;
 public class UbxFactory {
     private boolean enableHNR = false;
     private boolean enableSpeedParam = false;
+    private boolean enableAccuracyParam = false;
     private Context context = null;
 
     public UbxFactory(Context context) {
@@ -17,6 +18,7 @@ public class UbxFactory {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         enableHNR = preferences.getBoolean(USBGpsProviderService.PREF_USE_HNR, false);
         enableSpeedParam = preferences.getBoolean(USBGpsProviderService.PREF_USE_SPEED, true);
+        enableAccuracyParam = preferences.getBoolean(USBGpsProviderService.PREF_USE_ACCURACY, true);
     }
 
     // byte配列を各UBXに変換
@@ -28,13 +30,13 @@ public class UbxFactory {
             case 0x28: // UBX-HNR
                 switch (id) {
                     case 0x00: // UBX-HNR-PVT
-                        return new UbxHnrPvt(data, enableHNR, enableSpeedParam);
+                        return new UbxHnrPvt(data, enableHNR, enableSpeedParam, enableAccuracyParam);
                 }
 
             case 0x01: // UBX-NAV
                 switch (id) {
                     case 0x07: //UBX-NAV-PVT
-                        return new UbxNavPvt(data, enableSpeedParam);
+                        return new UbxNavPvt(data, enableSpeedParam, enableAccuracyParam);
                     case 0x09: //UBX-NAV-ODO
                         return new UbxNavOdo(data);
                     case 0x30: //UBX-NAV-SVINFO

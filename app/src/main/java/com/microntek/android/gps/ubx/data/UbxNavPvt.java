@@ -1,6 +1,7 @@
 package com.microntek.android.gps.ubx.data;
 
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 
 import java.text.ParseException;
@@ -15,10 +16,12 @@ public class UbxNavPvt extends UbxData implements Pvt {
     static SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
     private boolean enableSpeedParam = false;
+    private boolean enableAccuracyParam = false;
 
-    public UbxNavPvt(byte[] data, boolean enableSpeedParam) {
+    public UbxNavPvt(byte[] data, boolean enableSpeedParam, boolean enableAccuracyParam) {
         super(data);
         this.enableSpeedParam = enableSpeedParam;
+        this.enableAccuracyParam = enableAccuracyParam;
     }
 
     @Override
@@ -32,6 +35,9 @@ public class UbxNavPvt extends UbxData implements Pvt {
         idx = IDX_LEN + 2 + 21; // flags Offset=21
         byte flags = data[idx];
 
+        idx = IDX_LEN + 2 + 23; // headVeh Offset=23
+        byte useSv = data[idx];
+
         idx = IDX_LEN + 2 + 24; // lon Offset=24
         long lon = byte2hex(data, idx, 4);
 
@@ -41,28 +47,45 @@ public class UbxNavPvt extends UbxData implements Pvt {
         idx = IDX_LEN + 2 + 36; // hMSL Offset=36
         long height = byte2hex(data, idx, 4);
 
+        idx = IDX_LEN + 2 + 40; // hAcc Offset=40
+        long acc = byte2hex(data, idx, 4);
+
+        idx = IDX_LEN + 2 + 44; // vAcc Offset=44
+        long vAcc = byte2hex(data, idx, 4);
+
         idx = IDX_LEN + 2 + 60; // gSpeed Offset=60
         long speed = byte2hex(data, idx, 4);
 
         idx = IDX_LEN + 2 + 64; // headMot Offset=64
         long heading = byte2hex(data, idx, 4);
 
-        idx = IDX_LEN + 2 + 40; // hAcc Offset=40
-        long acc = byte2hex(data, idx, 4);
+        idx = IDX_LEN + 2 + 68; // sAcc Offset=68
+        long speedAcc = byte2hex(data, idx, 4);
 
         idx = IDX_LEN + 2 + 72; // headVeh Offset=72
         long headingAcc = byte2hex(data, idx, 4);
 
-        idx = IDX_LEN + 2 + 23; // headVeh Offset=23
-        byte useSv = data[idx];
+
         fix.setLatitude((double) lat / 10000000);
         fix.setLongitude((double) lon / 10000000);
-        fix.setAccuracy((float) acc / 1000);
+
+        if(enableAccuracyParam)
+            fix.setAccuracy((float) acc / 1000);
         fix.setAltitude((double) height / 1000);
-        if (enableSpeedParam)
+
+        if(enableSpeedParam) {
             fix.setSpeed((float) speed / 1000);
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && enableAccuracyParam) {
+                fix.setSpeedAccuracyMetersPerSecond((float)speedAcc / 1000);
+            }
+        }
         fix.setBearing((float) heading / 100000);
-        //fix.setBearingAccuracyDegrees(headingAcc/100000);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && enableAccuracyParam) {
+            fix.setVerticalAccuracyMeters((float)vAcc / 1000);
+            fix.setBearingAccuracyDegrees((float)headingAcc / 100000);
+        }
 
         Bundle bundle = fix.getExtras();
         bundle.putInt(SATELLITE_KEY, (int) useSv);

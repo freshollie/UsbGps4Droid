@@ -2,6 +2,7 @@ package com.microntek.android.gps.ubx.data;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 
 import java.text.ParseException;
@@ -17,16 +18,18 @@ public class UbxHnrPvt extends UbxData implements Pvt {
 
     private boolean enableHNR = false;
     private boolean enableSpeedParam = false;
+    private boolean enableAccuracyParam = false;
 
-    public UbxHnrPvt(byte[] data, boolean enableHNR, boolean enableSpeedParam) {
+    public UbxHnrPvt(byte[] data, boolean enableHNR, boolean enableSpeedParam, boolean enableAccuracyParam) {
         super(data);
         this.enableHNR = enableHNR;
         this.enableSpeedParam = enableSpeedParam;
+        this.enableAccuracyParam = enableAccuracyParam;
     }
 
     @Override
     public boolean parse(Location fix) {
-        if(enableHNR == false)
+        if (enableHNR == false)
             return false;
 
         int idx = IDX_LEN + 2 + 0; // iTOW Offset=0
@@ -56,17 +59,35 @@ public class UbxHnrPvt extends UbxData implements Pvt {
         idx = IDX_LEN + 2 + 52; // hAcc Offset=52
         long acc = byte2hex(data, idx, 4);
 
-        //idx = IDX_LEN + 2 + 64; // headVeh Offset=64
-        //long headingAcc = byte2hex(data, idx, 4);
+        idx = IDX_LEN + 2 + 56; // cAcc Offset=56
+        long vAcc = byte2hex(data, idx, 4);
+
+        idx = IDX_LEN + 2 + 60; // sAcc Offset=60
+        long speedAcc = byte2hex(data, idx, 4);
+
+        idx = IDX_LEN + 2 + 64; // headVeh Offset=64
+        long headingAcc = byte2hex(data, idx, 4);
 
         fix.setLatitude((double) lat / 10000000);
         fix.setLongitude((double) lon / 10000000);
-        fix.setAccuracy((float) acc / 1000);
+
+        if(enableAccuracyParam)
+            fix.setAccuracy((float) acc / 1000);
         fix.setAltitude((double) height / 1000);
-        if (enableSpeedParam)
+
+        if(enableSpeedParam) {
             fix.setSpeed((float) speed / 1000);
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && enableAccuracyParam) {
+                fix.setSpeedAccuracyMetersPerSecond((float)speedAcc / 1000);
+            }
+        }
         fix.setBearing((float) heading / 100000);
-        //fix.setBearingAccuracyDegrees(headingAcc/100000);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && enableAccuracyParam) {
+            fix.setVerticalAccuracyMeters((float)vAcc / 1000);
+            fix.setBearingAccuracyDegrees((float)headingAcc / 100000);
+        }
 
         Bundle bundle = fix.getExtras();
         bundle.putInt(FIX_STATUS_KEY, (int) status);

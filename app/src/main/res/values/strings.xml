@@ -93,6 +93,8 @@
     <string name="pref_ubx_hnr_summary">Use HighNavigationRate(only:u-blox M8U/M8L)</string>
     <string name="pref_use_speed_title">Use Ground Speed (2-D)</string>
     <string name="pref_use_speed_summary">For some navigation software. Ex)Yahoo! car navigation system.</string>
+    <string name="pref_use_accuracy_title">Use Accuracy(horizontal/vertical/speed/bearing)</string>
+    <string name="pref_use_accuracy_summary">For some navigation software. Ex)Google Maps.</string>
     <string name="pref_ubx_cfg_hnr_title">config UBX-CFG-HNR</string>
     <string name="pref_ubx_cfg_hnr_summary">Set HighNavRateValue.(Max:30 Disable:-1)</string>
     <string name="pref_ubx_cfg_hnr_key">highNavRate</string>

@@ -64,6 +64,8 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView timeText;
     // ScrollView logTextScroller;
 
+    private SimpleDateFormat sdf = null;
+
     private LinearLayout svinfoLayout;
 
     @Override
@@ -118,6 +120,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
         svinfoLayout = (LinearLayout) findViewById(R.id.svinfo_layout);
 
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
 //        logText = (TextView) findViewById(R.id.log_box);
 //        logTextScroller = (ScrollView) findViewById(R.id.log_box_scroller);
     }
@@ -199,17 +202,14 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
                 }
 
             }
-            DecimalFormat df = new DecimalFormat("#.#####");
-            lat = df.format(location.getLatitude());
-            lon = df.format(location.getLongitude());
+            lat = String.format("%1$.5f", location.getLatitude());
+            lon = String.format("%1$.5f", location.getLongitude());
             elevation = String.format("%1$.3fm", location.getAltitude());
             course = String.format("%1$.3f°", location.getBearing());
 
-            gpsTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
-                    .format(new Date(location.getTime()));
+            gpsTime = sdf.format(new Date(location.getTime()));
 
-            systemTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
-                    .format(new Date(location.getExtras().getLong(UbxParser.SYSTEM_TIME_FIX)));
+            systemTime = sdf.format(new Date(location.getExtras().getLong(UbxParser.SYSTEM_TIME_FIX)));
         }
 
         numSatellites.setText(getString(R.string.number_of_satellites_placeholder, numSatellitesValue));
