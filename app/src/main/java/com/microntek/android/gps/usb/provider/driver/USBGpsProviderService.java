@@ -340,7 +340,6 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
                         edit.putBoolean(PREF_TRACK_RECORDING, true);
                         edit.apply();
                     }
-
                     showToast(R.string.msg_nmea_recording_started);
 
                 } else {

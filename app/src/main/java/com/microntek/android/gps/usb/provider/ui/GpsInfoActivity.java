@@ -64,8 +64,6 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView timeText;
     // ScrollView logTextScroller;
 
-    private SimpleDateFormat sdf = null;
-
     private LinearLayout svinfoLayout;
 
     @Override
@@ -120,7 +118,6 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
         svinfoLayout = (LinearLayout) findViewById(R.id.svinfo_layout);
 
-        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
 //        logText = (TextView) findViewById(R.id.log_box);
 //        logTextScroller = (ScrollView) findViewById(R.id.log_box_scroller);
     }
@@ -215,8 +212,8 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             if(location.hasBearing())
                 course = String.format("%1$.3f°", location.getBearing());
 
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
             gpsTime = sdf.format(new Date(location.getTime()));
-
             systemTime = sdf.format(new Date(location.getExtras().getLong(UbxParser.SYSTEM_TIME_FIX)));
         }
 
@@ -319,6 +316,8 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         updateData();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         ((USBGpsApplication) getApplication()).registerServiceDataListener(this);
+        // 設定画面で変更した情報がアクションバーに反映されないのでメニューを再構築
+        invalidateOptionsMenu();
         super.onResume();
     }
 
@@ -334,6 +333,13 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         if (!isDoublePanel()) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.menu_main, menu);
+
+            MenuItem menuRec = menu.findItem(R.id.action_rec);
+            if(!sharedPreferences.getBoolean(USBGpsProviderService.PREF_TRACK_RECORDING, false)) {
+                menuRec.setIcon(R.drawable.ic_rec);
+            } else {
+                menuRec.setIcon(R.drawable.ic_pause);
+            }
         }
         return true;
     }
@@ -343,6 +349,14 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         switch (item.getItemId()) {
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_rec:
+                // インテントの発行ではなく設定変更して、リスナーから検出させる
+                SharedPreferences.Editor edit = sharedPreferences.edit();
+                boolean enable = (!sharedPreferences.getBoolean(USBGpsProviderService.PREF_TRACK_RECORDING, false));
+                edit.putBoolean(USBGpsProviderService.PREF_TRACK_RECORDING, enable);
+                edit.apply();
+
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -368,6 +382,8 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(USBGpsProviderService.PREF_START_GPS_PROVIDER)) {
             updateData();
+        } else if (key.equals(USBGpsProviderService.PREF_TRACK_RECORDING)) {
+            invalidateOptionsMenu();
         }
 
         super.onSharedPreferenceChanged(sharedPreferences, key);

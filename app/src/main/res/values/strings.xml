@@ -199,6 +199,7 @@
     <string name="error_location_permission_required">Location permission is required for UsbGps to function</string>
     <string name="error_storage_permission_required">In order to write a track file, the app needs storage permission</string>
     <string name="settings_button_title">Settings</string>
+    <string name="rec_button_title">Record Log</string>
     <string name="pref_start_on_boot_summary">If enabled, the USB GPS service will be automatically started on boot</string>
     <string name="pref_set_time_summary">Set the system time from the received GPS time</string>
     <string name="pref_daynight_theme_title">Automatic day-night app theme</string>
