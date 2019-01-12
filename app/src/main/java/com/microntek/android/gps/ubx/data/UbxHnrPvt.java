@@ -73,6 +73,8 @@ public class UbxHnrPvt extends UbxData implements Pvt {
 
         if(enableAccuracyParam)
             fix.setAccuracy((float) acc / 1000);
+        else
+            fix.setAccuracy((float) 1);
         fix.setAltitude((double) height / 1000);
 
         if(enableSpeedParam) {
