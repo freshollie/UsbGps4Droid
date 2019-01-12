@@ -23,6 +23,7 @@
 package com.microntek.android.gps.usb.provider.driver;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -160,6 +161,7 @@ public class USBGpsManager {
         private UsbEndpoint endpointOut;
         private final UsbDeviceConnection connection;
         private boolean closed = false;
+        private boolean isDebugMode = false;
         /**
          * GPS InputStream from which we read data.
          */
@@ -494,6 +496,17 @@ public class USBGpsManager {
                     Log.e(LOG_TAG, "error while getting usb output streams", e);
             }
 
+            // debug ログフォルダにdebug.ubxが在ればUSBではなくファイルから読込み
+            isDebugMode = false;
+            File dbgFile = new File(sharedPreferences.getString(USBGpsProviderService.PREF_TRACK_FILE_DIR, ""), "debug.ubx");
+            if(dbgFile.exists()) {
+                try {
+                    tmpIn = new FileInputStream(dbgFile);
+                    isDebugMode = true;
+                }catch(Exception e){
+
+                }
+            }
             in = tmpIn;
             out = tmpOut;
             out2 = tmpOut2;
@@ -642,6 +655,8 @@ public class USBGpsManager {
                 UbxFactory factory = new UbxFactory(appContext);
                 int buffPos = -1;
 
+                long prevItow = 0;
+
                 long now = SystemClock.uptimeMillis();
 
                 // we will wait more at the beginning of the connection
@@ -719,6 +734,19 @@ public class USBGpsManager {
 //                                    }
                                     ubx = factory.createUbx(Arrays.copyOf(ubxBuff, buffPos + 1));
                                     log("data: " + ubx.getClass().getName());
+
+                                    // ファイルからの読み込みの場合は前回のiTowからの経過時間まで待機
+                                    if(isDebugMode) {
+
+                                        long itow = ubx.getITow();
+                                        if(itow > 0) {
+                                            long sleeptime = itow - prevItow;
+                                            prevItow = itow;
+
+                                            //sleep(sleeptime);
+                                            sleep(10);
+                                        }
+                                    }
                                     break;
                                 } else {
                                     // UBXではないので読み飛ばし
