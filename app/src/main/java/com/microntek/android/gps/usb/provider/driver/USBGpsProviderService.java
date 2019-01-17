@@ -83,6 +83,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
 
     public static final String PREF_START_GPS_PROVIDER = "startGps";
     public static final String PREF_START_ON_BOOT = "startOnBoot";
+    public static final String PREF_START_ON_SCREEN_ON = "startOnScreenOn";
     public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
     public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
     public static final String PREF_FORCE_ENABLE_PROVIDER = "forceEnableProvider";
@@ -137,6 +138,9 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
      * Will start the service if set so in settings when the device boots
      */
     public static class BootReceiver extends BroadcastReceiver {
+        static private long lastProcTime = 0;
+        static private Object lock = new Object();
+
         @Override
         public void onReceive(final Context context, Intent intent) {
             SharedPreferences sharedPreferences =
@@ -144,7 +148,10 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
             if (BuildConfig.DEBUG) Log.d(LOG_TAG, intent.getAction());
 
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) &&
-                    sharedPreferences.getBoolean(PREF_START_ON_BOOT, false))  {
+                    sharedPreferences.getBoolean(PREF_START_ON_BOOT, false) ||
+                intent.getAction().equals(Intent.ACTION_SCREEN_ON) &&
+                    sharedPreferences.getBoolean(PREF_START_ON_SCREEN_ON, false))  {
+                long time = System.currentTimeMillis();
 //                new Handler(context.getMainLooper()).postDelayed(new Runnable() {
 //                    @Override
 //                    public void run() {
@@ -155,10 +162,15 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
 //                        );
 //                    }
 //                }, 2000);
-                context.startService(
-                        new Intent(context, USBGpsProviderService.class)
-                                .setAction(ACTION_START_GPS_PROVIDER)
-                );
+                // 直近60秒以内に処理指定無い場合のみ実行
+                synchronized (lock) {
+                    if (time - lastProcTime > 60000) {
+                        Intent intent2 = new Intent(context, USBGpsProviderService.class);
+                        intent2.setAction(ACTION_START_GPS_PROVIDER);
+                        context.startService(intent2);
+                        lastProcTime = time;
+                    }
+                }
             }
         }
     }

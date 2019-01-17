@@ -62,6 +62,12 @@
         android:summary="@string/pref_start_on_boot_summary"
         android:title="@string/pref_start_on_boot_title"
         />
+    <CheckBoxPreference
+        android:key="@string/pref_start_on_screenOn_key"
+        android:defaultValue="false"
+        android:summary="@string/pref_start_on_screenOn_summary"
+        android:title="@string/pref_start_on_screenOn_title"
+        />
     <Preference
         android:dependency="@string/pref_start_gps_key"
         android:key="@string/pref_gps_location_provider_key"
