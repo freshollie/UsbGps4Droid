@@ -180,6 +180,7 @@
     <string name="pref_start_on_boot_summary_off">Usb Gps service will not try and start when android starts</string>
     <string name="pref_start_on_boot_title">Start service on boot</string>
     <string name="pref_start_on_screenOn_title">Start service on wakeup</string>
+    <string name="pref_start_delay_title">Start service delay</string>
 
     <string name="pref_category_device_title">Device</string>
     <string name="pref_category_service_title">Service</string>
@@ -203,6 +204,7 @@
     <string name="rec_button_title">Record Log</string>
     <string name="pref_start_on_boot_summary">If enabled, the USB GPS service will be automatically started on BOOT_COMPLETE</string>
     <string name="pref_start_on_screenOn_summary">If enabled, the USB GPS service will be automatically started on SCREEN_ON(For Android Head Unit)</string>
+    <string name="pref_start_delay_summary">Startup delay time(ms)</string>
     <string name="pref_set_time_summary">Set the system time from the received GPS time</string>
     <string name="pref_daynight_theme_title">Automatic day-night app theme</string>
     <string name="pref_daynight_theme_summary">Show light theme during daytime and dark theme at night</string>

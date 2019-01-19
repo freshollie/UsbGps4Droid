@@ -68,6 +68,12 @@
         android:summary="@string/pref_start_on_screenOn_summary"
         android:title="@string/pref_start_on_screenOn_title"
         />
+    <EditTextPreference
+        android:key="@string/pref_start_delay_key"
+        android:title="@string/pref_start_delay_title"
+        android:summary="@string/pref_start_delay_summary"
+        android:defaultValue="10000"
+        />
     <Preference
         android:dependency="@string/pref_start_gps_key"
         android:key="@string/pref_gps_location_provider_key"

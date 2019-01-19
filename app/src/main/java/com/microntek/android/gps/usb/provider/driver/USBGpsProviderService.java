@@ -84,6 +84,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
     public static final String PREF_START_GPS_PROVIDER = "startGps";
     public static final String PREF_START_ON_BOOT = "startOnBoot";
     public static final String PREF_START_ON_SCREEN_ON = "startOnScreenOn";
+    public static final String PREF_START_DELAY = "startUpDelay";
     public static final String PREF_GPS_LOCATION_PROVIDER = "gpsLocationProviderKey";
     public static final String PREF_REPLACE_STD_GPS = "replaceStdtGps";
     public static final String PREF_FORCE_ENABLE_PROVIDER = "forceEnableProvider";
@@ -151,24 +152,41 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
                     sharedPreferences.getBoolean(PREF_START_ON_BOOT, false) ||
                 intent.getAction().equals(Intent.ACTION_SCREEN_ON) &&
                     sharedPreferences.getBoolean(PREF_START_ON_SCREEN_ON, false))  {
-                long time = System.currentTimeMillis();
-//                new Handler(context.getMainLooper()).postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Boot start");
-//                        context.startService(
-//                                new Intent(context, USBGpsProviderService.class)
-//                                        .setAction(ACTION_START_GPS_PROVIDER)
-//                        );
-//                    }
-//                }, 2000);
-                // 直近60秒以内に処理指定無い場合のみ実行
+
+                // 直近60秒以内に処理していない場合のみ実行
                 synchronized (lock) {
+                    long time = System.currentTimeMillis();
+
                     if (time - lastProcTime > 60000) {
+
+                        lastProcTime = time;
+                        int delay = 0;
+                        try {
+                            delay = Integer.parseInt(sharedPreferences.getString(PREF_START_DELAY, "10000"));
+                        }
+                        catch (Exception e) {
+                            delay = 10000;
+                        }
+
+//                        new Handler(context.getMainLooper()).postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Boot start");
+//                                Intent intent2 = new Intent(context, USBGpsProviderService.class);
+//                                intent2.setAction(ACTION_START_GPS_PROVIDER);
+//                                context.startService(intent2);
+//                            }
+//                        }, delay);
+                        // postDelayedはディレイ時間が長いと動作しない？
+                        try {
+                            Thread.sleep(delay);
+                        } catch (InterruptedException e) {
+
+                        }
+                        if (BuildConfig.DEBUG) Log.d(LOG_TAG, "Boot start");
                         Intent intent2 = new Intent(context, USBGpsProviderService.class);
                         intent2.setAction(ACTION_START_GPS_PROVIDER);
                         context.startService(intent2);
-                        lastProcTime = time;
                     }
                 }
             }
@@ -262,11 +280,11 @@ public class USBGpsProviderService extends Service implements USBGpsManager.UbxL
                     stopSelf();
                 }
 
-            } else {
-                // We received a start intent even though it's already running so restart
-                stopSelf();
-                startService(new Intent(this, USBGpsProviderService.class)
-                        .setAction(intent.getAction()));
+//            } else {
+//                // We received a start intent even though it's already running so restart
+//                stopSelf();
+//                startService(new Intent(this, USBGpsProviderService.class)
+//                        .setAction(intent.getAction()));
             }
 
         } else if (ACTION_START_TRACK_RECORDING.equals(intent.getAction())) {

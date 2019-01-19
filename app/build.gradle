@@ -7,7 +7,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 23
         versionCode 5
-        versionName 'm8u_v1.0.4'
+        versionName 'm8u_v1.0.5'
         vectorDrawables.useSupportLibrary = true
         setProperty("archivesBaseName", "UsbGps4Droid-$versionName")
         versionNameSuffix '_190119'
