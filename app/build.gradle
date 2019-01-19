@@ -6,11 +6,11 @@ android {
         applicationId 'com.microntek.android.gps.usb.provider'
         minSdkVersion 23
         targetSdkVersion 23
-        versionCode 4
-        versionName 'm8u_v1.0.3'
+        versionCode 5
+        versionName 'm8u_v1.0.4'
         vectorDrawables.useSupportLibrary = true
         setProperty("archivesBaseName", "UsbGps4Droid-$versionName")
-        versionNameSuffix '_190112'
+        versionNameSuffix '_190119'
     }
 
     applicationVariants.all { variant ->
