@@ -33,6 +33,8 @@ import java.util.Date;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 
@@ -44,7 +46,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.GpsStatus.NmeaListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -115,12 +117,16 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     public static final String PREF_SIRF_ENABLE_NMEA = "enableNMEA";
     public static final String PREF_SIRF_ENABLE_STATIC_NAVIGATION = "enableStaticNavigation";
 
+    private static final String NOTIFICATION_CHANNEL_ID = "service_notification";
+
     private USBGpsManager gpsManager = null;
     private PrintWriter writer;
     private File trackFile;
     private boolean preludeWritten = false;
 
     private boolean debugToasts = false;
+
+    private NotificationManager notificationManager;
 
     /**
      * Will start the service if set so in settings when the device boots
@@ -151,6 +157,7 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
     @Override
     public void onCreate() {
         super.onCreate();
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Override
@@ -206,7 +213,22 @@ public class USBGpsProviderService extends Service implements USBGpsManager.Nmea
                             )
                             .apply();
 
-                    Notification notification = new NotificationCompat.Builder(this)
+                    NotificationCompat.Builder builder;
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        notificationManager.createNotificationChannel(
+                                new NotificationChannel(
+                                        NOTIFICATION_CHANNEL_ID,
+                                        getString(R.string.app_name),
+                                        NotificationManager.IMPORTANCE_HIGH
+                                )
+                        );
+                        builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+                    } else {
+                        builder = new NotificationCompat.Builder(this, "");
+                    }
+
+                    Notification notification = builder
                             .setContentIntent(launchIntent)
                             .setSmallIcon(R.drawable.ic_stat_notify)
                             .setAutoCancel(true)
