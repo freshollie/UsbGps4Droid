@@ -52,4 +52,4 @@ freeline/
 freeline_project_description.json
 
 app/release/
-
+.DS_Store
