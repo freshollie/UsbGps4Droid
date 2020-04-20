@@ -1,7 +1,4 @@
-UsbGps4Droid is a USB GPS provider for the Android operating system, providing GPS support for devices running Android 4.0 and above.
-
-The application provides location updates to Android which allows devices without an internal GPS to still use applications which require GPS (such as OSMAnd, Google Maps and log tracking software).
-
-I use this USB Gps with my Android Tablet Headunit, because the internal GPS does not work reliably. I have a main controller which automatically starts this application's background service when my car starts
-
-The application is designed to work with any SiRF USB GPS device, however it has been tested as working with GlobalSat BU-353-S4 and a device based on the UBLOX LEA-M8P chip.
+<p><i>UsbGps4Droid</i> is a USB GPS provider for the Android operating system, providing GPS support for devices running Android 4.0 and above.</p>
+<p>The application provides location updates to Android which allows devices without an internal GPS to still use applications which require GPS (such as OSMAnd, Google Maps and log tracking software).</p>
+<p>I use this USB GPS with my Android Tablet Headunit, because the internal GPS does not work reliably. I have a main controller which automatically starts this application's background service when my car starts.</p>
+<p>The application is designed to work with any SiRF USB GPS device, however it has been tested as working with GlobalSat BU-353-S4 and a device based on the UBLOX LEA-M8P chip.</p>
