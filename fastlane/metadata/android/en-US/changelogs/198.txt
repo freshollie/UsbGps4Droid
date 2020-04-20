@@ -1,0 +1,2 @@
+Fixes #16 by making the app work on android 8+
+Inclusion in F-Droid

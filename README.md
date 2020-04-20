@@ -85,22 +85,22 @@ Any contributions welcome. Please fork this repository and create a pull request
 
 ### Landscape tablet
 <p align="center">
-    <img src="screenshots/main_screen_tablet_api_23.png" align="center" alt="Main interface marshmallow" width="800"/>
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/2.png" align="center" alt="Main interface marshmallow" width="800"/>
 </p>
 
 #### Android 3.1 interface
 <p align="center">
-    <img src="screenshots/main_screen_tablet_api16.png" align="center" alt="Main interface honeycomb" width="800"/>
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/3.png" align="center" alt="Main interface honeycomb" width="800"/>
 </p>
 
 ### Portrait
 <p align="center">
-    <img src="screenshots/main_screen_tablet_portrait_api_23.png" align="center" alt="Main interface portait" width="400"/>
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/1.png" align="center" alt="Main interface portait" width="400"/>
 </p>
 
 ### Device selection
 <p align="center">
-    <img src="screenshots/options_device_choice.png" align="center" alt="Device choice settings" width="800"/>
+    <img src="fastlane/metadata/android/en-US/images/sevenInchScreenshots/4.png" align="center" alt="Device choice settings" width="800"/>
 </p>
 
 ## Credits
