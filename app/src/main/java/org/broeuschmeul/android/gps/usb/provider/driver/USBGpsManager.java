@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -1413,10 +1414,10 @@ public class USBGpsManager {
         Log.v(LOG_TAG, "What?: " + parseTime);
 
         String timeFormatToybox =
-                new SimpleDateFormat("MMddhhmmyyyy.ss").format(new Date(parseTime));
+                new SimpleDateFormat("MMddHHmmyyyy.ss").format(new Date(parseTime));
 
         String timeFormatToolbox =
-                new SimpleDateFormat("yyyyMMdd.hhmmss").format(new Date(parseTime));
+                new SimpleDateFormat("yyyyMMdd.HHmmss").format(new Date(parseTime));
 
         debugLog("Setting system time to: " + timeFormatToybox);
         SuperuserManager suManager = SuperuserManager.getInstance();
